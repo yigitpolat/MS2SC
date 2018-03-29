@@ -3,9 +3,9 @@ var content = fs.readFileSync("AST.json").toString();
 var myJSon = JSON.parse(content);
 
 
-for(var i = 0; i < myJSon.length; i++) {					//go over function declarations
-    for(var j = 0; j < myJSon[i].body.length; j++){		    //go over function body
-        if(isStatement(myJSon[i].body[j].type)){			//
+for(var i = 0; i < myJSon.length; i++) {               //go over function declarations
+    for(var j = 0; j < myJSon[i].body.length; j++){           //go over function body
+        if(isStatement(myJSon[i].body[j].type)){         //
             var currentBody = myJSon[i].body[j];
             decideStatement(currentBody);
         }
@@ -15,31 +15,82 @@ for(var i = 0; i < myJSon.length; i++) {					//go over function declarations
     }
 }
 
+
+
 function decideStatement(statementBody) {
-    var currentStatement = statementBody.type;			//types -> VariableDeclaration // ...Statement
+    var currentStatement = statementBody.type;       //types -> VariableDeclaration // ...Statement
+
     switch(currentStatement) {
 
+
         case("IfStatement"):
-            if(statementBody.condition.type == "Identifier"){
+            var condtionType = statementBody.condition.type;
+            if(condtionType == "Identifier"){
                 if(statementBody.condition.value == "true"){
                     for (var i = 0; i < statementBody.body.length; i++) {
                         decideStatement(statementBody.body[i]);
                     }
+                }else if(statementBody.condition.value == "false"){
+                    if(isElseExists(statementBody)){
+                        for (var i = 0; i < statementBody.else.length; i++) {
+                            decideStatement(statementBody.else[i]);
+                        }
+                    }else{
+                        break;
+                    }
                 }else{
-                    for (var i = 0; i < statementBody.else.length; i++) {
-                        decideStatement(statementBody.else[i]);
+                    //TODO int x = 1 / if(x)  lookup value
+                }
+
+            }else if(condtionType == "BinaryExpression") {
+                var binaryExpressionResult = calculateBinaryExpression(statementBody.condition);
+                if(binaryExpressionResult != 0){
+                    for (var i = 0; i < statementBody.body.length; i++) {
+                        decideStatement(statementBody.body[i]);
+                    }
+                }else{
+                    if(isElseExists(statementBody)){
+                        for (var i = 0; i < statementBody.else.length; i++) {
+                            decideStatement(statementBody.else[i]);
+                        }
+                    }else{
+                        break;
                     }
                 }
-            }else if("BinaryExpression"){
-                var left = statementBody.left.type;
-                var right = statementBody.right.type;
-                var operator = statementBody.operator;
-                calculate(operator, left, right);
+
+
+            }else if(conditionType == "PrefixExpression"){
+                // if(- + 2){works}
+
+
+
+            }else if(condtionType == "Literal"){
+                if(statementBody.condition.value != 0){
+                    for (var i = 0; i < statementBody.body.length; i++) {
+                        decideStatement(statementBody.body[i]);
+                    }
+                }else{
+                    if(isElseExists(statementBody)){
+                        for (var i = 0; i < statementBody.else.length; i++) {
+                            decideStatement(statementBody.else[i]);
+                        }
+                    }else{
+                        break;
+                    }
+                }
             }
+
+
+
+
 
         case("ExpressionStatement"):
             //TODO
             break;
+
+
+
+
 
         case("ForStatement"):
             if(statementBody.init.type == "VariableDeclaration"){
@@ -86,6 +137,52 @@ function isStatement(stmt){
         return true;
     }
 }
+
+
+function isElseExists(stmtBody){
+    if(typeof stmtBody != 'undefined'){
+        return true;
+    }else{
+        return false;
+    }
+}
+
+
+function calculateBinaryExpression(statementBodyCondition) {
+    var operator = statementBodyCondition.operator;
+    var leftType = statementBodyCondition.left.type;
+    var rightType = statementBodyCondition.right.type;
+    var leftValue;
+    var rightValue;
+
+    if (rightType == "Literal") {
+        leftValue = statementBodyCondition.left.value;
+    } else if (rightType = "Identifier") {
+        //TODO lookup value
+    } else if (rightType == "CallExpression") {
+        //TODO I Dont know
+    }
+    //devamı da olabilir
+
+
+    if (leftType == "Literal") {
+        rightValue = statementBodyCondition.left.value;
+    } else if (leftType = "Identifier") {
+        //TODO lookup value
+    } else if (leftType == "CallExpression") {
+        //TODO I Dont know
+    } else if (leftType == "BinaryExpression") {
+        var newOperator = statementBodyCondition.left.operator;
+        var newLeftValue = calculateBinaryExpression(statementBodyCondition.left);
+        var newRightValue = calculateBinaryExpression(statementBodyCondition.right);
+        return calculate(newOperator, newLeftValue,newRightValue);
+    }
+
+    return calculate(operator, leftValue, rightValue);
+}
+
+
+
 
 function decideExpression(expr) {
     switch(expr) {
