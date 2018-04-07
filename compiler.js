@@ -185,13 +185,19 @@ function calculateBinaryExpression(statementBodyCondition) {
 }
 
 
-function lookup() {
+function lookup(key) {
+    for (let i = 0; i < hashList.length; i++) {
+        hashTable = hashList.get(i);
 
+    }
 }
 
 function addToEnvironment(key, value) {
     hashTable = hashList.get(0);
     hashTable.setItem(key, value);
+    if(hashTable.hasItem(key)) {
+        return hashTable.getItem(key);
+    }
 }
 
 function decideExpression(expr) {
