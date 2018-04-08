@@ -16,23 +16,20 @@ for(let i = 0; i < myJSon.length; i++) {               //go over function declar
     }
 }
 
-
-
 function decideStatement(statementBody) {
-    let i;
-    var currentStatement = statementBody.type;       //types -> VariableDeclaration // ...Statement
-
+    let currentStatement = statementBody.type;       //types -> VariableDeclaration // ...Statement
     switch(currentStatement) {
         case("IfStatement"):
             var conditionType = statementBody.condition.type;
+            //decideExpression
             if(conditionType === "Identifier"){
                 if(statementBody.condition.value === "true"){
-                    for (i = 0; i < statementBody.body.length; i++) {
+                    for (var i = 0; i < statementBody.body.length; i++) {
                         decideStatement(statementBody.body[i]);
                     }
                 }else if(statementBody.condition.value === "false"){
-                    if(isElseExists(statementBody)){
-                        for (i = 0; i < statementBody.else.length; i++) {
+                    if(doesElseExist(statementBody)){
+                        for (var i = 0; i < statementBody.else.length; i++) {
                             decideStatement(statementBody.else[i]);
                         }
                     }else{
@@ -42,14 +39,14 @@ function decideStatement(statementBody) {
                     //TODO int x = 1 / if(x)  lookup value
                 }
 
-            }else if(condtionType === "BinaryExpression") {
+            }else if(conditionType === "BinaryExpression") {
                 var binaryExpressionResult = calculateBinaryExpression(statementBody.condition);
                 if(binaryExpressionResult !== 0){
                     for (i = 0; i < statementBody.body.length; i++) {
                         decideStatement(statementBody.body[i]);
                     }
                 }else{
-                    if(isElseExists(statementBody)){
+                    if(doesElseExist(statementBody)){
                         for (i = 0; i < statementBody.else.length; i++) {
                             decideStatement(statementBody.else[i]);
                         }
@@ -70,7 +67,7 @@ function decideStatement(statementBody) {
                         decideStatement(statementBody.body[i]);
                     }
                 }else{
-                    if(isElseExists(statementBody)){
+                    if(doesElseExist(statementBody)){
                         for (i = 0; i < statementBody.else.length; i++) {
                             decideStatement(statementBody.else[i]);
                         }
@@ -80,18 +77,9 @@ function decideStatement(statementBody) {
                 }
             }
 
-
-
-
-
         case("ExpressionStatement"):
             //TODO
             break;
-
-
-
-
-
         case("ForStatement"):
             if(statementBody.init.type === "VariableDeclaration"){
                 if(statementBody.condition.type === "BinaryExpression"){
@@ -146,10 +134,9 @@ function isStatement(stmt){
 }
 
 
-function isElseExists(stmtBody){
+function doesElseExist(stmtBody){
     return typeof stmtBody !== 'undefined';
 }
-
 
 function calculateBinaryExpression(statementBodyCondition) {
     var operator = statementBodyCondition.operator;
@@ -158,49 +145,40 @@ function calculateBinaryExpression(statementBodyCondition) {
     var leftValue;
     var rightValue;
 
-    if (rightType === "Literal") {
-        leftValue = statementBodyCondition.left.value;
-    } else if (rightType = "Identifier") {
-        //TODO lookup value
-    } else if (rightType === "CallExpression") {
-        //TODO I Dont know
-    }
+    decideExpression(rightType);
+    decideExpression(leftType);
+
+    // if (rightType === "Literal") {
+    //     leftValue = statementBodyCondition.left.value;
+    // } else if (rightType = "Identifier") {
+    //     //TODO lookup value
+    // } else if (rightType === "CallExpression") {
+    //     //TODO I Dont know
+    // }
     //devamı da olabilir
-
-
-    if (leftType === "Literal") {
-        rightValue = statementBodyCondition.left.value;
-    } else if (leftType = "Identifier") {
-        //TODO lookup value
-    } else if (leftType === "CallExpression") {
-        //TODO I Dont know
-    } else if (leftType === "BinaryExpression") {
-        var newOperator = statementBodyCondition.left.operator;
-        var newLeftValue = calculateBinaryExpression(statementBodyCondition.left);
-        var newRightValue = calculateBinaryExpression(statementBodyCondition.right);
-        return calculate(newOperator, newLeftValue,newRightValue);
-    }
+    //
+    // if (leftType === "Literal") {
+    //     rightValue = statementBodyCondition.left.value;
+    // } else if (leftType = "Identifier") {
+    //     //TODO lookup value
+    // } else if (leftType === "CallExpression") {
+    //     //TODO I Dont know
+    // } else if (leftType === "BinaryExpression") {
+    //     var newOperator = statementBodyCondition.left.operator;
+    //     var newLeftValue = calculateBinaryExpression(statementBodyCondition.left);
+    //     var newRightValue = calculateBinaryExpression(statementBodyCondition.right);
+    //     return calculate(newOperator, newLeftValue,newRightValue);
+    // }
 
     return calculate(operator, leftValue, rightValue);
 }
 
-
-function lookup(key) {
-    for (let i = 0; i < hashList.length; i++) {
-        hashTable = hashList.get(i);
-        if(hashTable.hasItem(key)) {
-            return hashTable.getItem(key);
-        }
-    }
-}
-
-function addToEnvironment(key, value) {
-    hashTable = hashList.get(0);
-    hashTable.setItem(key, value);
-}
-
 function decideExpression(expr) {
     switch(expr) {
+        case ("Literal"):
+        //TODO
+        case ("Identifier"):
+        //TODO
         case ("BinaryExpression"):
         //TODO
         case ("PrefixExpression"):
@@ -230,6 +208,22 @@ function decideInstruction(instr) {
 
 
 }
+
+
+function lookup(key) {
+    for (let i = 0; i < hashList.length; i++) {
+        hashTable = hashList.get(i);
+        if(hashTable.hasItem(key)) {
+            return hashTable.getItem(key);
+        }
+    }
+}
+
+function addToEnvironment(key, value) {
+    hashTable = hashList.get(0);
+    hashTable.setItem(key, value);
+}
+
 
 function HashTable(obj)
 {
