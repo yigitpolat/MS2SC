@@ -224,6 +224,15 @@ function addToEnvironment(key, value) {
     hashTable.setItem(key, value);
 }
 
+function removeFromEnvironment(key) {
+    for(let i = 0; i < hashList.length; i++) {
+        hashTable = hashList.get(i);
+        if(hashTable.hasItem(key)) {
+            hashTable.removeItem(key);
+            break;
+        }
+    }
+}
 
 function HashTable(obj)
 {
