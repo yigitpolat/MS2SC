@@ -92,23 +92,27 @@ function decideStatement(statementBody) {
             }
 
         case("WhileStatement"):
-            if(statementBody.condition.type === "Identifier"){
-                if(statementBody.condition.value === "true"){
-                    for (i = 0; i < statementBody.body.length; i++) {
-                        decideStatement(statementBody.body[i]);
-                    }
+            let conditionType = statementBody.condition.type;
+            let conditionValue = statementBody.condition.value;
 
-                }else if (statementBody.condition.type === "BinaryExpression"){
-                    var left = statementBody.condition.type.left.value;
-                    var right = statementBody.condition.type.right.value;
 
-                }
-                else{
-                    break;
-                }
-            }else{
-                //TODO
-            }
+            // if(statementBody.condition.type === "Identifier"){
+            //     if(statementBody.condition.value === "true"){
+            //         for (i = 0; i < statementBody.body.length; i++) {
+            //             decideStatement(statementBody.body[i]);
+            //         }
+            //
+            //     }else if (statementBody.condition.type === "BinaryExpression"){
+            //         var left = statementBody.condition.type.left.value;
+            //         var right = statementBody.condition.type.right.value;
+            //
+            //     }
+            //     else{
+            //         break;
+            //     }
+            // }else{
+            //     //TODO
+            // }
 
 
         case("ReturnStatement"):
@@ -176,7 +180,9 @@ function calculateBinaryExpression(statementBodyCondition) {
 function decideExpression(expr) {
     switch(expr) {
         case ("Literal"):
-        //TODO
+            key = expr.type;
+            value = expr.value;
+            addToEnvironment(key, value);
         case ("Identifier"):
         //TODO
         case ("BinaryExpression"):
@@ -188,24 +194,23 @@ function decideExpression(expr) {
     }
 }
 
-function calculate(operator, left, right) {
-    if(operator === "+") {
-        console.log(left+right);
-    } else if(operator === "-") {
-        console.log(left-right);
-    } else if(operator === "*") {
-        console.log(left*right);
-    } else if(operator === "/") {
-        console.log(left/right);
-    } else if(operator === "<") {
-        //TODO
-    } else if(operator === ">") {
-        //TODO
-    }
-}
+// function calculate(operator, left, right) {
+//     if(operator === "+") {
+//         console.log(left+right);
+//     } else if(operator === "-") {
+//         console.log(left-right);
+//     } else if(operator === "*") {
+//         console.log(left*right);
+//     } else if(operator === "/") {
+//         console.log(left/right);
+//     } else if(operator === "<") {
+//         //TODO
+//     } else if(operator === ">") {
+//         //TODO
+//     }
+// }
 
 function decideInstruction(instr) {
-
 
 }
 
