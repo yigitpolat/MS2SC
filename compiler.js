@@ -3,326 +3,286 @@ var content = fs.readFileSync("AST.json").toString();
 var myJSon = JSON.parse(content);
 var hashList = {};
 
+var stackPointer = 1;
+var basePointer = 2;
+var zero = 3;
+var negativeOne = 4;
+var vscpuSpecials = [5, 6, 7, 8, 9, 10];
+var scratchMem1 = 11;
+var scratchMem2 = 12;
+var scratchMem3 = 13;
+var scratchMem4 = 14;
+var scratchMem5 = 15;
+var scratchMem6 = 16;
+var globalDataBase = 17;
 
-for(let i = 0; i < myJSon.length; i++) {               //go over function declarations
-    for(let j = 0; j < myJSon[i].body.length; j++){           //go over function body
-        if(isStatement(myJSon[i].body[j].type)){         //
-            var currentBody = myJSon[i].body[j];
-            decideStatement(currentBody);
-        }
-        //else if(isVariableDeclaration){
-        // TODO
-        //}
+
+function increaseSP() {
+    stackPointer++;
+}
+
+function decreaseSP() {
+    stackPointer--;
+}
+
+for (let i = 0; i < myJSon.length; i++) {
+    decideDeclaration(myJSon[i]);
+}
+
+function decideDeclaration(declaration) {
+    switch (declaration) {
+        case("FuctionDeclaration"):
+            //Fundec of typ option * string * (typ * string) list * stmt
+            let hashTable = new HashTable({});
+            for (let i = 0; i < declaration.body.length; i++) {
+                declerationOrStatement(declaration.body[i]);
+            }
+
+        case("VariableDeclaration"):
+            // Vardec of typ * string * expr option
+            addToEnvironment(declaration.name);
+        //value??
     }
 }
 
-function decideStatement(statementBody) {
-    let currentStatement = statementBody.type;       //types -> VariableDeclaration // ...Statement
-    switch(currentStatement) {
+function declerationOrStatement(bodyElement) {
+    if (bodyElement.type === "VariableDeclaration") {
+        addToEnvironment(declaration.body[i].name);
+        //value?
+    } else {
+        decideStatement(bodyElement);
+    }
+
+}
+
+function decideStatement(bodyElement) {
+    let currentStatement = bodyElement.type;
+    switch (currentStatement) {
         case("IfStatement"):
-            var conditionType = statementBody.condition.type;
-            //decideExpression
-            if(conditionType === "Identifier"){
-                if(statementBody.condition.value === "true"){
-                    for (var i = 0; i < statementBody.body.length; i++) {
-                        decideStatement(statementBody.body[i]);
-                    }
-                }else if(statementBody.condition.value === "false"){
-                    if(doesElseExist(statementBody)){
-                        for (var i = 0; i < statementBody.else.length; i++) {
-                            decideStatement(statementBody.else[i]);
-                        }
-                    }else{
-                        break;
-                    }
-                }else{
-                    //TODO int x = 1 / if(x)  lookup value
+            var condition = bodyElement.condition;
+            decideExpression(condition);
+            for (let i = 0; i < currentStatement.body.length; i++) {
+                var thenStatement = currentStatement.body[i];
+                decideStatement(thenStatement);
+            }
+
+            if (doesElseExist(currentStatement.else)) {
+                for (let j = 0; j < currentStatement.body.length; j++) {
+                    var thenStatement = currentStatement.body[j];
+                    decideStatement(thenStatement);
                 }
 
-            }else if(conditionType === "BinaryExpression") {
-                var binaryExpressionResult = calculateBinaryExpression(statementBody.condition);
-                if(binaryExpressionResult !== 0){
-                    for (i = 0; i < statementBody.body.length; i++) {
-                        decideStatement(statementBody.body[i]);
-                    }
-                }else{
-                    if(doesElseExist(statementBody)){
-                        for (i = 0; i < statementBody.else.length; i++) {
-                            decideStatement(statementBody.else[i]);
-                        }
-                    }else{
-                        break;
-                    }
-                }
-
-
-            }else if(conditionType === "PrefixExpression"){
-                // if(- + 2){works}
-
-
-
-            }else if(condtionType === "Literal"){
-                if(statementBody.condition.value !== 0){
-                    for (i = 0; i < statementBody.body.length; i++) {
-                        decideStatement(statementBody.body[i]);
-                    }
-                }else{
-                    if(doesElseExist(statementBody)){
-                        for (i = 0; i < statementBody.else.length; i++) {
-                            decideStatement(statementBody.else[i]);
-                        }
-                    }else{
-                        break;
-                    }
-                }
             }
 
         case("ExpressionStatement"):
-            //TODO
+            decideExpression(currentStatement.expression);
             break;
+
         case("ForStatement"):
-            if(statementBody.init.type === "VariableDeclaration"){
-                if(statementBody.condition.type === "BinaryExpression"){
-                    //decideExpression(statementBody.step.type);
-                }else{
-                    document.write("Invalid..")
-                }
-            }else{
-                document.write("Invalid...")
+            var init = currentStatement.init;
+            decideExpression(init);
+            var condition = currentStatement.condition;
+            decideExpression(condition);
+            var step = currentStatement.step;
+            decideExpression(step);
+            for (let i = 0; i < currentStatement.body.length; i++) {
+                var stmt = currentStatement.body[i];
+                decideStatement(stmt);
             }
 
         case("WhileStatement"):
-            let conditionType = statementBody.condition.type;
-            let conditionValue = statementBody.condition.value;
-
-
-            // if(statementBody.condition.type === "Identifier"){
-            //     if(statementBody.condition.value === "true"){
-            //         for (i = 0; i < statementBody.body.length; i++) {
-            //             decideStatement(statementBody.body[i]);
-            //         }
-            //
-            //     }else if (statementBody.condition.type === "BinaryExpression"){
-            //         var left = statementBody.condition.type.left.value;
-            //         var right = statementBody.condition.type.right.value;
-            //
-            //     }
-            //     else{
-            //         break;
-            //     }
-            // }else{
-            //     //TODO
-            // }
-
+            var condition = currentStatement.condition;
+            decideExpression(condition);
+            for (let i = 0; i < currentStatement.body.length; i++) {
+                var stmt = currentStatement.body[i];
+                decideStatement(stmt);
+            }
 
         case("ReturnStatement"):
-            decideExpression(currentBody.value.value);
-        //console.log(currentBody.value.value)
-        //document.write(currentBody.value.value);
+            var value = currentStatement.value;
+            decideExpression(value);
+
         default:
 
-        //document.write("Invalid Argument...");
     }
-}
-
-function isStatement(stmt){
-    if(stmt === "IfStatement" ||
-        stmt === "ExpressionStatement" ||
-        stmt === "WhileStatement" ||
-        stmt === "ForStatement" ||
-        stmt === "ReturnStatement" ||
-        stmt === "BlockStatement"
-    ){
-        return true;
-    }
-}
 
 
-function doesElseExist(stmtBody){
-    return typeof stmtBody !== 'undefined';
-}
+    function decideExpression(expr) {
+        var expressionType = expr.type;
+        switch (expressionType) {
 
-function calculateBinaryExpression(statementBodyCondition) {
-    var operator = statementBodyCondition.operator;
-    var leftType = statementBodyCondition.left.type;
-    var rightType = statementBodyCondition.right.type;
-    var leftValue;
-    var rightValue;
+            case ("Literal"):
+                var key = expr.type;
+                addToEnvironment(key);
 
-    decideExpression(rightType);
-    decideExpression(leftType);
+            case ("Identifier"):
+                var value = expr.value;
 
-    // if (rightType === "Literal") {
-    //     leftValue = statementBodyCondition.left.value;
-    // } else if (rightType = "Identifier") {
-    //     //TODO lookup value
-    // } else if (rightType === "CallExpression") {
-    //     //TODO I Dont know
-    // }
-    //devamı da olabilir
-    //
-    // if (leftType === "Literal") {
-    //     rightValue = statementBodyCondition.left.value;
-    // } else if (leftType = "Identifier") {
-    //     //TODO lookup value
-    // } else if (leftType === "CallExpression") {
-    //     //TODO I Dont know
-    // } else if (leftType === "BinaryExpression") {
-    //     var newOperator = statementBodyCondition.left.operator;
-    //     var newLeftValue = calculateBinaryExpression(statementBodyCondition.left);
-    //     var newRightValue = calculateBinaryExpression(statementBodyCondition.right);
-    //     return calculate(newOperator, newLeftValue,newRightValue);
-    // }
+            case ("BinaryExpression"):
+                var operator = expr.operator;
+                var leftValue = decideExpression(expr.left);
+                var rightValue = decideExpression(expr.right);
 
-    return calculate(operator, leftValue, rightValue);
-}
+            case ("PrefixExpression"):
+                var operator = expr.operator;
+                var value = decideExpression(expr.value);
 
-function decideExpression(expr) {
-    switch(expr) {
-        case ("Literal"):
-            key = expr.type;
-            value = expr.value;
-            addToEnvironment(key, value);
-        case ("Identifier"):
-        //TODO
-        case ("BinaryExpression"):
-        //TODO
-        case ("PrefixExpression"):
-        //TODO
-        case ("CastExpression"):
-        //TODO
-    }
-}
+            case ("SuffixExpression"):
+                var operator = expr.operator;
+                var value = decideExpression(expr.value);
 
-// function calculate(operator, left, right) {
-//     if(operator === "+") {
-//         console.log(left+right);
-//     } else if(operator === "-") {
-//         console.log(left-right);
-//     } else if(operator === "*") {
-//         console.log(left*right);
-//     } else if(operator === "/") {
-//         console.log(left/right);
-//     } else if(operator === "<") {
-//         //TODO
-//     } else if(operator === ">") {
-//         //TODO
-//     }
-// }
+            case ("CastExpression"):
+            //TODO
 
-function decideInstruction(instr) {
+            case ("CallExpression"):
 
-}
+            case ("IndexExpression"):
+            //array
 
-
-function lookup(key) {
-    for (let i = 0; i < hashList.length; i++) {
-        hashTable = hashList.get(i);
-        if(hashTable.hasItem(key)) {
-            return hashTable.getItem(key);
-        }
-    }
-}
-
-function addToEnvironment(key, value) {
-    hashTable = hashList.get(0);
-    hashTable.setItem(key, value);
-}
-
-function removeFromEnvironment(key) {
-    for(let i = 0; i < hashList.length; i++) {
-        hashTable = hashList.get(i);
-        if(hashTable.hasItem(key)) {
-            hashTable.removeItem(key);
-            break;
-        }
-    }
-}
-
-function HashTable(obj)
-{
-    this.length = 0;
-    this.items = {};
-    for (var p in obj) {
-        if (obj.hasOwnProperty(p)) {
-            this.items[p] = obj[p];
-            this.length++;
         }
     }
 
-    this.setItem = function(key, value)
-    {
-        var previous = undefined;
-        if (this.hasItem(key)) {
-            previous = this.items[key];
-        }
-        else {
-            this.length++;
-        }
-        this.items[key] = value;
-        return previous;
-    }
+    function decideBinaryExpression(operator) {
+        switch (operator) {
 
-    this.getItem = function(key) {
-        return this.hasItem(key) ? this.items[key] : undefined;
-    }
+            case("+"):
 
-    this.hasItem = function(key)
-    {
-        return this.items.hasOwnProperty(key);
-    }
 
-    this.removeItem = function(key)
-    {
-        if (this.hasItem(key)) {
-            previous = this.items[key];
-            this.length--;
-            delete this.items[key];
-            return previous;
-        }
-        else {
-            return undefined;
+            case("-"):
+
+
+            case("/"):
+
+
+            case("*"):
+
+
+            case("&&"):
+
+
+            case("||"):
+
+
+            case("&"):
+
+
+            case("|"):
+
         }
     }
 
-    this.keys = function()
-    {
-        var keys = [];
-        for (var k in this.items) {
-            if (this.hasItem(k)) {
-                keys.push(k);
-            }
-        }
-        return keys;
+    function doesElseExist(stmtBody) {
+        return typeof stmtBody !== 'undefined';
     }
 
-    this.values = function()
-    {
-        var values = [];
-        for (var k in this.items) {
-            if (this.hasItem(k)) {
-                values.push(this.items[k]);
-            }
-        }
-        return values;
+    function decideInstruction(instr) {
     }
 
-    this.each = function(fn) {
-        for (var k in this.items) {
-            if (this.hasItem(k)) {
-                fn(k, this.items[k]);
+    function lookup(key) {
+        for (let i = 0; i < hashList.length; i++) {
+            hashTable = hashList.get(i);
+            if (hashTable.hasItem(key)) {
+                return hashTable.getItem(key);
             }
         }
     }
 
-    this.clear = function()
-    {
-        this.items = {}
+    function addToEnvironment(key) {
+        hashTable = hashList.get(0);
+        hashTable.setItem(key, hashTable.getNextIndex());
+        hashTable.nextIndex += 1;
+    }
+
+
+    function removeFromEnvironment(key) {
+        for (let i = 0; i < hashList.length; i++) {
+            hashTable = hashList.get(i);
+            if (hashTable.hasItem(key)) {
+                hashTable.removeItem(key);
+                break;
+            }
+        }
+    }
+
+
+    function HashTable(obj) {
         this.length = 0;
+        this.nextIndex = 0;
+        this.items = {};
+        for (var p in obj) {
+            if (obj.hasOwnProperty(p)) {
+                this.items[p] = obj[p];
+                this.length++;
+            }
+        }
+
+        this.getNextIndex = function () {
+            return this.nextIndex;
+        };
+
+        this.setItem = function (key, value) {
+            var previous = undefined;
+            if (this.hasItem(key)) {
+                previous = this.items[key];
+            } else {
+                this.length++;
+            }
+            this.items[key] = value;
+            return previous;
+        };
+
+        this.getItem = function (key) {
+            return this.hasItem(key) ? this.items[key] : undefined;
+        };
+
+        this.hasItem = function (key) {
+            return this.items.hasOwnProperty(key);
+        };
+
+        this.removeItem = function (key) {
+            if (this.hasItem(key)) {
+                previous = this.items[key];
+                this.length--;
+                delete this.items[key];
+                return previous;
+            } else {
+                return undefined;
+            }
+        };
+
+        this.keys = function () {
+            var keys = [];
+            for (var k in this.items) {
+                if (this.hasItem(k)) {
+                    keys.push(k);
+                }
+            }
+            return keys;
+        };
+
+        this.values = function () {
+            var values = [];
+            for (var k in this.items) {
+                if (this.hasItem(k)) {
+                    values.push(this.items[k]);
+                }
+            }
+            return values;
+        };
+
+        this.each = function (fn) {
+            for (var k in this.items) {
+                if (this.hasItem(k)) {
+                    fn(k, this.items[k]);
+                }
+            }
+        };
+
+        this.clear = function () {
+            this.items = {};
+            this.length = 0;
+        }
+
     }
+
 }
-
-
-//SuffixExpression
-//CallExperession
-//BinaryExpression
