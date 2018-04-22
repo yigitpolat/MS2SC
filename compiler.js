@@ -16,7 +16,6 @@ var scratchMem5 = 15;
 var scratchMem6 = 16;
 var globalDataBase = 17;
 
-
 function increaseSP() {
     stackPointer++;
 }
@@ -34,6 +33,7 @@ function decideDeclaration(declaration) {
         case("FuctionDeclaration"):
             //Fundec of typ option * string * (typ * string) list * stmt
             let hashTable = new HashTable({});
+            hashList.unshift(hashTable);
             for (let i = 0; i < declaration.body.length; i++) {
                 declerationOrStatement(declaration.body[i]);
             }
@@ -101,16 +101,15 @@ function decideStatement(bodyElement) {
         case("ReturnStatement"):
             var value = currentStatement.value;
             decideExpression(value);
+            hashList.shift();
 
         default:
 
     }
 
-
     function decideExpression(expr) {
         var expressionType = expr.type;
         switch (expressionType) {
-
             case ("Literal"):
                 var key = expr.type;
                 addToEnvironment(key);
@@ -132,13 +131,18 @@ function decideStatement(bodyElement) {
                 var value = decideExpression(expr.value);
 
             case ("CastExpression"):
-            //TODO
+                var value = decideExpression(expr.value);
 
             case ("CallExpression"):
-
+                let hashTable = new HashTable({});
+                hashList.unshift(hashTable);
+                var arguments = expr.arguments;
+                for (let i = 0; i < arguments.length; i++) {
+                    var argument = decideExpression(arguments[i]);
+                }
             case ("IndexExpression"):
-            //array
-
+                var value = decideExpression(expr.value);
+                var index = decideExpression(expr.index);
         }
     }
 
@@ -175,9 +179,6 @@ function decideStatement(bodyElement) {
         return typeof stmtBody !== 'undefined';
     }
 
-    function decideInstruction(instr) {
-    }
-
     function lookup(key) {
         for (let i = 0; i < hashList.length; i++) {
             hashTable = hashList.get(i);
@@ -193,7 +194,6 @@ function decideStatement(bodyElement) {
         hashTable.nextIndex += 1;
     }
 
-
     function removeFromEnvironment(key) {
         for (let i = 0; i < hashList.length; i++) {
             hashTable = hashList.get(i);
@@ -203,7 +203,6 @@ function decideStatement(bodyElement) {
             }
         }
     }
-
 
     function HashTable(obj) {
         this.length = 0;
