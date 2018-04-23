@@ -28,6 +28,18 @@ for (let i = 0; i < myJSon.length; i++) {
     decideDeclaration(myJSon[i]);
 }
 
+function addToEnvironment(key) {
+    if(hashList.length > 0) {
+        hashTable = hashList.get(0);
+    } else {
+        var hashTable = new HashTable({});
+        hashList.unshift(hashTable);
+    }
+    hashTable.setItem(key, hashTable.getNextIndex());
+    hashTable.nextIndex += 1;
+}
+
+
 function decideDeclaration(declaration) {
     switch (declaration) {
         case("FuctionDeclaration"):
@@ -186,12 +198,6 @@ function decideStatement(bodyElement) {
                 return hashTable.getItem(key);
             }
         }
-    }
-
-    function addToEnvironment(key) {
-        hashTable = hashList.get(0);
-        hashTable.setItem(key, hashTable.getNextIndex());
-        hashTable.nextIndex += 1;
     }
 
     function removeFromEnvironment(key) {
