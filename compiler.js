@@ -29,7 +29,7 @@ for (let i = 0; i < myJSon.length; i++) {
 }
 
 function addToEnvironment(key) {
-    if(hashList.length > 0) {
+    if (hashList.length > 0) {
         hashTable = hashList.get(0);
     } else {
         var hashTable = new HashTable({});
@@ -118,176 +118,175 @@ function decideStatement(bodyElement) {
         default:
 
     }
-
-    function decideExpression(expr) {
-        var expressionType = expr.type;
-        switch (expressionType) {
-            case ("Literal"):
-                var key = expr.type;
-                addToEnvironment(key);
-
-            case ("Identifier"):
-                var value = expr.value;
-
-            case ("BinaryExpression"):
-                var operator = expr.operator;
-                var leftValue = decideExpression(expr.left);
-                var rightValue = decideExpression(expr.right);
-
-            case ("PrefixExpression"):
-                var operator = expr.operator;
-                var value = decideExpression(expr.value);
-
-            case ("SuffixExpression"):
-                var operator = expr.operator;
-                var value = decideExpression(expr.value);
-
-            case ("CastExpression"):
-                var value = decideExpression(expr.value);
-
-            case ("CallExpression"):
-                let hashTable = new HashTable({});
-                hashList.unshift(hashTable);
-                var arguments = expr.arguments;
-                for (let i = 0; i < arguments.length; i++) {
-                    var argument = decideExpression(arguments[i]);
-                }
-            case ("IndexExpression"):
-                var value = decideExpression(expr.value);
-                var index = decideExpression(expr.index);
-        }
-    }
-
-    function decideBinaryExpression(operator) {
-        switch (operator) {
-
-            case("+"):
-
-
-            case("-"):
-
-
-            case("/"):
-
-
-            case("*"):
-
-
-            case("&&"):
-
-
-            case("||"):
-
-
-            case("&"):
-
-
-            case("|"):
-
-        }
-    }
-
-    function doesElseExist(stmtBody) {
-        return typeof stmtBody !== 'undefined';
-    }
-
-    function lookup(key) {
-        for (let i = 0; i < hashList.length; i++) {
-            hashTable = hashList.get(i);
-            if (hashTable.hasItem(key)) {
-                return hashTable.getItem(key);
-            }
-        }
-    }
-
-    function removeFromEnvironment(key) {
-        for (let i = 0; i < hashList.length; i++) {
-            hashTable = hashList.get(i);
-            if (hashTable.hasItem(key)) {
-                hashTable.removeItem(key);
-                break;
-            }
-        }
-    }
-
-    function HashTable(obj) {
-        this.length = 0;
-        this.nextIndex = 0;
-        this.items = {};
-        for (var p in obj) {
-            if (obj.hasOwnProperty(p)) {
-                this.items[p] = obj[p];
-                this.length++;
-            }
-        }
-
-        this.getNextIndex = function () {
-            return this.nextIndex;
-        };
-
-        this.setItem = function (key, value) {
-            var previous = undefined;
-            if (this.hasItem(key)) {
-                previous = this.items[key];
-            } else {
-                this.length++;
-            }
-            this.items[key] = value;
-            return previous;
-        };
-
-        this.getItem = function (key) {
-            return this.hasItem(key) ? this.items[key] : undefined;
-        };
-
-        this.hasItem = function (key) {
-            return this.items.hasOwnProperty(key);
-        };
-
-        this.removeItem = function (key) {
-            if (this.hasItem(key)) {
-                previous = this.items[key];
-                this.length--;
-                delete this.items[key];
-                return previous;
-            } else {
-                return undefined;
-            }
-        };
-
-        this.keys = function () {
-            var keys = [];
-            for (var k in this.items) {
-                if (this.hasItem(k)) {
-                    keys.push(k);
-                }
-            }
-            return keys;
-        };
-
-        this.values = function () {
-            var values = [];
-            for (var k in this.items) {
-                if (this.hasItem(k)) {
-                    values.push(this.items[k]);
-                }
-            }
-            return values;
-        };
-
-        this.each = function (fn) {
-            for (var k in this.items) {
-                if (this.hasItem(k)) {
-                    fn(k, this.items[k]);
-                }
-            }
-        };
-
-        this.clear = function () {
-            this.items = {};
-            this.length = 0;
-        }
-
-    }
-
 }
+
+function decideExpression(expr) {
+    var expressionType = expr.type;
+    switch (expressionType) {
+        case ("Literal"):
+            var key = expr.type;
+            addToEnvironment(key);
+
+        case ("Identifier"):
+            var value = expr.value;
+
+        case ("BinaryExpression"):
+            var operator = expr.operator;
+            var leftValue = decideExpression(expr.left);
+            var rightValue = decideExpression(expr.right);
+
+        case ("PrefixExpression"):
+            var operator = expr.operator;
+            var value = decideExpression(expr.value);
+
+        case ("SuffixExpression"):
+            var operator = expr.operator;
+            var value = decideExpression(expr.value);
+
+        case ("CastExpression"):
+            var value = decideExpression(expr.value);
+
+        case ("CallExpression"):
+            let hashTable = new HashTable({});
+            hashList.unshift(hashTable);
+            var arguments = expr.arguments;
+            for (let i = 0; i < arguments.length; i++) {
+                var argument = decideExpression(arguments[i]);
+            }
+        case ("IndexExpression"):
+            var value = decideExpression(expr.value);
+            var index = decideExpression(expr.index);
+    }
+}
+
+function decideBinaryExpression(operator) {
+    switch (operator) {
+
+        case("+"):
+
+
+        case("-"):
+
+
+        case("/"):
+
+
+        case("*"):
+
+
+        case("&&"):
+
+
+        case("||"):
+
+
+        case("&"):
+
+
+        case("|"):
+
+    }
+}
+
+function doesElseExist(stmtBody) {
+    return typeof stmtBody !== 'undefined';
+}
+
+function lookup(key) {
+    for (let i = 0; i < hashList.length; i++) {
+        var hashTable = hashList.get(i);
+        if (hashTable.hasItem(key)) {
+            return hashTable.getItem(key);
+        }
+    }
+}
+
+function removeFromEnvironment(key) {
+    for (let i = 0; i < hashList.length; i++) {
+        var hashTable = hashList.get(i);
+        if (hashTable.hasItem(key)) {
+            hashTable.removeItem(key);
+            break;
+        }
+    }
+}
+
+function HashTable(obj) {
+    this.length = 0;
+    this.nextIndex = 0;
+    this.items = {};
+    for (var p in obj) {
+        if (obj.hasOwnProperty(p)) {
+            this.items[p] = obj[p];
+            this.length++;
+        }
+    }
+
+    this.getNextIndex = function () {
+        return this.nextIndex;
+    };
+
+    this.setItem = function (key, value) {
+        var previous = undefined;
+        if (this.hasItem(key)) {
+            previous = this.items[key];
+        } else {
+            this.length++;
+        }
+        this.items[key] = value;
+        return previous;
+    };
+
+    this.getItem = function (key) {
+        return this.hasItem(key) ? this.items[key] : undefined;
+    };
+
+    this.hasItem = function (key) {
+        return this.items.hasOwnProperty(key);
+    };
+
+    this.removeItem = function (key) {
+        if (this.hasItem(key)) {
+            var previous = this.items[key];
+            this.length--;
+            delete this.items[key];
+            return previous;
+        } else {
+            return undefined;
+        }
+    };
+
+    this.keys = function () {
+        var keys = [];
+        for (var k in this.items) {
+            if (this.hasItem(k)) {
+                keys.push(k);
+            }
+        }
+        return keys;
+    };
+
+    this.values = function () {
+        var values = [];
+        for (var k in this.items) {
+            if (this.hasItem(k)) {
+                values.push(this.items[k]);
+            }
+        }
+        return values;
+    };
+
+    this.each = function (fn) {
+        for (var k in this.items) {
+            if (this.hasItem(k)) {
+                fn(k, this.items[k]);
+            }
+        }
+    };
+
+    this.clear = function () {
+        this.items = {};
+        this.length = 0;
+    }
+}
+
