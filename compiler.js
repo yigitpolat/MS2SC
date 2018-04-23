@@ -64,7 +64,6 @@ function declerationOrStatement(bodyElement) {
     } else {
         decideStatement(bodyElement);
     }
-
 }
 
 function decideStatement(bodyElement) {
