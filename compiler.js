@@ -2,40 +2,71 @@ var fs = require("fs");
 var content = fs.readFileSync("AST.json").toString();
 var myJSon = JSON.parse(content);
 let hashList = new LinkedList();
-//List of Strings
+var listOfInstructions;
+let listOfStrings = [];
+let stack = new HashTable({});
 
-let stackPointer   = 1;
-let basePointer    = 2;
-let zero           = 3;
-let negativeOne    = 4;
-let vscpuSpecials  = [5,6,7,8,9,10];
-let scratchMem1    = 11;
-let scratchMem2    = 12;
-let scratchMem3    = 13;
-let scratchMem4    = 14;
-let scratchMem5    = 15;
-let scratchMem6    = 16;
-let globalDataBase = 17;
 
+
+
+
+
+
+
+
+
+var stackPointer   = 0;
+var basePointer    = 0;
+var zero           = 0;
+var negativeOne    = 4294967295;
+var VSCPU5         = 0;
+var VSCPU6         = 0;
+var VSCPU7         = 0;
+var VSCPU8         = 0;
+var VSCPU9         = 0;
+var VSCPU10        = 0;
+var scratchMem1    = 0;
+var scratchMem2    = 0;
+var scratchMem3    = 0;
+var scratchMem4    = 0;
+var scratchMem5    = 0;
+var scratchMem6    = 0;
+var globalDataBase = 0;
+
+stack.setItem(1,  stackPointer);
+stack.setItem(2,  basePointer);
+stack.setItem(3,  zero);
+stack.setItem(4,  negativeOne);
+stack.setItem(5,  VSCPU5);
+stack.setItem(6,  VSCPU6);
+stack.setItem(7,  VSCPU7);
+stack.setItem(8,  VSCPU8);
+stack.setItem(9,  VSCPU9);
+stack.setItem(10, VSCPU10);
+stack.setItem(11, scratchMem1);
+stack.setItem(12, scratchMem2);
+stack.setItem(13, scratchMem3);
+stack.setItem(14, scratchMem4);
+stack.setItem(15, scratchMem5);
+stack.setItem(16, scratchMem6);
+stack.setItem(17, globalDataBase);
+
+
+
+
+
+
+//----------------------- Linked List ---------------------------------
 LinkedList.prototype.add = function(value) {
-    var node = new Node(value),
-        currentNode = this.head;
+    var node = new Node(value);
+    var currentNode = this.head;
 
-    // 1st use-case: an empty list
     if (!currentNode) {
         this.head = node;
         this.length++;
         return node;
     }
 
-
-    /*
-    // 2nd use-case: a non-empty list
-    while (currentNode.next) {
-        currentNode = currentNode.next;
-    }
-    currentNode.next = node;
-    */
     node.next = currentNode;
     this.head = node;
 
@@ -43,38 +74,18 @@ LinkedList.prototype.add = function(value) {
     return node;
 };
 
-/*
-LinkedList.prototype.get = function(num) {
-    var nodeToCheck = this.head,
-        count = 0;
-    // a little error checking
-    if(num > this.length) {
-        return "Doesn't Exist!"
-    }
-    // find the node we're looking for
-    while(count < num) {
-        nodeToCheck = nodeToCheck.next;
-        count++;
-    }
-    return nodeToCheck;
-};
-*/
 
 LinkedList.prototype.getHead = function(){
-    if(!hashList.head) return null;
-    var headHashList = hashList.head;
+    if(!this.head) return null;
+    var headHashList = this.head;
     return headHashList.data;
 };
 
 LinkedList.prototype.removeHead = function() {
     if (!this.head) return null;
-    let value = this.head.value;
     this.head = this.head.next;
-
-    //if (this.head) this.head.prev = null;
-    //else this.tail = null;
-
-    return value;
+    this.length--;
+    //DELETE THE PREVIOUS HEAD
 };
 
 
@@ -86,6 +97,26 @@ function increaseSP(){
 function decreaseSP(){
     stackPointer --;
 }
+
+//----------------------- MAIN ---------------------------------
+
+
+fillListOfStrings();
+printListOfStrings();
+
+function fillListOfStrings(){
+    listOfStrings[0] = "BZJi".concat(" 3", " 17");
+    for(let i = 1; i<stack.length; i++){
+        listOfStrings[i] = stack.getItem(i);
+    }
+}
+
+function printListOfStrings(){
+    for(let i = 0; i<listOfStrings.length; i++){
+        console.log(i + ": " + listOfStrings[i]);
+    }
+}
+
 
 
 for(let i = 0; i < myJSon.length; i++) {
@@ -284,7 +315,6 @@ function decideInstruction(instr) {
 //Values are adding to the Hash Table
 function addToEnvironment(key) {
     if(hashList.length > 0){
-        //hashTable = hashList.get(0);
         hashTable = hashList.getHead();
     }else{
         var hashTable = new HashTable({});
@@ -307,7 +337,7 @@ function lookup(key) {
 
 function removeFromEnvironment(key) {
     for (let i = 0; i < hashList.length; i++) {
-        hashTable = hashList.get(i);
+        var hashTable = hashList.get(i);
         if (hashTable.hasItem(key)) {
             hashTable.removeItem(key);
             break;
@@ -320,7 +350,6 @@ function removeFromEnvironment(key) {
 
 
 //----------------------- Hash Table ---------------------------------
-
 function HashTable(obj) {
     this.length = 0;
     this.nextIndex = 0;
@@ -404,50 +433,33 @@ function HashTable(obj) {
 }
 
 
-
-
 //----------------------- Linked List ---------------------------------
 function Node(data) {
     this.data = data;
     this.next = null;
 }
 
-
-
 function LinkedList() {
-    // head will be the top of the list
-    // we'll define it as null for now
     this.head = null;
     this.length = 0;
-
-    /*
-    this.add = function(data) {
-        var nodeToAdd = new Node(data),
-            nodeToCheck = this.head;
-        // if the head is null
-        if(!nodeToCheck) {
-            this.head = nodeToAdd;
-            this.length++;
-            return nodeToAdd;
-        }
-        // loop until we find the end
-        while(nodeToCheck.next) {
-            nodeToCheck = nodeToCheck.next;
-        }
-        // once were at the end of the list
-        nodeToCheck.next = nodeToAdd;
-        this.length++;
-        return nodeToAdd;
-    };
-    */
-
 }
 
-
-
-
-
-
+/*
+LinkedList.prototype.get = function(num) {
+    var nodeToCheck = this.head;
+    var count = 0;
+    // a little error checking
+    if(num > this.length) {
+        return "Doesn't Exist!"
+    }
+    // find the node we're looking for
+    while(count < num) {
+        nodeToCheck = nodeToCheck.next;
+        count++;
+    }
+    return nodeToCheck;
+};
+*/
 
 
 /*
@@ -461,9 +473,6 @@ LinkedList.prototype.search = function(searchValue) {
     return null;
 }
 */
-
-
-
 
 
 
