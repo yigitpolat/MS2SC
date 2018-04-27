@@ -2,10 +2,8 @@ var fs = require("fs");
 var content = fs.readFileSync("AST.json").toString();
 var myJSon = JSON.parse(content);
 let hashList = new LinkedList();
-var listOfInstructions;
 let listOfStrings = [];
 
-//let stack = new HashTable({});
 
 
 
@@ -13,84 +11,10 @@ let listOfStrings = [];
 
 
 
-var arr = [ {},
-            {name : "stackPointer",    location: 1,    value :  0},
-            {name : "basePointer",     location: 2,    value :  0},
-            {name : "zero",            location: 3,    value :  0 },
-            {name : "negativeOne",     location: 4,    value :  4294967295 },
-            {name : "VSCPU-5",         location: 5,    value :  0 },
-            {name : "VSCPU-6",         location: 6,    value :  0 },
-            {name : "VSCPU-7",         location: 7,    value :  0 },
-            {name : "VSCPU-8",         location: 8,    value :  0 },
-            {name : "VSCPU-9",         location: 9,    value :  0 },
-            {name : "VSCPU-10",        location: 10,   value :  0 },
-            {name : "scratchMem1",     location: 11,   value :  0 },
-            {name : "scratchMem2",     location: 12,   value :  0 },
-            {name : "scratchMem3",     location: 13,   value :  0 },
-            {name : "scratchMem4",     location: 14,   value :  0 },
-            {name : "scratchMem5",     location: 15,   value :  0 },
-            {name : "scratchMem6",     location: 16,   value :  0 },
-        ];
+
 
 //arr.push();
 
-/*
-var stackPointer   = 0;
-var basePointer    = 0;
-var zero           = 0;
-var negativeOne    = 4294967295;
-var VSCPU5         = 0;
-var VSCPU6         = 0;
-var VSCPU7         = 0;
-var VSCPU8         = 0;
-var VSCPU9         = 0;
-var VSCPU10        = 0;
-var scratchMem1    = 0;
-var scratchMem2    = 0;
-var scratchMem3    = 0;
-var scratchMem4    = 0;
-var scratchMem5    = 0;
-var scratchMem6    = 0;
-var globalDataBase = 0;
-
-
-stack.setItem(1,  stackPointer);
-stack.setItem(2,  basePointer);
-stack.setItem(3,  zero);
-stack.setItem(4,  negativeOne);
-stack.setItem(5,  VSCPU5);
-stack.setItem(6,  VSCPU6);
-stack.setItem(7,  VSCPU7);
-stack.setItem(8,  VSCPU8);
-stack.setItem(9,  VSCPU9);
-stack.setItem(10, VSCPU10);
-stack.setItem(11, scratchMem1);
-stack.setItem(12, scratchMem2);
-stack.setItem(13, scratchMem3);
-stack.setItem(14, scratchMem4);
-stack.setItem(15, scratchMem5);
-stack.setItem(16, scratchMem6);
-stack.setItem(17, globalDataBase);
-
-
-stack.setItem(1,  arr[0].value);
-stack.setItem(2,  arr[1].value);
-stack.setItem(3,  arr[2].value);
-stack.setItem(4,  arr[3].value);
-stack.setItem(5,  arr[4].value);
-stack.setItem(6,  arr[5].value);
-stack.setItem(7,  arr[6].value);
-stack.setItem(8,  arr[7].value);
-stack.setItem(9,  arr[8].value);
-stack.setItem(10, arr[9].value);
-stack.setItem(11, arr[10].value);
-stack.setItem(12, arr[11].value);
-stack.setItem(13, arr[12].value);
-stack.setItem(14, arr[13].value);
-stack.setItem(15, arr[14].value);
-stack.setItem(16, arr[15].value);
-stack.setItem(17, arr[16].value);
-*/
 
 
 //----------------------- Linked List ---------------------------------
@@ -127,29 +51,60 @@ LinkedList.prototype.removeHead = function() {
 
 
 
+
+
+
+var listOfCodes = [ {type: "inst", location: 0,  opCode: "BZJi", opA : "3", opB: "17", comment: ""},
+                    {type: "data", location: 1,  value: 0, comment: "//&($topofstack)"},
+                    {type: "data", location: 2,  value: 0, comment: "//&($topofstack)"},
+                    {type: "data", location: 3,  value: 0, comment: "//zero"},
+                    {type: "data", location: 4,  value: 4294967295, comment: "//negativeOne"},
+                    {type: "data", location: 5,  value: 0, comment: "//VSCPU-5"},
+                    {type: "data", location: 6,  value: 0, comment: "//VSCPU-6"},
+                    {type: "data", location: 7,  value: 0, comment: "//VSCPU-7"},
+                    {type: "data", location: 8,  value: 0, comment: "//VSCPU-8"},
+                    {type: "data", location: 9,  value: 0, comment: "//VSCPU-9"},
+                    {type: "data", location: 10, value: 0, comment: "//VSCPU-10"},
+                    {type: "data", location: 11, value: 0, comment: "//scratchMem1"},
+                    {type: "data", location: 12, value: 0, comment: "//scratchMem2"},
+                    {type: "data", location: 13, value: 0, comment: "//scratchMem3"},
+                    {type: "data", location: 14, value: 0, comment: "//scratchMem4"},
+                    {type: "data", location: 15, value: 0, comment: "//scratchMem5"},
+                    {type: "data", location: 16, value: 0, comment: "//scratchMem6"},
+                    {type: "inst", location: 17, opCode: "CPi",  opA : "11", opB: "24", comment: "// $globalinit:  //17 \n// Calling main, numArgs: 0"},
+                    {type: "inst", location: 18, opCode: "CPIi", opA : "1",  opB: "11", comment: "// Push scratchMem1"},
+                    {type: "inst", location: 19, opCode: "ADDi", opA : "1",  opB: "1",  comment: ""},
+                    {type: "inst", location: 20, opCode: "CPIi", opA : "1",  opB: "2",  comment: "// Push basePointer"},
+                    {type: "inst", location: 21, opCode: "ADDi", opA : "1",  opB: "1",  comment: ""},
+                    {type: "inst", location: 22, opCode: "CP",   opA : "2",  opB: "1",  comment: "// Evaluating args.\n// Args evaluated.\n// Adjust BP to (SP - 0)"},
+                    {type: "inst", location: 23, opCode: "BZJi", opA : "3",  opB: "27", comment: ""},
+                    {type: "inst", location: 24, opCode: "ADD",  opA : "1",  opB: "4",  comment: "// $L2:  //24\n// Pop to scratchMem1"},
+                    {type: "inst", location: 25, opCode: "CPI",  opA : "11", opB: "1",  comment: ""},
+                    {type: "data", location: 26, value: 0, comment: "//HALT"}
+];
+
+function modifyTopOfStack(){
+    listOfCodes[1].value = listOfCodes[listOfCodes.length-1].location + 1;
+    listOfCodes[2].value = listOfCodes[listOfCodes.length-1].location + 1;
+}
+
+function printListOfCodes(){
+    for(let i = 0; i<listOfCodes.length; i++){
+        if(listOfCodes[i].type === "inst"){
+            if(listOfCodes[i].comment.length > 0) console.log(listOfCodes[i].comment);
+            console.log(listOfCodes[i].location + ": " + listOfCodes[i].opCode + " " + listOfCodes[i].opA + " " + listOfCodes[i].opB);
+        }else if(listOfCodes[i].type === "data"){
+            console.log(listOfCodes[i].location + ": " + listOfCodes[i].value + " " + listOfCodes[i].comment);
+        }
+    }
+}
+
+modifyTopOfStack();
+printListOfCodes();
+
+
+
 //----------------------- MAIN ---------------------------------
-
-
-fillListOfStrings();
-printListOfStrings();
-
-function fillListOfStrings(){
-    //arr.push({name: })
-    //listOfStrings[0] = "BZJi ".concat(arr[3].location + " ", arr[16].location);
-    for(let i = 1; i < arr.length; i++){
-        listOfStrings[i] = arr[i].value+" ".concat(" //" + arr[i].name);
-    }
-}
-
-function printListOfStrings(){
-    console.log("0: ".concat(listOfStrings[0]));
-    for(let i = 1; i<listOfStrings.length; i++){
-        console.log(i + ": " + listOfStrings[i] );
-    }
-}
-
-
-
 for(let i = 0; i < myJSon.length; i++) {
     decideDeclaration(myJSon[i]);
 }
