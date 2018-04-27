@@ -4,7 +4,8 @@ var myJSon = JSON.parse(content);
 let hashList = new LinkedList();
 var listOfInstructions;
 let listOfStrings = [];
-let stack = new HashTable({});
+
+//let stack = new HashTable({});
 
 
 
@@ -12,9 +13,28 @@ let stack = new HashTable({});
 
 
 
+var arr = [ {},
+            {name : "stackPointer",   location: 1,   value :  0},
+            {name : "basePointer",    location: 2,   value :  0},
+            {name : "zero",           location: 3,   value :  0 },
+            {name : "negativeOne",    location: 4,   value :  4294967295 },
+            {name : "VSCPU-5",         location: 5,   value :  0 },
+            {name : "VSCPU-6",         location: 6,   value :  0 },
+            {name : "VSCPU-7",         location: 7,   value :  0 },
+            {name : "VSCPU-8",         location: 8,   value :  0 },
+            {name : "VSCPU-9",         location: 9,   value :  0 },
+            {name : "VSCPU-10",        location: 10,  value :  0 },
+            {name : "scratchMem1",    location: 11,  value :  0 },
+            {name : "scratchMem2",    location: 12,  value :  0 },
+            {name : "scratchMem3",    location: 13,  value :  0 },
+            {name : "scratchMem4",    location: 14,  value :  0 },
+            {name : "scratchMem5",    location: 15,  value :  0 },
+            {name : "scratchMem6",    location: 16,  value :  0 },
+        ];
 
+//arr.push();
 
-
+/*
 var stackPointer   = 0;
 var basePointer    = 0;
 var zero           = 0;
@@ -32,6 +52,7 @@ var scratchMem4    = 0;
 var scratchMem5    = 0;
 var scratchMem6    = 0;
 var globalDataBase = 0;
+
 
 stack.setItem(1,  stackPointer);
 stack.setItem(2,  basePointer);
@@ -52,8 +73,24 @@ stack.setItem(16, scratchMem6);
 stack.setItem(17, globalDataBase);
 
 
-
-
+stack.setItem(1,  arr[0].value);
+stack.setItem(2,  arr[1].value);
+stack.setItem(3,  arr[2].value);
+stack.setItem(4,  arr[3].value);
+stack.setItem(5,  arr[4].value);
+stack.setItem(6,  arr[5].value);
+stack.setItem(7,  arr[6].value);
+stack.setItem(8,  arr[7].value);
+stack.setItem(9,  arr[8].value);
+stack.setItem(10, arr[9].value);
+stack.setItem(11, arr[10].value);
+stack.setItem(12, arr[11].value);
+stack.setItem(13, arr[12].value);
+stack.setItem(14, arr[13].value);
+stack.setItem(15, arr[14].value);
+stack.setItem(16, arr[15].value);
+stack.setItem(17, arr[16].value);
+*/
 
 
 //----------------------- Linked List ---------------------------------
@@ -90,14 +127,6 @@ LinkedList.prototype.removeHead = function() {
 
 
 
-function increaseSP(){
-    stackPointer ++;
-}
-
-function decreaseSP(){
-    stackPointer --;
-}
-
 //----------------------- MAIN ---------------------------------
 
 
@@ -105,15 +134,16 @@ fillListOfStrings();
 printListOfStrings();
 
 function fillListOfStrings(){
-    listOfStrings[0] = "BZJi".concat(" 3", " 17");
-    for(let i = 1; i<stack.length; i++){
-        listOfStrings[i] = stack.getItem(i);
+    listOfStrings[0] = "BZJi ".concat(arr[2].location + " ", arr[15].location);
+    for(let i = 1; i < arr.length; i++){
+        listOfStrings[i] = arr[i].value+" ".concat(" //" + arr[i].name);
     }
 }
 
 function printListOfStrings(){
-    for(let i = 0; i<listOfStrings.length; i++){
-        console.log(i + ": " + listOfStrings[i]);
+    console.log("0: ".concat(listOfStrings[0]));
+    for(let i = 1; i<listOfStrings.length; i++){
+        console.log(i + ": " + listOfStrings[i] );
     }
 }
 
