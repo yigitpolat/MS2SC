@@ -14,22 +14,22 @@ let listOfStrings = [];
 
 
 var arr = [ {},
-            {name : "stackPointer",   location: 1,   value :  0},
-            {name : "basePointer",    location: 2,   value :  0},
-            {name : "zero",           location: 3,   value :  0 },
-            {name : "negativeOne",    location: 4,   value :  4294967295 },
-            {name : "VSCPU-5",         location: 5,   value :  0 },
-            {name : "VSCPU-6",         location: 6,   value :  0 },
-            {name : "VSCPU-7",         location: 7,   value :  0 },
-            {name : "VSCPU-8",         location: 8,   value :  0 },
-            {name : "VSCPU-9",         location: 9,   value :  0 },
-            {name : "VSCPU-10",        location: 10,  value :  0 },
-            {name : "scratchMem1",    location: 11,  value :  0 },
-            {name : "scratchMem2",    location: 12,  value :  0 },
-            {name : "scratchMem3",    location: 13,  value :  0 },
-            {name : "scratchMem4",    location: 14,  value :  0 },
-            {name : "scratchMem5",    location: 15,  value :  0 },
-            {name : "scratchMem6",    location: 16,  value :  0 },
+            {name : "stackPointer",    location: 1,    value :  0},
+            {name : "basePointer",     location: 2,    value :  0},
+            {name : "zero",            location: 3,    value :  0 },
+            {name : "negativeOne",     location: 4,    value :  4294967295 },
+            {name : "VSCPU-5",         location: 5,    value :  0 },
+            {name : "VSCPU-6",         location: 6,    value :  0 },
+            {name : "VSCPU-7",         location: 7,    value :  0 },
+            {name : "VSCPU-8",         location: 8,    value :  0 },
+            {name : "VSCPU-9",         location: 9,    value :  0 },
+            {name : "VSCPU-10",        location: 10,   value :  0 },
+            {name : "scratchMem1",     location: 11,   value :  0 },
+            {name : "scratchMem2",     location: 12,   value :  0 },
+            {name : "scratchMem3",     location: 13,   value :  0 },
+            {name : "scratchMem4",     location: 14,   value :  0 },
+            {name : "scratchMem5",     location: 15,   value :  0 },
+            {name : "scratchMem6",     location: 16,   value :  0 },
         ];
 
 //arr.push();
@@ -134,7 +134,8 @@ fillListOfStrings();
 printListOfStrings();
 
 function fillListOfStrings(){
-    listOfStrings[0] = "BZJi ".concat(arr[2].location + " ", arr[15].location);
+    //arr.push({name: })
+    //listOfStrings[0] = "BZJi ".concat(arr[3].location + " ", arr[16].location);
     for(let i = 1; i < arr.length; i++){
         listOfStrings[i] = arr[i].value+" ".concat(" //" + arr[i].name);
     }
