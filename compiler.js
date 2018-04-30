@@ -3,6 +3,7 @@ var content = fs.readFileSync("AST.json").toString();
 var myJSon = JSON.parse(content);
 let hashList = new LinkedList();
 
+//arr.push();
 
 
 
@@ -37,10 +38,6 @@ LinkedList.prototype.removeHead = function() {
     this.length--;
     //DELETE THE PREVIOUS HEAD
 };
-
-
-
-
 
 
 var listOfCodes = [ {type: "inst", location: 0,  opCode: "BZJi", opA : "3", opB: "17", comment: ""},
@@ -105,8 +102,27 @@ function addVarDeclarationToListOfCodes(variable){
 for(let i = 0; i < myJSon.length; i++) {
     decideDeclaration(myJSon[i]);
 }
-
-
+//
+// function assignOpCode(instruction) {
+//     switch (instruction) {
+//         case ("ADD"):
+//             return 0;
+//         case ("NAND"):
+//             return 1;
+//         case ("SRL"):
+//             return 2;
+//         case ("LT"):
+//             return 3;
+//         case ("CP"):
+//             return 4;
+//         case ("CPI"):
+//             return 5;
+//         case ("BZJ"):
+//             return 6;
+//         case ("MUL"):
+//             return 7;
+//     }
+// }
 
 function decideDeclaration(JSonObject) {
     var declaration =  JSonObject.type;
