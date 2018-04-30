@@ -2,7 +2,6 @@ var fs = require("fs");
 var content = fs.readFileSync("AST.json").toString();
 var myJSon = JSON.parse(content);
 let hashList = new LinkedList();
-let listOfStrings = [];
 
 
 
@@ -45,32 +44,32 @@ LinkedList.prototype.removeHead = function() {
 
 
 var listOfCodes = [ {type: "inst", location: 0,  opCode: "BZJi", opA : "3", opB: "17", comment: ""},
-                    {type: "data", location: 1,  value: 0, comment: "//&($topofstack)"},
-                    {type: "data", location: 2,  value: 0, comment: "//&($topofstack)"},
-                    {type: "data", location: 3,  value: 0, comment: "//zero"},
-                    {type: "data", location: 4,  value: 4294967295, comment: "//negativeOne"},
-                    {type: "data", location: 5,  value: 0, comment: "//VSCPU-5"},
-                    {type: "data", location: 6,  value: 0, comment: "//VSCPU-6"},
-                    {type: "data", location: 7,  value: 0, comment: "//VSCPU-7"},
-                    {type: "data", location: 8,  value: 0, comment: "//VSCPU-8"},
-                    {type: "data", location: 9,  value: 0, comment: "//VSCPU-9"},
-                    {type: "data", location: 10, value: 0, comment: "//VSCPU-10"},
-                    {type: "data", location: 11, value: 0, comment: "//scratchMem1"},
-                    {type: "data", location: 12, value: 0, comment: "//scratchMem2"},
-                    {type: "data", location: 13, value: 0, comment: "//scratchMem3"},
-                    {type: "data", location: 14, value: 0, comment: "//scratchMem4"},
-                    {type: "data", location: 15, value: 0, comment: "//scratchMem5"},
-                    {type: "data", location: 16, value: 0, comment: "//scratchMem6"},
-                    {type: "inst", location: 17, opCode: "CPi",  opA : "11", opB: "24", comment: "// $globalinit:  //17 \n// Calling main, numArgs: 0"},
-                    {type: "inst", location: 18, opCode: "CPIi", opA : "1",  opB: "11", comment: "// Push scratchMem1"},
-                    {type: "inst", location: 19, opCode: "ADDi", opA : "1",  opB: "1",  comment: ""},
-                    {type: "inst", location: 20, opCode: "CPIi", opA : "1",  opB: "2",  comment: "// Push basePointer"},
-                    {type: "inst", location: 21, opCode: "ADDi", opA : "1",  opB: "1",  comment: ""},
-                    {type: "inst", location: 22, opCode: "CP",   opA : "2",  opB: "1",  comment: "// Evaluating args.\n// Args evaluated.\n// Adjust BP to (SP - 0)"},
-                    {type: "inst", location: 23, opCode: "BZJi", opA : "3",  opB: "27", comment: ""},
-                    {type: "inst", location: 24, opCode: "ADD",  opA : "1",  opB: "4",  comment: "// $L2:  //24\n// Pop to scratchMem1"},
-                    {type: "inst", location: 25, opCode: "CPI",  opA : "11", opB: "1",  comment: ""},
-                    {type: "data", location: 26, value: 0, comment: "//HALT"}
+    {type: "data", location: 1,  value: 0, comment: "//&($topofstack)"},
+    {type: "data", location: 2,  value: 0, comment: "//&($topofstack)"},
+    {type: "data", location: 3,  value: 0, comment: "//zero"},
+    {type: "data", location: 4,  value: 4294967295, comment: "//negativeOne"},
+    {type: "data", location: 5,  value: 0, comment: "//VSCPU-5"},
+    {type: "data", location: 6,  value: 0, comment: "//VSCPU-6"},
+    {type: "data", location: 7,  value: 0, comment: "//VSCPU-7"},
+    {type: "data", location: 8,  value: 0, comment: "//VSCPU-8"},
+    {type: "data", location: 9,  value: 0, comment: "//VSCPU-9"},
+    {type: "data", location: 10, value: 0, comment: "//VSCPU-10"},
+    {type: "data", location: 11, value: 0, comment: "//scratchMem1"},
+    {type: "data", location: 12, value: 0, comment: "//scratchMem2"},
+    {type: "data", location: 13, value: 0, comment: "//scratchMem3"},
+    {type: "data", location: 14, value: 0, comment: "//scratchMem4"},
+    {type: "data", location: 15, value: 0, comment: "//scratchMem5"},
+    {type: "data", location: 16, value: 0, comment: "//scratchMem6"},
+    {type: "inst", location: 17, opCode: "CPi",  opA : "11", opB: "24", comment: "// $globalinit:  //17 \n// Calling main, numArgs: 0"},
+    {type: "inst", location: 18, opCode: "CPIi", opA : "1",  opB: "11", comment: "// Push scratchMem1"},
+    {type: "inst", location: 19, opCode: "ADDi", opA : "1",  opB: "1",  comment: ""},
+    {type: "inst", location: 20, opCode: "CPIi", opA : "1",  opB: "2",  comment: "// Push basePointer"},
+    {type: "inst", location: 21, opCode: "ADDi", opA : "1",  opB: "1",  comment: ""},
+    {type: "inst", location: 22, opCode: "CP",   opA : "2",  opB: "1",  comment: "// Evaluating args.\n// Args evaluated.\n// Adjust BP to (SP - 0)"},
+    {type: "inst", location: 23, opCode: "BZJi", opA : "3",  opB: "27", comment: ""},
+    {type: "inst", location: 24, opCode: "ADD",  opA : "1",  opB: "4",  comment: "// $L2:  //24\n// Pop to scratchMem1"},
+    {type: "inst", location: 25, opCode: "CPI",  opA : "11", opB: "1",  comment: ""},
+    {type: "data", location: 26, value: 0, comment: "//HALT"}
 ];
 
 function modifyTopOfStack(){
@@ -89,12 +88,12 @@ function printListOfCodes(){
     }
 }
 
-function addToListOfCodes(variable){
-    var comment = ""
-    if(listOfCodes.length == 27){
+function addVarDeclarationToListOfCodes(variable){
+    let comment = "";
+    if(listOfCodes.length === 27){
         comment = "// $L1main:  //27\n// Entering a block.\n"
     }
-    comment += "Allocate var '" + variable + "'"
+    comment += "Allocate var '" + variable + "'";
     listOfCodes.push({type: "inst", location: listOfCodes.length, opCode: "ADDi", opA : "1",  opB: "1", comment: comment} )
 }
 
@@ -131,7 +130,7 @@ function declarationOrStatement(JSonBody){
     if(JSonBody.type === "VariableDeclaration"){
         var name = JSonBody.name;
         addToEnvironment(name);
-        addToListOfCodes(name);
+        addVarDeclarationToListOfCodes(name);
         return;
     }else{
         decideStatement(JSonBody);
@@ -251,15 +250,18 @@ function doBinaryExpression(operator, leftValue, rightValue){
 
     switch(operator){
         case("="):
-            console.log(leftValue, rightValue);
+            var comment = "// Assignment\n// Const. int" + rightValue;  //??
+            listOfCodes.push({type: "inst", location: listOfCodes.length, opCode: "CPi",  opA : "11", opB: rightValue, comment: comment});
+            listOfCodes.push({type: "inst", location: listOfCodes.length, opCode: "CPIi",  opA : "1", opB: "11", comment: "// Push scratchMem1"});
+            listOfCodes.push({type: "inst", location: listOfCodes.length, opCode: "ADDi",  opA : "1", opB: "1", comment: ""});
         case("+"):
-            return leftValue + rightValue;
+
         case("-"):
 
         case("/"):
 
         case("*"):
-
+            var comment = "// Binary operation operand1";
         case("&&"):
 
         case("||"):
@@ -459,6 +461,7 @@ LinkedList.prototype.search = function(searchValue) {
     return null;
 }
 */
+
 
 
 

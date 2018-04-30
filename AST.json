@@ -8,7 +8,7 @@
         "file": "unknown",
         "line": 1
       },
-      "name": "void"
+      "name": "int"
     },
     "name": "main",
     "pos": {
@@ -32,6 +32,120 @@
         "pos": {
           "file": "unknown",
           "line": 2
+        }
+      },
+      {
+        "type": "VariableDeclaration",
+        "defType": {
+          "type": "Type",
+          "modifier": [],
+          "pos": {
+            "file": "unknown",
+            "line": 3
+          },
+          "name": "int"
+        },
+        "name": "b",
+        "pos": {
+          "file": "unknown",
+          "line": 3
+        }
+      },
+      {
+        "type": "VariableDeclaration",
+        "defType": {
+          "type": "Type",
+          "modifier": [],
+          "pos": {
+            "file": "unknown",
+            "line": 4
+          },
+          "name": "int"
+        },
+        "name": "c",
+        "pos": {
+          "file": "unknown",
+          "line": 4
+        }
+      },
+      {
+        "type": "VariableDeclaration",
+        "defType": {
+          "type": "Type",
+          "modifier": [],
+          "pos": {
+            "file": "unknown",
+            "line": 5
+          },
+          "name": "int"
+        },
+        "name": "d",
+        "pos": {
+          "file": "unknown",
+          "line": 5
+        }
+      },
+      {
+        "type": "ExpressionStatement",
+        "expression": {
+          "type": "BinaryExpression",
+          "operator": "=",
+          "left": {
+            "type": "Identifier",
+            "value": "c",
+            "pos": {
+              "file": "unknown",
+              "line": 6
+            }
+          },
+          "right": {
+            "type": "BinaryExpression",
+            "operator": "+",
+            "left": {
+              "type": "BinaryExpression",
+              "operator": "*",
+              "left": {
+                "type": "Literal",
+                "value": 3,
+                "pos": {
+                  "file": "unknown",
+                  "line": 6
+                }
+              },
+              "right": {
+                "type": "Literal",
+                "value": 3,
+                "pos": {
+                  "file": "unknown",
+                  "line": 6
+                }
+              },
+              "pos": {
+                "file": "unknown",
+                "line": 6
+              }
+            },
+            "right": {
+              "type": "Literal",
+              "value": 3,
+              "pos": {
+                "file": "unknown",
+                "line": 6
+              }
+            },
+            "pos": {
+              "file": "unknown",
+              "line": 6
+            }
+          },
+          "pos": {
+            "file": "unknown",
+            "line": 6
+          }
+        },
+        "pos": {
+          "file": "unknown",
+          "line": 6
         }
       }
     ]
