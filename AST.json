@@ -28,45 +28,11 @@
           },
           "name": "int"
         },
-        "name": "x",
+        "name": "a",
         "pos": {
           "file": "unknown",
           "line": 2
         }
-      },
-      {
-        "type": "IfStatement",
-        "pos": {
-          "file": "unknown",
-          "line": 3
-        },
-        "condition": {
-          "type": "Identifier",
-          "value": "true",
-          "pos": {
-            "file": "unknown",
-            "line": 3
-          }
-        },
-        "body": [
-          {
-            "type": "VariableDeclaration",
-            "defType": {
-              "type": "Type",
-              "modifier": [],
-              "pos": {
-                "file": "unknown",
-                "line": 4
-              },
-              "name": "int"
-            },
-            "name": "y",
-            "pos": {
-              "file": "unknown",
-              "line": 4
-            }
-          }
-        ]
       }
     ]
   }

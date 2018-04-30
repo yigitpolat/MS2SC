@@ -7,16 +7,6 @@ let listOfStrings = [];
 
 
 
-
-
-
-
-
-
-//arr.push();
-
-
-
 //----------------------- Linked List ---------------------------------
 LinkedList.prototype.add = function(value) {
     var node = new Node(value);
@@ -99,8 +89,16 @@ function printListOfCodes(){
     }
 }
 
-modifyTopOfStack();
-printListOfCodes();
+function addToListOfCodes(variable){
+    var comment = ""
+    if(listOfCodes.length == 27){
+        comment = "// $L1main:  //27\n// Entering a block.\n"
+    }
+    comment += "Allocate var '" + variable + "'"
+    listOfCodes.push({type: "inst", location: listOfCodes.length, opCode: "ADDi", opA : "1",  opB: "1", comment: comment} )
+}
+
+
 
 
 
@@ -133,6 +131,7 @@ function declarationOrStatement(JSonBody){
     if(JSonBody.type === "VariableDeclaration"){
         var name = JSonBody.name;
         addToEnvironment(name);
+        addToListOfCodes(name);
         return;
     }else{
         decideStatement(JSonBody);
@@ -332,7 +331,8 @@ function removeFromEnvironment(key) {
 }
 
 
-
+modifyTopOfStack();
+printListOfCodes();
 
 
 //----------------------- Hash Table ---------------------------------
