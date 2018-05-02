@@ -39,6 +39,45 @@ LinkedList.prototype.removeHead = function() {
     //DELETE THE PREVIOUS HEAD
 };
 
+LinkedList.prototype.getNext = function() {
+    return this.getNext();
+};
+
+
+function setMemoryAdress(address) {
+    if(address === 1) {
+        return "stackPointer";
+    } else if(address === 2) {
+        return "basePointer";
+    } else if(address === 3) {
+        return "zero";
+    } else if(address === 4) {
+        return "negativeOne";
+    } else if(address === 5 || address === 6 || address === 7 || address === 8 || address === 9 || address === 10) {
+        return "VSCPU-" + address.toString();
+    } else if(address === 11) {
+        return "scratchMem1";
+    } else if(address === 12) {
+        return "scratchMem2";
+    } else if(address === 13) {
+        return "scratchMem3";
+    } else if(address === 14) {
+        return "scratchMem4";
+    } else if(address === 15) {
+        return "scratchMem5";
+    } else if(address === 16) {
+        return "scratchMem6";
+    } else {
+        return "mem[" + address.toString() + "]";
+    }
+}
+
+// function initializeListOfCodes() {
+//     listOfCodes.push({type: "inst", location: 0,  opCode: "BZJi", opA : "3", opB: "17", comment: ""});
+//     for (let i = 1; i < 17; i++) {
+//         var comment =
+//     }
+// }
 
 var listOfCodes = [ {type: "inst", location: 0,  opCode: "BZJi", opA : "3", opB: "17", comment: ""},
     {type: "data", location: 1,  value: 0, comment: "//&($topofstack)"},
@@ -255,7 +294,6 @@ function decideExpression(expression) {
 }
 
 
-
 function doesElseExist(JSonBody) {
     if(typeof JSonBody.else == 'undefined'){
         return false;
@@ -265,18 +303,20 @@ function doesElseExist(JSonBody) {
 }
 
 
-
-
 function doBinaryExpression(operator, leftValue, rightValue){
 
     switch(operator){
         case("="):
+            var opB = listOfCodes[1].value + lookup(rightValue);
             var comment = "// Assignment\n// Const. int" + rightValue;  //??
-            listOfCodes.push({type: "inst", location: listOfCodes.length, opCode: "CPi",  opA : "11", opB: rightValue, comment: comment});
+            listOfCodes.push({type: "inst", location: listOfCodes.length, opCode: "CPi",  opA : "11", opB: opB, comment: comment});
             listOfCodes.push({type: "inst", location: listOfCodes.length, opCode: "CPIi",  opA : "1", opB: "11", comment: "// Push scratchMem1"});
             listOfCodes.push({type: "inst", location: listOfCodes.length, opCode: "ADDi",  opA : "1", opB: "1", comment: ""});
         case("+"):
-
+            var comment = "// Binary operation operand1\n// Const. int" + leftValue;
+            listOfCodes.push({typr: "inst", location: listOfCodes.length, opCode: "CPi", opA: "11", opB: leftValue, comment: comment});
+            listOfCodes.push({typr: "inst", location: listOfCodes.length, opCode: "CPi", opA: "11", opB: leftValue, comment: comment});
+            listOfCodes.push({typr: "inst", location: listOfCodes.length, opCode: "CPi", opA: "11", opB: leftValue, comment: comment});
         case("-"):
 
         case("/"):
@@ -333,12 +373,14 @@ function addToEnvironment(key) {
 }
 
 function lookup(key) {
-    for (let i = 0; i < hashList.length; i++) {
-        hashTable = hashList.get(i);
-        if (hashTable.hasItem(key)) {
+    var hashTable = hashList.getHead();
+    while(hashTable !== null) {
+        if(hashTable.hasItem(key)) {
             return hashTable.getItem(key);
         }
+        hashTable = hashList.getNext();
     }
+    return null;
 }
 
 
