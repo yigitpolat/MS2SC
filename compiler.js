@@ -240,12 +240,17 @@ function decideExpression(expression) {
             var operator = expression.operator;
             var value = decideExpression(expression.value);
         case ("CastExpression"):
-        //TODO
+            var value = decideExpression(expr.value);
         case ("CallExpression"):
-
-
+            let hashTable = new HashTable({});
+            hashList.unshift(hashTable);
+            var arguments = expr.arguments;
+            for (let i = 0; i < arguments.length; i++) {
+           	    var argument = decideExpression(arguments[i]);
+           	}
         case ("IndexExpression"):
-        //Array
+            var value = decideExpression(expr.value);
+            var index = decideExpression(expr.index);
     }
 }
 
