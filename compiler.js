@@ -342,10 +342,15 @@ function doBinaryExpression(operator, leftValue, rightValue){
             listOfCodes.push({type: "inst", location: listOfCodes.length, opCode: "ADDi",  opA : "1", opB: "1", comment: ""});
             return;
         case("+"):
-            var comment = "// Binary operation operand1\n// Const. int" + leftValue;
-            listOfCodes.push({typr: "inst", location: listOfCodes.length, opCode: "CPi", opA: "11", opB: leftValue, comment: comment});
-            listOfCodes.push({typr: "inst", location: listOfCodes.length, opCode: "CPi", opA: "11", opB: leftValue, comment: comment});
-            listOfCodes.push({typr: "inst", location: listOfCodes.length, opCode: "CPi", opA: "11", opB: leftValue, comment: comment});
+            var comment1 = "// Binary operation operand1\n// Const. int " + leftValue;
+            var comment2 = "// Binary operation operand2\n// Const. int " + rightValue;
+            listOfCodes.push({type: "inst", location: listOfCodes.length, opCode: "CPi", opA: "11", opB: leftValue, comment: comment1});
+            listOfCodes.push({type: "inst", location: listOfCodes.length, opCode: "CPIi",  opA : "1", opB: "11", comment: "// Push scratchMem1"});
+            listOfCodes.push({type: "inst", location: listOfCodes.length, opCode: "ADDi",  opA : "1", opB: "1", comment: ""});
+            listOfCodes.push({type: "inst", location: listOfCodes.length, opCode: "CPi", opA: "11", opB: rightValue, comment: comment2});
+            listOfCodes.push({type: "inst", location: listOfCodes.length, opCode: "CPIi",  opA : "1", opB: "11", comment: "// Push scratchMem1"});
+            listOfCodes.push({type: "inst", location: listOfCodes.length, opCode: "ADDi",  opA : "1", opB: "1", comment: ""});
+            return;
         case("-"):
 
         case("/"):

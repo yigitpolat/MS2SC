@@ -6,14 +6,14 @@
       "modifier": [],
       "pos": {
         "file": "unknown",
-        "line": 1
+        "line": 2
       },
       "name": "int"
     },
     "name": "main",
     "pos": {
       "file": "unknown",
-      "line": 1
+      "line": 2
     },
     "arguments": [],
     "body": [
@@ -24,14 +24,14 @@
           "modifier": [],
           "pos": {
             "file": "unknown",
-            "line": 2
+            "line": 3
           },
           "name": "int"
         },
         "name": "d",
         "pos": {
           "file": "unknown",
-          "line": 2
+          "line": 3
         },
         "value": {
           "type": "BinaryExpression",
@@ -41,7 +41,7 @@
             "value": 4,
             "pos": {
               "file": "unknown",
-              "line": 2
+              "line": 3
             }
           },
           "right": {
@@ -49,12 +49,12 @@
             "value": 5,
             "pos": {
               "file": "unknown",
-              "line": 2
+              "line": 3
             }
           },
           "pos": {
             "file": "unknown",
-            "line": 2
+            "line": 3
           }
         }
       }
