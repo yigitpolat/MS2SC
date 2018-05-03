@@ -6,14 +6,14 @@
       "modifier": [],
       "pos": {
         "file": "unknown",
-        "line": 2
+        "line": 1
       },
       "name": "int"
     },
     "name": "main",
     "pos": {
       "file": "unknown",
-      "line": 2
+      "line": 1
     },
     "arguments": [],
     "body": [
@@ -24,31 +24,38 @@
           "modifier": [],
           "pos": {
             "file": "unknown",
-            "line": 3
-          },
-          "name": "int"
-        },
-        "name": "c",
-        "pos": {
-          "file": "unknown",
-          "line": 3
-        }
-      },
-      {
-        "type": "VariableDeclaration",
-        "defType": {
-          "type": "Type",
-          "modifier": [],
-          "pos": {
-            "file": "unknown",
-            "line": 4
+            "line": 2
           },
           "name": "int"
         },
         "name": "d",
         "pos": {
           "file": "unknown",
-          "line": 4
+          "line": 2
+        },
+        "value": {
+          "type": "BinaryExpression",
+          "operator": "+",
+          "left": {
+            "type": "Literal",
+            "value": 4,
+            "pos": {
+              "file": "unknown",
+              "line": 2
+            }
+          },
+          "right": {
+            "type": "Literal",
+            "value": 5,
+            "pos": {
+              "file": "unknown",
+              "line": 2
+            }
+          },
+          "pos": {
+            "file": "unknown",
+            "line": 2
+          }
         }
       }
     ]

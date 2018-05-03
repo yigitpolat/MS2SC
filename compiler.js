@@ -142,11 +142,26 @@ function printListOfCodes(){
 
 function addVarDeclarationToListOfCodes(variable){
     let comment = "";
+    let name = variable.name;
     if(listOfCodes.length === 27){
         comment = "// $L1main:  //27\n// Entering a block.\n"
     }
-    comment += "Allocate var '" + variable + "'";
-    listOfCodes.push({type: "inst", location: listOfCodes.length, opCode: "ADDi", opA : "1",  opB: "1", comment: comment} )
+    if(typeof variable.value !== 'undefined') {
+        if(typeof variable.value.value !== 'undefined') {
+            let value = variable.value.value;
+            comment += "// Initialization of var '" + name + "'\n// Const. int " + value;
+            listOfCodes.push({type: "inst", location: listOfCodes.length, opCode: "CPi", opA : "11",  opB: value, comment: comment} );
+            listOfCodes.push({type: "inst", location: listOfCodes.length, opCode: "CPIi", opA : listOfCodes[1].location,  opB: "11", comment: "// Push scratchMem1"} );
+            listOfCodes.push({type: "inst", location: listOfCodes.length, opCode: "ADDi", opA : listOfCodes[1].location,  opB: "1", comment: ""} );
+            listOfCodes[1].value += 1;
+        } else {
+            decideExpression(variable.value);
+        }
+    } else {
+        comment += "// Allocate var '" + name + "'";
+        listOfCodes.push({type: "inst", location: listOfCodes.length, opCode: "ADDi", opA : "1",  opB: "1", comment: comment} );
+    }
+
 }
 
 
@@ -201,7 +216,7 @@ function declarationOrStatement(JSonBody){
     if(JSonBody.type === "VariableDeclaration"){
         var name = JSonBody.name;
         addToEnvironment(name);
-        addVarDeclarationToListOfCodes(name);
+        addVarDeclarationToListOfCodes(JSonBody);
         return;
     }else{
         decideStatement(JSonBody);
@@ -311,11 +326,7 @@ function decideExpression(expression) {
 
 
 function doesElseExist(JSonBody) {
-    if(typeof JSonBody.else == 'undefined'){
-        return false;
-    }else{
-        return true;
-    }
+    return typeof JSonBody.else !== 'undefined';
 }
 
 
