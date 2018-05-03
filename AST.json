@@ -37,8 +37,24 @@
           "type": "BinaryExpression",
           "operator": "+",
           "left": {
-            "type": "Literal",
-            "value": 4,
+            "type": "BinaryExpression",
+            "operator": "+",
+            "left": {
+              "type": "Literal",
+              "value": 4,
+              "pos": {
+                "file": "unknown",
+                "line": 3
+              }
+            },
+            "right": {
+              "type": "Literal",
+              "value": 5,
+              "pos": {
+                "file": "unknown",
+                "line": 3
+              }
+            },
             "pos": {
               "file": "unknown",
               "line": 3
@@ -46,7 +62,7 @@
           },
           "right": {
             "type": "Literal",
-            "value": 5,
+            "value": 6,
             "pos": {
               "file": "unknown",
               "line": 3

@@ -350,6 +350,13 @@ function doBinaryExpression(operator, leftValue, rightValue){
             listOfCodes.push({type: "inst", location: listOfCodes.length, opCode: "CPi", opA: "11", opB: rightValue, comment: comment2});
             listOfCodes.push({type: "inst", location: listOfCodes.length, opCode: "CPIi",  opA : "1", opB: "11", comment: "// Push scratchMem1"});
             listOfCodes.push({type: "inst", location: listOfCodes.length, opCode: "ADDi",  opA : "1", opB: "1", comment: ""});
+            listOfCodes.push({type: "inst", location: listOfCodes.length, opCode: "ADD",  opA : "1", opB: "4", comment: "// Pop to scratchMem2"});
+            listOfCodes.push({type: "inst", location: listOfCodes.length, opCode: "CPI",  opA : "12", opB: "1", comment: ""});
+            listOfCodes.push({type: "inst", location: listOfCodes.length, opCode: "ADD",  opA : "1", opB: "4", comment: "// Pop to scratchMem1"});
+            listOfCodes.push({type: "inst", location: listOfCodes.length, opCode: "CPI",  opA : "11", opB: "1", comment: ""});
+            listOfCodes.push({type: "inst", location: listOfCodes.length, opCode: "ADD",  opA : "11", opB: "12", comment: ""});
+            listOfCodes.push({type: "inst", location: listOfCodes.length, opCode: "CPIi",  opA : "1", opB: "11", comment: "// Push scratchMem1"});
+            listOfCodes.push({type: "inst", location: listOfCodes.length, opCode: "ADDi",  opA : "1", opB: "1", comment: ""});
             return;
         case("-"):
 
@@ -363,7 +370,11 @@ function doBinaryExpression(operator, leftValue, rightValue){
             listOfCodes.push({type: "inst", location: listOfCodes.length, opCode: "ADDi",  opA : "1", opB: "1", comment: ""});
             listOfCodes.push({type: "inst", location: listOfCodes.length, opCode: "CPi",  opA : "11", opB: "4", comment: comment2});
             listOfCodes.push({type: "inst", location: listOfCodes.length, opCode: "CPIi",  opA : "1", opB: "11", comment: "// Push scratchMem1"});
-            listOfCodes.push({type: "inst", location: listOfCodes.length, opCode: "ADDi",  opA : "1", opB: "1", comment: ""});
+
+
+
+
+
         case("&&"):
 
         case("||"):
