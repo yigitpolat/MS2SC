@@ -39,6 +39,7 @@ LinkedList.prototype.removeHead = function() {
     //DELETE THE PREVIOUS HEAD
 };
 
+
 LinkedList.prototype.getNext = function() {
     return this.getNext();
 };
@@ -111,6 +112,21 @@ var listOfCodes = [ {type: "inst", location: 0,  opCode: "BZJi", opA : "3", opB:
 function modifyTopOfStack(){
     listOfCodes[1].value = listOfCodes[listOfCodes.length-1].location + 1;
     listOfCodes[2].value = listOfCodes[listOfCodes.length-1].location + 1;
+}
+
+function decreaseSP(){
+    var hashTable = hashList.getHead();
+    if(hashTable !== null) {
+        for(let i = 0; i<hashTable.length; i++){
+            if(i==0){
+                let comment = "// Decrease SP by " + hashTable.length;
+                listOfCodes.push({type: "inst", location: listOfCodes.length, opCode: "ADD", opA: "1", opB: "4", comment: comment});
+            }else{
+                listOfCodes.push({type: "inst", location: listOfCodes.length, opCode: "ADD", opA: "1", opB: "4", comment: ""});
+            }
+
+        }
+    }
 }
 
 function printListOfCodes(){
@@ -307,11 +323,13 @@ function doBinaryExpression(operator, leftValue, rightValue){
 
     switch(operator){
         case("="):
-            var opB = listOfCodes[1].value + lookup(rightValue);
+            var opB = listOfCodes[1].value + lookup(leftValue);
+            console.log(opB)
             var comment = "// Assignment\n// Const. int" + rightValue;  //??
-            listOfCodes.push({type: "inst", location: listOfCodes.length, opCode: "CPi",  opA : "11", opB: opB, comment: comment});
+            listOfCodes.push({type: "inst", location: listOfCodes.length, opCode: "CPi",  opA : "11", opB: rightValue, comment: comment});
             listOfCodes.push({type: "inst", location: listOfCodes.length, opCode: "CPIi",  opA : "1", opB: "11", comment: "// Push scratchMem1"});
             listOfCodes.push({type: "inst", location: listOfCodes.length, opCode: "ADDi",  opA : "1", opB: "1", comment: ""});
+            return;
         case("+"):
             var comment = "// Binary operation operand1\n// Const. int" + leftValue;
             listOfCodes.push({typr: "inst", location: listOfCodes.length, opCode: "CPi", opA: "11", opB: leftValue, comment: comment});
@@ -396,9 +414,17 @@ function removeFromEnvironment(key) {
 }
 
 
-modifyTopOfStack();
-printListOfCodes();
 
+
+decreaseSP();
+printListOfCodes();
+modifyTopOfStack();
+printTopOfStack();
+
+
+function printTopOfStack(){
+    console.log("// $topofstack:  //" + listOfCodes[1].value);
+}
 
 //----------------------- Hash Table ---------------------------------
 function HashTable(obj) {
