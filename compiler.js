@@ -401,9 +401,14 @@ function doesElseExist(JSonBody) {
 
 function doBinaryExpression(expression) {
     var operator = expression.operator;
+    let comment1 = "Binary operation operand1\n";
+    let comment2 = "Binary operation operand2\n";
+    listOfCodes.push({comment: comment1});
     var leftValue = declarationOrStatement(expression.left);
+    listOfCodes.push({comment: comment2});
     var rightValue = declarationOrStatement(expression.right);
-
+    pop("scratchMem2");
+    pop("scratchMem1");
     switch (operator) {
         case("="):
             var opB = listOfCodes[1].value + lookup(leftValue);
@@ -435,161 +440,13 @@ function doBinaryExpression(expression) {
             });
             return;
         case("+"):
-            var comment1 = "// Binary operation operand1\n// Const. int " + leftValue;
-            var comment2 = "// Binary operation operand2\n// Const. int " + rightValue;
-            emit("CPi", "11", leftValue);
-            listOfCodes.push({
-                type: "inst",
-                location: listOfCodes.length,
-                opCode: "CPi",
-                opA: "11",
-                opB: leftValue,
-                comment: comment1
-            });
-            listOfCodes.push({
-                type: "inst",
-                location: listOfCodes.length,
-                opCode: "CPIi",
-                opA: "1",
-                opB: "11",
-                comment: "// Push scratchMem1"
-            });
-            listOfCodes.push({
-                type: "inst",
-                location: listOfCodes.length,
-                opCode: "ADDi",
-                opA: "1",
-                opB: "1",
-                comment: ""
-            });
-            listOfCodes.push({
-                type: "inst",
-                location: listOfCodes.length,
-                opCode: "CPi",
-                opA: "11",
-                opB: rightValue,
-                comment: comment2
-            });
-            listOfCodes.push({
-                type: "inst",
-                location: listOfCodes.length,
-                opCode: "CPIi",
-                opA: "1",
-                opB: "11",
-                comment: "// Push scratchMem1"
-            });
-            listOfCodes.push({
-                type: "inst",
-                location: listOfCodes.length,
-                opCode: "ADDi",
-                opA: "1",
-                opB: "1",
-                comment: ""
-            });
-            listOfCodes.push({
-                type: "inst",
-                location: listOfCodes.length,
-                opCode: "ADD",
-                opA: "1",
-                opB: "4",
-                comment: "// Pop to scratchMem2"
-            });
-            listOfCodes.push({
-                type: "inst",
-                location: listOfCodes.length,
-                opCode: "CPI",
-                opA: "12",
-                opB: "1",
-                comment: ""
-            });
-            listOfCodes.push({
-                type: "inst",
-                location: listOfCodes.length,
-                opCode: "ADD",
-                opA: "1",
-                opB: "4",
-                comment: "// Pop to scratchMem1"
-            });
-            listOfCodes.push({
-                type: "inst",
-                location: listOfCodes.length,
-                opCode: "CPI",
-                opA: "11",
-                opB: "1",
-                comment: ""
-            });
-            listOfCodes.push({
-                type: "inst",
-                location: listOfCodes.length,
-                opCode: "ADD",
-                opA: "11",
-                opB: "12",
-                comment: ""
-            });
-            listOfCodes.push({
-                type: "inst",
-                location: listOfCodes.length,
-                opCode: "CPIi",
-                opA: "1",
-                opB: "11",
-                comment: "// Push scratchMem1"
-            });
-            listOfCodes.push({
-                type: "inst",
-                location: listOfCodes.length,
-                opCode: "ADDi",
-                opA: "1",
-                opB: "1",
-                comment: ""
-            });
-            return;
+            emit("ADD", getMemoryAdress("scratchMem1"), getMemoryAdress("scratchMem2"));
+            break;
         case("-"):
 
         case("/"):
 
         case("*"):
-            var comment1 = "// Binary operation operand1\n// Const. int " + leftValue;
-            var comment2 = "// Binary operation operand2\n// Const. int " + rightValue;
-            listOfCodes.push({
-                type: "inst",
-                location: listOfCodes.length,
-                opCode: "CPi",
-                opA: "11",
-                opB: "3",
-                comment: comment1
-            });
-            listOfCodes.push({
-                type: "inst",
-                location: listOfCodes.length,
-                opCode: "CPIi",
-                opA: "1",
-                opB: "11",
-                comment: "// Push scratchMem1"
-            });
-            listOfCodes.push({
-                type: "inst",
-                location: listOfCodes.length,
-                opCode: "ADDi",
-                opA: "1",
-                opB: "1",
-                comment: ""
-            });
-            listOfCodes.push({
-                type: "inst",
-                location: listOfCodes.length,
-                opCode: "CPi",
-                opA: "11",
-                opB: "4",
-                comment: comment2
-            });
-            listOfCodes.push({
-                type: "inst",
-                location: listOfCodes.length,
-                opCode: "CPIi",
-                opA: "1",
-                opB: "11",
-                comment: "// Push scratchMem1"
-            });
 
         case("&&"):
 
@@ -600,7 +457,7 @@ function doBinaryExpression(expression) {
         case("|"):
 
         case("<"):
-            return;
+
         case("<="):
 
         case(">"):
@@ -608,6 +465,8 @@ function doBinaryExpression(expression) {
         case(">="):
 
     }
+
+    push("scratchMem1");
 
 }
 
