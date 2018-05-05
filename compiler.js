@@ -332,9 +332,15 @@ function decideStatement(JSonBody) {
             hashList.removeHead();
             return;
         case("ReturnStatement"):
-            var value = JSonBody.value;
-            decideExpression(value);
-            hashList.removeHead();
+            let value = null;
+            if(typeof JSonBody.value !== 'undefined') {
+                value = JSonBody.value;
+                listOfCodes.push({comment: "// Return " + value});
+                declarationOrStatement(value);
+                pop("scratchMem1");;
+            } else {
+                listOfCodes.push({comment: "// Return"});
+            }
             return;
         default:
             decideExpression(JSonBody);
