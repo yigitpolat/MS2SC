@@ -150,8 +150,10 @@ var listOfCodes = [{type: "inst", location: 0, opCode: "BZJi", opA: "3", opB: "1
 ];
 
 function modifyTopOfStack() {
-    listOfCodes[1].value = listOfCodes[listOfCodes.length - 1].location + 1;
-    listOfCodes[2].value = listOfCodes[listOfCodes.length - 1].location + 1 ;
+    // listOfCodes[1].value = listOfCodes[listOfCodes.length - 1].location + 1;
+    // listOfCodes[2].value = listOfCodes[listOfCodes.length - 1].location + 1 ;
+    listOfCodes[1].value = getNextLocation();
+    listOfCodes[2].value = getNextLocation();
 }
 
 // function decreaseSP(){
@@ -242,11 +244,12 @@ for (let i = 0; i < myJSon.length; i++) {
 
     decideDeclaration(myJSon[i]);
     if(hashList.getHead() !== null) {
-        listOfCodes.push({comment: "// Decrease SP by " + hashList.getHead().length});
+        let comment = hashList.getHead().length;
+        listOfCodes.push({comment: "// Decrease SP by " + comment});
         decrementSP(hashList.getHead().length); //TODO
+    } else {
+        listOfCodes.push({comment: "// Decrease SP by 0" });
     }
-
-
 }
 
 function decideDeclaration(JSonObject) {
@@ -254,7 +257,7 @@ function decideDeclaration(JSonObject) {
 
     switch (declaration) {
         case("FunctionDeclaration"):
-            listOfCodes.push({comment: "// $L" + functionCount + JSonObject.name + ":  //"+ (listOfCodes.length)});
+            listOfCodes.push({comment: "// $L" + functionCount + JSonObject.name + ":  //"+ getNextLocation()});
             listOfCodes.push({comment: "// Entering a block."});
             functionCount ++;
             for (let i = 0; i < JSonObject.body.length; i++) {
@@ -335,12 +338,18 @@ function decideStatement(JSonBody) {
             let value = null;
             if(typeof JSonBody.value !== 'undefined') {
                 value = JSonBody.value;
-                listOfCodes.push({comment: "// Return " + value});
+                listOfCodes.push({comment: "// Return (Some)"});
                 declarationOrStatement(value);
                 pop("scratchMem1");;
             } else {
-                listOfCodes.push({comment: "// Return"});
+                listOfCodes.push({comment: "// Return (None)"});
             }
+            emit("CP", getMemoryAdress("stackPointer"), getMemoryAdress("basePointer"), "");
+            pop("basePointer");
+            pop("scratchMem2");
+            push("scratchMem1");
+            emit("BZJi", getMemoryAdress("scratchMem2"), "0", "");
+            listOfCodes.push({comment: "// Return op end."});
             return;
         default:
             decideExpression(JSonBody);
