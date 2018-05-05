@@ -6,9 +6,8 @@ let hashList = new LinkedList();
 //arr.push();
 
 
-
 //----------------------- Linked List ---------------------------------
-LinkedList.prototype.add = function(value) {
+LinkedList.prototype.add = function (value) {
     var node = new Node(value);
     var currentNode = this.head;
 
@@ -26,13 +25,13 @@ LinkedList.prototype.add = function(value) {
 };
 
 
-LinkedList.prototype.getHead = function(){
-    if(!this.head) return null;
+LinkedList.prototype.getHead = function () {
+    if (!this.head) return null;
     var headHashList = this.head;
     return headHashList.data;
 };
 
-LinkedList.prototype.removeHead = function() {
+LinkedList.prototype.removeHead = function () {
     if (!this.head) return null;
     this.head = this.head.next;
     this.length--;
@@ -40,37 +39,72 @@ LinkedList.prototype.removeHead = function() {
 };
 
 
-LinkedList.prototype.getNext = function() {
+LinkedList.prototype.getNext = function () {
     return this.getNext();
 };
 
 
-function setMemoryAdress(address) {
-    if(address === 1) {
-        return "stackPointer";
-    } else if(address === 2) {
-        return "basePointer";
-    } else if(address === 3) {
-        return "zero";
-    } else if(address === 4) {
-        return "negativeOne";
-    } else if(address === 5 || address === 6 || address === 7 || address === 8 || address === 9 || address === 10) {
-        return "VSCPU-" + address.toString();
-    } else if(address === 11) {
-        return "scratchMem1";
-    } else if(address === 12) {
-        return "scratchMem2";
-    } else if(address === 13) {
-        return "scratchMem3";
-    } else if(address === 14) {
-        return "scratchMem4";
-    } else if(address === 15) {
-        return "scratchMem5";
-    } else if(address === 16) {
-        return "scratchMem6";
+function getMemoryAdress(name) {
+    if (name === "stackPointer") {
+        return "1";
+    } else if (name === "basePointer") {
+        return "2";
+    } else if (name === "zero") {
+        return "3";
+    } else if (name === "negativeOne") {
+        return "4";
+    } else if (name === "VSCPU-5") {
+        return "5";
+    } else if (name === "VSCPU-6") {
+        return "6";
+    } else if (name === "VSCPU-7") {
+        return "7";
+    } else if (name === "VSCPU-8") {
+        return "8";
+    } else if (name === "VSCPU-9") {
+        return "9";
+    } else if (name === "VSCPU-10") {
+        return "10";
+    } else if (name === "scratchMem1") {
+        return "11";
+    } else if (name === "scratchMem2") {
+        return "12";
+    } else if (name === "scratchMem3") {
+        return "13";
+    } else if (name === "scratchMem4") {
+        return "14";
+    } else if (name === "scratchMem5") {
+        return "15";
+    } else if (name === "scratchMem6") {
+        return "16";
     } else {
-        return "mem[" + address.toString() + "]";
+        return "mem[" + name + "]";
     }
+}
+
+function decrementSP(number) {
+    if (number === 0) {
+        return;
+    } else {
+        emit("ADD", getMemoryAdress("stackPointer"), getMemoryAdress("negativeOne"), "");
+        decrementSP(number - 1);
+    }
+}
+
+function pop(destination) {
+    let comment = "Pop to " + destination;
+    decrementSP(1);
+    emit("CPI", getMemoryAdress(destination), getMemoryAdress("stackPointer"), comment);
+}
+
+function incrementSP(number) {
+    emit("ADDi", getMemoryAdress("stackPointer"), number.toString(), "");
+}
+
+function push(source) {
+    let comment = "Push " + source;
+    emit("CPIi", getMemoryAdress("stackPointer"), getMemoryAdress(source), comment);
+    incrementSP(1);
 }
 
 // function initializeListOfCodes() {
@@ -80,16 +114,16 @@ function setMemoryAdress(address) {
 //     }
 // }
 
-var listOfCodes = [ {type: "inst", location: 0,  opCode: "BZJi", opA : "3", opB: "17", comment: ""},
-    {type: "data", location: 1,  value: 0, comment: "//&($topofstack)"},
-    {type: "data", location: 2,  value: 0, comment: "//&($topofstack)"},
-    {type: "data", location: 3,  value: 0, comment: "//zero"},
-    {type: "data", location: 4,  value: 4294967295, comment: "//negativeOne"},
-    {type: "data", location: 5,  value: 0, comment: "//VSCPU-5"},
-    {type: "data", location: 6,  value: 0, comment: "//VSCPU-6"},
-    {type: "data", location: 7,  value: 0, comment: "//VSCPU-7"},
-    {type: "data", location: 8,  value: 0, comment: "//VSCPU-8"},
-    {type: "data", location: 9,  value: 0, comment: "//VSCPU-9"},
+var listOfCodes = [{type: "inst", location: 0, opCode: "BZJi", opA: "3", opB: "17", comment: ""},
+    {type: "data", location: 1, value: 0, comment: "//&($topofstack)"},
+    {type: "data", location: 2, value: 0, comment: "//&($topofstack)"},
+    {type: "data", location: 3, value: 0, comment: "//zero"},
+    {type: "data", location: 4, value: 4294967295, comment: "//negativeOne"},
+    {type: "data", location: 5, value: 0, comment: "//VSCPU-5"},
+    {type: "data", location: 6, value: 0, comment: "//VSCPU-6"},
+    {type: "data", location: 7, value: 0, comment: "//VSCPU-7"},
+    {type: "data", location: 8, value: 0, comment: "//VSCPU-8"},
+    {type: "data", location: 9, value: 0, comment: "//VSCPU-9"},
     {type: "data", location: 10, value: 0, comment: "//VSCPU-10"},
     {type: "data", location: 11, value: 0, comment: "//scratchMem1"},
     {type: "data", location: 12, value: 0, comment: "//scratchMem2"},
@@ -97,79 +131,118 @@ var listOfCodes = [ {type: "inst", location: 0,  opCode: "BZJi", opA : "3", opB:
     {type: "data", location: 14, value: 0, comment: "//scratchMem4"},
     {type: "data", location: 15, value: 0, comment: "//scratchMem5"},
     {type: "data", location: 16, value: 0, comment: "//scratchMem6"},
-    {type: "inst", location: 17, opCode: "CPi",  opA : "11", opB: "24", comment: "// $globalinit:  //17 \n// Calling main, numArgs: 0"},
-    {type: "inst", location: 18, opCode: "CPIi", opA : "1",  opB: "11", comment: "// Push scratchMem1"},
-    {type: "inst", location: 19, opCode: "ADDi", opA : "1",  opB: "1",  comment: ""},
-    {type: "inst", location: 20, opCode: "CPIi", opA : "1",  opB: "2",  comment: "// Push basePointer"},
-    {type: "inst", location: 21, opCode: "ADDi", opA : "1",  opB: "1",  comment: ""},
-    {type: "inst", location: 22, opCode: "CP",   opA : "2",  opB: "1",  comment: "// Evaluating args.\n// Args evaluated.\n// Adjust BP to (SP - 0)"},
-    {type: "inst", location: 23, opCode: "BZJi", opA : "3",  opB: "27", comment: ""},
-    {type: "inst", location: 24, opCode: "ADD",  opA : "1",  opB: "4",  comment: "// $L2:  //24\n// Pop to scratchMem1"},
-    {type: "inst", location: 25, opCode: "CPI",  opA : "11", opB: "1",  comment: ""},
+    {
+        type: "inst",
+        location: 17,
+        opCode: "CPi",
+        opA: "11",
+        opB: "24",
+        comment: "// $globalinit:  //17 \n// Calling main, numArgs: 0"
+    },
+    {type: "inst", location: 18, opCode: "CPIi", opA: "1", opB: "11", comment: "// Push scratchMem1"},
+    {type: "inst", location: 19, opCode: "ADDi", opA: "1", opB: "1", comment: ""},
+    {type: "inst", location: 20, opCode: "CPIi", opA: "1", opB: "2", comment: "// Push basePointer"},
+    {type: "inst", location: 21, opCode: "ADDi", opA: "1", opB: "1", comment: ""},
+    {
+        type: "inst",
+        location: 22,
+        opCode: "CP",
+        opA: "2",
+        opB: "1",
+        comment: "// Evaluating args.\n// Args evaluated.\n// Adjust BP to (SP - 0)"
+    },
+    {type: "inst", location: 23, opCode: "BZJi", opA: "3", opB: "27", comment: ""},
+    {type: "inst", location: 24, opCode: "ADD", opA: "1", opB: "4", comment: "// $L2:  //24\n// Pop to scratchMem1"},
+    {type: "inst", location: 25, opCode: "CPI", opA: "11", opB: "1", comment: ""},
     {type: "data", location: 26, value: 0, comment: "//HALT"}
 ];
 
-function modifyTopOfStack(){
-    listOfCodes[1].value = listOfCodes[listOfCodes.length-1].location + 1;
-    listOfCodes[2].value = listOfCodes[listOfCodes.length-1].location + 1;
+function modifyTopOfStack() {
+    listOfCodes[1].value = listOfCodes[listOfCodes.length - 1].location + 1;
+    listOfCodes[2].value = listOfCodes[listOfCodes.length - 1].location + 1;
 }
 
-function decreaseSP(){
-    var hashTable = hashList.getHead();
-    if(hashTable !== null) {
-        for(let i = 0; i<hashTable.length; i++){
-            if(i==0){
-                let comment = "// Decrease SP by " + hashTable.length;
-                listOfCodes.push({type: "inst", location: listOfCodes.length, opCode: "ADD", opA: "1", opB: "4", comment: comment});
-            }else{
-                listOfCodes.push({type: "inst", location: listOfCodes.length, opCode: "ADD", opA: "1", opB: "4", comment: ""});
-            }
+// function decreaseSP(){
+//     var hashTable = hashList.getHead();
+//     if(hashTable !== null) {
+//         for(let i = 0; i<hashTable.length; i++){
+//             if(i==0){
+//                 let comment = "// Decrease SP by " + hashTable.length;
+//                 listOfCodes.push({type: "inst", location: listOfCodes.length, opCode: "ADD", opA: "1", opB: "4", comment: comment});
+//             }else{
+//                 listOfCodes.push({type: "inst", location: listOfCodes.length, opCode: "ADD", opA: "1", opB: "4", comment: ""});
+//             }
+//
+//         }
+//     }
+// }
 
-        }
-    }
-}
-
-function printListOfCodes(){
-    for(let i = 0; i<listOfCodes.length; i++){
-        if(listOfCodes[i].type === "inst"){
-            if(listOfCodes[i].comment.length > 0) console.log(listOfCodes[i].comment);
+function printListOfCodes() {
+    for (let i = 0; i < listOfCodes.length; i++) {
+        if (listOfCodes[i].type === "inst") {
+            if (listOfCodes[i].comment.length > 0) console.log(listOfCodes[i].comment);
             console.log(listOfCodes[i].location + ": " + listOfCodes[i].opCode + " " + listOfCodes[i].opA + " " + listOfCodes[i].opB);
-        }else if(listOfCodes[i].type === "data"){
+        } else if (listOfCodes[i].type === "data") {
             console.log(listOfCodes[i].location + ": " + listOfCodes[i].value + " " + listOfCodes[i].comment);
         }
     }
 }
 
-function addVarDeclarationToListOfCodes(variable){
+function addVarDeclarationToListOfCodes(variable) {
     let comment = "";
     let name = variable.name;
-    if(listOfCodes.length === 27){
+    if (listOfCodes.length === 27) {
         comment = "// $L1main:  //27\n// Entering a block.\n"
     }
-    if(typeof variable.value !== 'undefined') {
-        if(typeof variable.value.value !== 'undefined') {
+    if (typeof variable.value !== 'undefined') {
+        if (typeof variable.value.value !== 'undefined') {
             let value = variable.value.value;
             comment += "// Initialization of var '" + name + "'\n// Const. int " + value;
-            listOfCodes.push({type: "inst", location: listOfCodes.length, opCode: "CPi", opA : "11",  opB: value, comment: comment} );
-            listOfCodes.push({type: "inst", location: listOfCodes.length, opCode: "CPIi", opA : listOfCodes[1].location,  opB: "11", comment: "// Push scratchMem1"} );
-            listOfCodes.push({type: "inst", location: listOfCodes.length, opCode: "ADDi", opA : listOfCodes[1].location,  opB: "1", comment: ""} );
+            listOfCodes.push({
+                type: "inst",
+                location: listOfCodes.length,
+                opCode: "CPi",
+                opA: "11",
+                opB: value,
+                comment: comment
+            });
+            listOfCodes.push({
+                type: "inst",
+                location: listOfCodes.length,
+                opCode: "CPIi",
+                opA: listOfCodes[1].location,
+                opB: "11",
+                comment: "// Push scratchMem1"
+            });
+            listOfCodes.push({
+                type: "inst",
+                location: listOfCodes.length,
+                opCode: "ADDi",
+                opA: listOfCodes[1].location,
+                opB: "1",
+                comment: ""
+            });
             listOfCodes[1].value += 1;
         } else {
             decideExpression(variable.value);
         }
     } else {
         comment += "// Allocate var '" + name + "'";
-        listOfCodes.push({type: "inst", location: listOfCodes.length, opCode: "ADDi", opA : "1",  opB: "1", comment: comment} );
+        listOfCodes.push({
+            type: "inst",
+            location: listOfCodes.length,
+            opCode: "ADDi",
+            opA: "1",
+            opB: "1",
+            comment: comment
+        });
     }
 
 }
 
 
-
-
-
 //----------------------- MAIN ---------------------------------
-for(let i = 0; i < myJSon.length; i++) {
+for (let i = 0; i < myJSon.length; i++) {
     decideDeclaration(myJSon[i]);
 }
 //
@@ -195,11 +268,11 @@ for(let i = 0; i < myJSon.length; i++) {
 // }
 
 function decideDeclaration(JSonObject) {
-    var declaration =  JSonObject.type;
+    var declaration = JSonObject.type;
 
-    switch(declaration) {
+    switch (declaration) {
         case("FunctionDeclaration"):
-            for(let i = 0; i < JSonObject.body.length; i++) {
+            for (let i = 0; i < JSonObject.body.length; i++) {
                 declarationOrStatement(JSonObject.body[i]);
             }
 
@@ -211,19 +284,17 @@ function decideDeclaration(JSonObject) {
 }
 
 
-
-function declarationOrStatement(JSonBody){
-    if(JSonBody.type === "VariableDeclaration"){
+function declarationOrStatement(JSonBody) {
+    if (JSonBody.type === "VariableDeclaration") {
         var name = JSonBody.name;
         addToEnvironment(name);
         addVarDeclarationToListOfCodes(JSonBody);
         return;
-    }else{
+    } else {
         decideStatement(JSonBody);
         return;
     }
 }
-
 
 
 function decideStatement(JSonBody) {
@@ -281,9 +352,10 @@ function decideStatement(JSonBody) {
             decideExpression(value);
             hashList.removeHead();
             return;
+        default:
+            decideExpression(JSonBody);
     }
 }
-
 
 
 function decideExpression(expression) {
@@ -298,10 +370,7 @@ function decideExpression(expression) {
             //addToEnvironment(value);
             return value;
         case ("BinaryExpression"):
-            var operator = expression.operator;
-            var leftValue = decideExpression(expression.left);
-            var rightValue = decideExpression(expression.right);
-            var result = doBinaryExpression(operator, leftValue, rightValue);
+            var result = doBinaryExpression(expression);
             return result;
         case ("PrefixExpression"):
             var operator = expression.operator;
@@ -316,8 +385,8 @@ function decideExpression(expression) {
             hashList.unshift(hashTable);
             var arguments = expr.arguments;
             for (let i = 0; i < arguments.length; i++) {
-           	    var argument = decideExpression(arguments[i]);
-           	}
+                var argument = decideExpression(arguments[i]);
+            }
         case ("IndexExpression"):
             var value = decideExpression(expr.value);
             var index = decideExpression(expr.index);
@@ -330,33 +399,149 @@ function doesElseExist(JSonBody) {
 }
 
 
-function doBinaryExpression(operator, leftValue, rightValue){
+function doBinaryExpression(expression) {
+    var operator = expression.operator;
+    var leftValue = declarationOrStatement(expression.left);
+    var rightValue = declarationOrStatement(expression.right);
 
-    switch(operator){
+    switch (operator) {
         case("="):
             var opB = listOfCodes[1].value + lookup(leftValue);
             console.log(opB)
             var comment = "// Assignment\n// Const. int" + rightValue;  //??
-            listOfCodes.push({type: "inst", location: listOfCodes.length, opCode: "CPi",  opA : "11", opB: rightValue, comment: comment});
-            listOfCodes.push({type: "inst", location: listOfCodes.length, opCode: "CPIi",  opA : "1", opB: "11", comment: "// Push scratchMem1"});
-            listOfCodes.push({type: "inst", location: listOfCodes.length, opCode: "ADDi",  opA : "1", opB: "1", comment: ""});
+            listOfCodes.push({
+                type: "inst",
+                location: listOfCodes.length,
+                opCode: "CPi",
+                opA: "11",
+                opB: rightValue,
+                comment: comment
+            });
+            listOfCodes.push({
+                type: "inst",
+                location: listOfCodes.length,
+                opCode: "CPIi",
+                opA: "1",
+                opB: "11",
+                comment: "// Push scratchMem1"
+            });
+            listOfCodes.push({
+                type: "inst",
+                location: listOfCodes.length,
+                opCode: "ADDi",
+                opA: "1",
+                opB: "1",
+                comment: ""
+            });
             return;
         case("+"):
             var comment1 = "// Binary operation operand1\n// Const. int " + leftValue;
             var comment2 = "// Binary operation operand2\n// Const. int " + rightValue;
-            listOfCodes.push({type: "inst", location: listOfCodes.length, opCode: "CPi", opA: "11", opB: leftValue, comment: comment1});
-            listOfCodes.push({type: "inst", location: listOfCodes.length, opCode: "CPIi",  opA : "1", opB: "11", comment: "// Push scratchMem1"});
-            listOfCodes.push({type: "inst", location: listOfCodes.length, opCode: "ADDi",  opA : "1", opB: "1", comment: ""});
-            listOfCodes.push({type: "inst", location: listOfCodes.length, opCode: "CPi", opA: "11", opB: rightValue, comment: comment2});
-            listOfCodes.push({type: "inst", location: listOfCodes.length, opCode: "CPIi",  opA : "1", opB: "11", comment: "// Push scratchMem1"});
-            listOfCodes.push({type: "inst", location: listOfCodes.length, opCode: "ADDi",  opA : "1", opB: "1", comment: ""});
-            listOfCodes.push({type: "inst", location: listOfCodes.length, opCode: "ADD",  opA : "1", opB: "4", comment: "// Pop to scratchMem2"});
-            listOfCodes.push({type: "inst", location: listOfCodes.length, opCode: "CPI",  opA : "12", opB: "1", comment: ""});
-            listOfCodes.push({type: "inst", location: listOfCodes.length, opCode: "ADD",  opA : "1", opB: "4", comment: "// Pop to scratchMem1"});
-            listOfCodes.push({type: "inst", location: listOfCodes.length, opCode: "CPI",  opA : "11", opB: "1", comment: ""});
-            listOfCodes.push({type: "inst", location: listOfCodes.length, opCode: "ADD",  opA : "11", opB: "12", comment: ""});
-            listOfCodes.push({type: "inst", location: listOfCodes.length, opCode: "CPIi",  opA : "1", opB: "11", comment: "// Push scratchMem1"});
-            listOfCodes.push({type: "inst", location: listOfCodes.length, opCode: "ADDi",  opA : "1", opB: "1", comment: ""});
+            emit("CPi", "11", leftValue);
+            listOfCodes.push({
+                type: "inst",
+                location: listOfCodes.length,
+                opCode: "CPi",
+                opA: "11",
+                opB: leftValue,
+                comment: comment1
+            });
+            listOfCodes.push({
+                type: "inst",
+                location: listOfCodes.length,
+                opCode: "CPIi",
+                opA: "1",
+                opB: "11",
+                comment: "// Push scratchMem1"
+            });
+            listOfCodes.push({
+                type: "inst",
+                location: listOfCodes.length,
+                opCode: "ADDi",
+                opA: "1",
+                opB: "1",
+                comment: ""
+            });
+            listOfCodes.push({
+                type: "inst",
+                location: listOfCodes.length,
+                opCode: "CPi",
+                opA: "11",
+                opB: rightValue,
+                comment: comment2
+            });
+            listOfCodes.push({
+                type: "inst",
+                location: listOfCodes.length,
+                opCode: "CPIi",
+                opA: "1",
+                opB: "11",
+                comment: "// Push scratchMem1"
+            });
+            listOfCodes.push({
+                type: "inst",
+                location: listOfCodes.length,
+                opCode: "ADDi",
+                opA: "1",
+                opB: "1",
+                comment: ""
+            });
+            listOfCodes.push({
+                type: "inst",
+                location: listOfCodes.length,
+                opCode: "ADD",
+                opA: "1",
+                opB: "4",
+                comment: "// Pop to scratchMem2"
+            });
+            listOfCodes.push({
+                type: "inst",
+                location: listOfCodes.length,
+                opCode: "CPI",
+                opA: "12",
+                opB: "1",
+                comment: ""
+            });
+            listOfCodes.push({
+                type: "inst",
+                location: listOfCodes.length,
+                opCode: "ADD",
+                opA: "1",
+                opB: "4",
+                comment: "// Pop to scratchMem1"
+            });
+            listOfCodes.push({
+                type: "inst",
+                location: listOfCodes.length,
+                opCode: "CPI",
+                opA: "11",
+                opB: "1",
+                comment: ""
+            });
+            listOfCodes.push({
+                type: "inst",
+                location: listOfCodes.length,
+                opCode: "ADD",
+                opA: "11",
+                opB: "12",
+                comment: ""
+            });
+            listOfCodes.push({
+                type: "inst",
+                location: listOfCodes.length,
+                opCode: "CPIi",
+                opA: "1",
+                opB: "11",
+                comment: "// Push scratchMem1"
+            });
+            listOfCodes.push({
+                type: "inst",
+                location: listOfCodes.length,
+                opCode: "ADDi",
+                opA: "1",
+                opB: "1",
+                comment: ""
+            });
             return;
         case("-"):
 
@@ -365,15 +550,46 @@ function doBinaryExpression(operator, leftValue, rightValue){
         case("*"):
             var comment1 = "// Binary operation operand1\n// Const. int " + leftValue;
             var comment2 = "// Binary operation operand2\n// Const. int " + rightValue;
-            listOfCodes.push({type: "inst", location: listOfCodes.length, opCode: "CPi",  opA : "11", opB: "3", comment: comment1});
-            listOfCodes.push({type: "inst", location: listOfCodes.length, opCode: "CPIi",  opA : "1", opB: "11", comment: "// Push scratchMem1"});
-            listOfCodes.push({type: "inst", location: listOfCodes.length, opCode: "ADDi",  opA : "1", opB: "1", comment: ""});
-            listOfCodes.push({type: "inst", location: listOfCodes.length, opCode: "CPi",  opA : "11", opB: "4", comment: comment2});
-            listOfCodes.push({type: "inst", location: listOfCodes.length, opCode: "CPIi",  opA : "1", opB: "11", comment: "// Push scratchMem1"});
-
-
-
-
+            listOfCodes.push({
+                type: "inst",
+                location: listOfCodes.length,
+                opCode: "CPi",
+                opA: "11",
+                opB: "3",
+                comment: comment1
+            });
+            listOfCodes.push({
+                type: "inst",
+                location: listOfCodes.length,
+                opCode: "CPIi",
+                opA: "1",
+                opB: "11",
+                comment: "// Push scratchMem1"
+            });
+            listOfCodes.push({
+                type: "inst",
+                location: listOfCodes.length,
+                opCode: "ADDi",
+                opA: "1",
+                opB: "1",
+                comment: ""
+            });
+            listOfCodes.push({
+                type: "inst",
+                location: listOfCodes.length,
+                opCode: "CPi",
+                opA: "11",
+                opB: "4",
+                comment: comment2
+            });
+            listOfCodes.push({
+                type: "inst",
+                location: listOfCodes.length,
+                opCode: "CPIi",
+                opA: "1",
+                opB: "11",
+                comment: "// Push scratchMem1"
+            });
 
         case("&&"):
 
@@ -396,11 +612,20 @@ function doBinaryExpression(operator, leftValue, rightValue){
 }
 
 
+function emit(opCode, opA, opB, comment) {
+    listOfCodes.push({
+        type: "inst",
+        location: listOfCodes.length,
+        opCode: opCode,
+        opA: opA,
+        opB: opB,
+        comment: comment
+    });
+}
 
-
-function doSuffixExpression(operator, value){
+function doSuffixExpression(operator, value) {
     //prefix?? --> herşey oluyo
-    switch(operator){
+    switch (operator) {
         case("++"):
 
         case("--"):
@@ -414,9 +639,9 @@ function decideInstruction(instr) {
 
 //Values are adding to the Hash Table
 function addToEnvironment(key) {
-    if(hashList.length > 0){
+    if (hashList.length > 0) {
         hashTable = hashList.getHead();
-    }else{
+    } else {
         var hashTable = new HashTable({});
         hashList.add(hashTable);
     }
@@ -426,15 +651,14 @@ function addToEnvironment(key) {
 
 function lookup(key) {
     var hashTable = hashList.getHead();
-    while(hashTable !== null) {
-        if(hashTable.hasItem(key)) {
+    while (hashTable !== null) {
+        if (hashTable.hasItem(key)) {
             return hashTable.getItem(key);
         }
         hashTable = hashList.getNext();
     }
     return null;
 }
-
 
 
 function removeFromEnvironment(key) {
@@ -448,15 +672,13 @@ function removeFromEnvironment(key) {
 }
 
 
-
-
 decreaseSP();
 printListOfCodes();
 modifyTopOfStack();
 printTopOfStack();
 
 
-function printTopOfStack(){
+function printTopOfStack() {
     console.log("// $topofstack:  //" + listOfCodes[1].value);
 }
 
@@ -504,7 +726,7 @@ function HashTable(obj) {
             this.length--;
             delete this.items[key];
             return previous;
-        }else {
+        } else {
             return undefined;
         }
     };
