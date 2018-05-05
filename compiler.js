@@ -86,6 +86,7 @@ function decrementSP(number) {
     if (number === 0) {
         return;
     } else {
+        listOfCodes.push({comment: "// Decrease SP by " + number});
         emit("ADD", getMemoryAdress("stackPointer"), getMemoryAdress("negativeOne"), "");
         decrementSP(number - 1);
     }
@@ -235,7 +236,7 @@ function getNextLocation(){
 for (let i = 0; i < myJSon.length; i++) {
     listOfCodes.push({comment: "// Entering a block."});
     decideDeclaration(myJSon[i]);
-    listOfCodes.push({comment: "// Decrease SP by " + hashList.getHead().length})
+    listOfCodes.push({comment: "// Decrease SP by " + hashList.getHead().length});
     decrementSP(hashList.getHead().length); //TODO
 
 }
@@ -333,15 +334,26 @@ function decideStatement(JSonBody) {
 
 function decideExpression(expression) {
     var expressionType = expression.type;
+    let comment = "";
+    let value = null;
     switch (expressionType) {
         case ("Literal"):
             value = expression.value;
-            comment = "Const. int " + value + "";
+            comment = "// Const. int " + value + "";
             emit("CPi", getMemoryAdress("scratchMem1"), "" + value + "", comment);
             push("scratchMem1");
+            //addToEnvironment(key);
             return value;
         case ("Identifier"):
-            var value = expression.value;
+            comment = "Assignment";
+            value = expression.value;
+            declarationOrStatement(value);
+        // @ cExpr e varEnv funEnv
+        // @ cAccess acc varEnv funEnv
+        // @ pop scratchMem1 (* Where to store *)
+        // @ pop scratchMem2 (* Value to store *)
+        // @ incrementSP()   (* Keep the value on the stack as the value of this exp *)
+        // @ [CPIi(scratchMem1, scratchMem2)]
             //addToEnvironment(value);
             return value;
         case ("BinaryExpression"):
@@ -380,8 +392,9 @@ function doesValueExist(JSonBody) {
 
 function doBinaryExpression(expression) {
     var operator = expression.operator;
-    let comment1 = "Binary operation operand1\n";
-    let comment2 = "Binary operation operand2\n";
+    let comment1 = "// Binary operation operand1\n";
+    let comment2 = "// Binary operation operand2\n";
+    let comment = "";
     listOfCodes.push({comment: comment1});
     var leftValue = declarationOrStatement(expression.left);
     listOfCodes.push({comment: comment2});
@@ -392,35 +405,76 @@ function doBinaryExpression(expression) {
         case("="):
             var opB = listOfCodes[1].value + lookup(leftValue);
             console.log(opB)
-            var comment = "// Assignment\n// Const. int" + rightValue;  //??
-            listOfCodes.push({type: "inst", location: listOfCodes.length, opCode: "CPi", opA: "11", opB: rightValue, comment: comment});
-            listOfCodes.push({type: "inst", location: listOfCodes.length, opCode: "CPIi", opA: "1", opB: "11", comment: "// Push scratchMem1"});
-            listOfCodes.push({type: "inst", location: listOfCodes.length, opCode: "ADDi", opA: "1", opB: "1", comment: ""});
-            return;
+            comment = "// Assignment\n// Const. int" + rightValue;  //??
         case("+"):
-            emit("ADD", getMemoryAdress("scratchMem1"), getMemoryAdress("scratchMem2"));
+            emit("ADD", getMemoryAdress("scratchMem1"), getMemoryAdress("scratchMem2"), "");
             break;
         case("-"):
-
+            comment = "// Subtraction: 3 insts";
+            emit("NAND", getMemoryAdress("scratchMem1"), getMemoryAdress("scratchMem2"), comment);
+            emit("ADDi", getMemoryAdress("scratchMem2"), "1", "");
+            emit("ADD", getMemoryAdress("scratchMem1"), getMemoryAdress("scratchMem2"), "");
+            break;
         case("/"):
-
+            //TODO
         case("*"):
-
+            emit("MUL", getMemoryAdress("scratchMem1"), getMemoryAdress("scratchMem2"), "");
+            break;
         case("&&"):
 
         case("||"):
 
         case("&"):
-
+            comment = "// &: 2 insts";
+            emit("NAND", getMemoryAdress("scratchMem1"), getMemoryAdress("scratchMem2"), comment);
+            emit("NAND", getMemoryAdress("scratchMem1"), getMemoryAdress("scratchMem1"), "");
+            break;
         case("|"):
-
+            comment = "// |: 3 insts";
+            emit("NAND", getMemoryAdress("scratchMem1"), getMemoryAdress("scratchMem1"), comment);
+            emit("NAND", getMemoryAdress("scratchMem2"), getMemoryAdress("scratchMem2"), "");
+            emit("NAND", getMemoryAdress("scratchMem1"), getMemoryAdress("scratchMem2"), "");
+            break;
         case("<"):
-
+            emit("LT", getMemoryAdress("scratchMem1"), getMemoryAdress("scratchMem2"), "");
+            break;
         case("<="):
-
+            comment = "// <=: 2 insts";
+            emit("ADDi", getMemoryAdress("scratchMem2"), "1", comment);
+            emit("LT", getMemoryAdress("scratchMem1"), getMemoryAdress("scratchMem2"), "");
+            break;
         case(">"):
-
+            comment = "// >: 2 insts";
+            emit("LT", getMemoryAdress("scratchMem2"), getMemoryAdress("scratchMem1"), comment);
+            emit("CP", getMemoryAdress("scratchMem1"), getMemoryAdress("scratchMem2"), "");
+            break;
         case(">="):
+            comment = "// >=: 3 insts";
+            emit("ADDi", getMemoryAdress("scratchMem2"), "1", comment);
+            emit("LT", getMemoryAdress("scratchMem2"), getMemoryAdress("scratchMem1"), "");
+            emit("CP", getMemoryAdress("scratchMem1"), getMemoryAdress("scratchMem2"), "");
+            break;
+        case("!="):
+            comment = "// !=: 5 insts";
+            emit("NAND", getMemoryAdress("scratchMem2"), getMemoryAdress("scratchMem2"), comment);
+            emit("ADDi", getMemoryAdress("scratchMem2"), "1", "");
+            emit("ADD", getMemoryAdress("scratchMem1"), getMemoryAdress("scratchMem2"), "");
+            emit("LTi", getMemoryAdress("scratchMem1"), "1", "");
+            emit("ADD", getMemoryAdress("scratchMem1"), getMemoryAdress("negativeOne"), "");
+            break;
+        case("=="):
+            comment = "// ==: 4 insts";
+            emit("NAND", getMemoryAdress("scratchMem2"), getMemoryAdress("scratchMem2"), comment);
+            emit("ADDi", getMemoryAdress("scratchMem2"), "1", "");
+            emit("ADD", getMemoryAdress("scratchMem1"), getMemoryAdress("scratchMem2"), "");
+            emit("LTi", getMemoryAdress("scratchMem1"), "1", "");
+            break;
+        case("%"):
+            //TODO
+        case(">>"):
+            //TODO
+        case("<<"):
+            //TODO
 
     }
 
