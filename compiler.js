@@ -90,6 +90,7 @@ function decrementSP(number) {
     } else {
         //listOfCodes.push({comment: "// Decrease SP by " + number});
         emit("ADD", getMemoryAdress("stackPointer"), getMemoryAdress("negativeOne"), "");
+        listOfCodes[1].value -= 1;
         decrementSP(number - 1);
     }
 }
@@ -103,6 +104,7 @@ function pop(destination) {
 
 function incrementSP(number) {
     emit("ADDi", getMemoryAdress("stackPointer"), number + "", "");
+    listOfCodes[1].value += 1;
 }
 
 function push(source) {
@@ -356,7 +358,7 @@ function decideExpression(expression) {
             lookupVar = value; //doğru olmayabilir
             return value;
         case ("BinaryExpression"):
-            var result = doBinaryExpression(expression);
+            doBinaryExpression(expression);
             break;
         case ("PrefixExpression"):
             var operator = expression.operator;
@@ -379,6 +381,14 @@ function decideExpression(expression) {
     }
 }
 
+function access(value) {
+    let loc = lookup(value);
+    comment = "// Local var '" + value + "' @ " + loc;
+    listOfCodes.push({comment: comment});
+    emit("CP", getMemoryAdress("scratchMem1"), getMemoryAdress("basePointer"), "");
+    emit("ADDi", getMemoryAdress("scratchMem1"), loc, "");
+    push("scratchMem1");
+}
 
 function doesElseExist(JSonBody) {
     return typeof JSonBody.else !== 'undefined';
@@ -403,15 +413,6 @@ function doAssignment(expression) {
     pop("scratchMem2");
     incrementSP(1);
     emit("CPIi", getMemoryAdress("scratchMem1"), getMemoryAdress("scratchMem2"), "");
-}
-
-function access(value) {
-    let loc = lookup(value);
-    comment = "// Local var '" + value + "' @ " + loc;
-    listOfCodes.push({comment: comment});
-    emit("CP", getMemoryAdress("scratchMem1"), getMemoryAdress("basePointer"), "");
-    emit("ADDi", getMemoryAdress("scratchMem1"), loc, "");
-    push("scratchMem1");
 }
 
 function doBinaryExpression(expression) {
@@ -562,8 +563,8 @@ function removeFromEnvironment(key) {
 
 
 //decreaseSP();
-printListOfCodes();
 modifyTopOfStack();
+printListOfCodes();
 printTopOfStack();
 
 
