@@ -2,6 +2,8 @@ var fs = require("fs");
 var content = fs.readFileSync("AST.json").toString();
 var myJSon = JSON.parse(content);
 let hashList = new LinkedList();
+var lookupVar;
+var functionCount = 1;
 
 //arr.push();
 
@@ -40,7 +42,7 @@ LinkedList.prototype.removeHead = function () {
 
 
 LinkedList.prototype.getNext = function () {
-    return this.getNext();
+    return this.next;
 };
 
 
@@ -86,16 +88,17 @@ function decrementSP(number) {
     if (number === 0) {
         return;
     } else {
-        listOfCodes.push({comment: "// Decrease SP by " + number});
+        //listOfCodes.push({comment: "// Decrease SP by " + number});
         emit("ADD", getMemoryAdress("stackPointer"), getMemoryAdress("negativeOne"), "");
         decrementSP(number - 1);
     }
 }
 
 function pop(destination) {
-    let comment = "Pop to " + destination;
+    let comment = "// Pop to " + destination;
+    listOfCodes.push({comment: comment});
     decrementSP(1);
-    emit("CPI", getMemoryAdress(destination), getMemoryAdress("stackPointer"), comment);
+    emit("CPI", getMemoryAdress(destination), getMemoryAdress("stackPointer"), "");
 }
 
 function incrementSP(number) {
@@ -103,7 +106,7 @@ function incrementSP(number) {
 }
 
 function push(source) {
-    let comment = "Push " + source;
+    let comment = "// Push " + source;
     emit("CPIi", getMemoryAdress("stackPointer"), getMemoryAdress(source), comment);
     incrementSP(1);
 }
@@ -132,7 +135,7 @@ var listOfCodes = [{type: "inst", location: 0, opCode: "BZJi", opA: "3", opB: "1
     {type: "data", location: 14, value: 0, comment: "//scratchMem4"},
     {type: "data", location: 15, value: 0, comment: "//scratchMem5"},
     {type: "data", location: 16, value: 0, comment: "//scratchMem6"},
-    {type: "inst", location: 17, opCode: "CPi", opA: "11", comment: "// $globalinit:  //17 \n// Calling main, numArgs: 0"},
+    {type: "inst", location: 17, opCode: "CPi", opA: "11", opB: "24", comment: "// $globalinit:  //17 \n// Calling main, numArgs: 0"},
     {type: "inst", location: 18, opCode: "CPIi", opA: "1", opB: "11", comment: "// Push scratchMem1"},
     {type: "inst", location: 19, opCode: "ADDi", opA: "1", opB: "1", comment: ""},
     {type: "inst", location: 20, opCode: "CPIi", opA: "1", opB: "2", comment: "// Push basePointer"},
@@ -181,12 +184,12 @@ function addVarDeclarationToListOfCodes(variable) {
     var hashTable = hashList.getHead();
     var comment = "";
     if(doesValueExist(variable)) {
-        comment = "Initialization of var '" + variable.name + "'";
+        comment = "// Initialization of var '" + variable.name + "'";
         listOfCodes.push({comment : comment});
         declarationOrStatement(variable.value);
 
     }else {
-        comment = "Allocate var '" + variable.name + "'";
+        comment = "// Allocate var '" + variable.name + "'";
         listOfCodes.push({comment : comment});
         incrementSP(1);
 
@@ -236,8 +239,11 @@ function getNextLocation(){
 for (let i = 0; i < myJSon.length; i++) {
     listOfCodes.push({comment: "// Entering a block."});
     decideDeclaration(myJSon[i]);
-    listOfCodes.push({comment: "// Decrease SP by " + hashList.getHead().length});
-    decrementSP(hashList.getHead().length); //TODO
+    if(hashList.getHead() !== null) {
+        listOfCodes.push({comment: "// Decrease SP by " + hashList.getHead().length});
+        decrementSP(hashList.getHead().length); //TODO
+    }
+
 
 }
 
@@ -246,6 +252,8 @@ function decideDeclaration(JSonObject) {
 
     switch (declaration) {
         case("FunctionDeclaration"):
+            listOfCodes.push({comment: "// $L" + functionCount + JSonObject.name + ":  //"+ (listOfCodes.length-1)});
+            functionCount ++;
             for (let i = 0; i < JSonObject.body.length; i++) {
                 declarationOrStatement(JSonObject.body[i]);
             }
@@ -266,7 +274,6 @@ function declarationOrStatement(JSonBody) {
         return;
     } else {
         decideStatement(JSonBody);
-        return;
     }
 }
 
@@ -342,31 +349,23 @@ function decideExpression(expression) {
             comment = "// Const. int " + value + "";
             emit("CPi", getMemoryAdress("scratchMem1"), "" + value + "", comment);
             push("scratchMem1");
-            //addToEnvironment(key);
             return value;
         case ("Identifier"):
-            comment = "Assignment";
             value = expression.value;
             declarationOrStatement(value);
-        // @ cExpr e varEnv funEnv
-        // @ cAccess acc varEnv funEnv
-        // @ pop scratchMem1 (* Where to store *)
-        // @ pop scratchMem2 (* Value to store *)
-        // @ incrementSP()   (* Keep the value on the stack as the value of this exp *)
-        // @ [CPIi(scratchMem1, scratchMem2)]
-            //addToEnvironment(value);
+            lookupVar = value; //doğru olmayabilir
             return value;
         case ("BinaryExpression"):
             var result = doBinaryExpression(expression);
-            return result;
+            break;
         case ("PrefixExpression"):
             var operator = expression.operator;
-            var value = decideExpression(expression.value);
+            value = decideExpression(expression.value);
         case ("SuffixExpression"):
             var operator = expression.operator;
-            var value = decideExpression(expression.value);
+            value = decideExpression(expression.value);
         case ("CastExpression"):
-            var value = decideExpression(expr.value);
+            value = decideExpression(expr.value);
         case ("CallExpression"):
             let hashTable = new HashTable({});
             hashList.unshift(hashTable);
@@ -375,7 +374,7 @@ function decideExpression(expression) {
                 var argument = decideExpression(arguments[i]);
             }
         case ("IndexExpression"):
-            var value = decideExpression(expr.value);
+            value = decideExpression(expr.value);
             var index = decideExpression(expr.index);
     }
 }
@@ -390,10 +389,40 @@ function doesValueExist(JSonBody) {
 }
 
 
+function doAssignment(expression) {
+
+    let comment = "// Assignment";
+    listOfCodes.push({comment: comment});
+    declarationOrStatement(expression.left);  //let leftValue = declarationOrStatement(expression.left) --> access(leftValue);
+
+    // var opB = listOfCodes[1].value + lookup(leftValue);
+    // console.log(opB)
+    declarationOrStatement(expression.right);
+    access(lookupVar);
+    pop("scratchMem1");
+    pop("scratchMem2");
+    incrementSP(1);
+    emit("CPIi", getMemoryAdress("scratchMem1"), getMemoryAdress("scratchMem2"), "");
+}
+
+function access(value) {
+    let loc = lookup(value);
+    comment = "// Local var '" + value + "' @ " + loc;
+    listOfCodes.push({comment: comment});
+    emit("CP", getMemoryAdress("scratchMem1"), getMemoryAdress("basePointer"), "");
+    emit("ADDi", getMemoryAdress("scratchMem1"), loc, "");
+    push("scratchMem1");
+}
+
 function doBinaryExpression(expression) {
     var operator = expression.operator;
-    let comment1 = "// Binary operation operand1\n";
-    let comment2 = "// Binary operation operand2\n";
+    if(operator === "=") {
+        doAssignment(expression);
+        emit("ADD", getMemoryAdress("stackPointer"), getMemoryAdress("negativeOne"), "");
+        return;
+    }
+    let comment1 = "// Binary operation operand1";
+    let comment2 = "// Binary operation operand2";
     let comment = "";
     listOfCodes.push({comment: comment1});
     var leftValue = declarationOrStatement(expression.left);
@@ -402,10 +431,6 @@ function doBinaryExpression(expression) {
     pop("scratchMem2");
     pop("scratchMem1");
     switch (operator) {
-        case("="):
-            var opB = listOfCodes[1].value + lookup(leftValue);
-            console.log(opB)
-            comment = "// Assignment\n// Const. int" + rightValue;  //??
         case("+"):
             emit("ADD", getMemoryAdress("scratchMem1"), getMemoryAdress("scratchMem2"), "");
             break;

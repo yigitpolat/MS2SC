@@ -18,28 +18,34 @@
     "arguments": [],
     "body": [
       {
-        "type": "VariableDeclaration",
-        "defType": {
-          "type": "Type",
-          "modifier": [],
-          "pos": {
-            "file": "unknown",
-            "line": 3
-          },
-          "name": "int"
-        },
-        "name": "d",
-        "pos": {
-          "file": "unknown",
-          "line": 3
-        },
+        "type": "ReturnStatement",
         "value": {
-          "type": "Literal",
-          "value": 4,
+          "type": "BinaryExpression",
+          "operator": "+",
+          "left": {
+            "type": "Literal",
+            "value": 30,
+            "pos": {
+              "file": "unknown",
+              "line": 3
+            }
+          },
+          "right": {
+            "type": "Literal",
+            "value": 12,
+            "pos": {
+              "file": "unknown",
+              "line": 3
+            }
+          },
           "pos": {
             "file": "unknown",
             "line": 3
           }
+        },
+        "pos": {
+          "file": "unknown",
+          "line": 3
         }
       }
     ]
