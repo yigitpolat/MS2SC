@@ -20,24 +20,8 @@
       {
         "type": "ReturnStatement",
         "value": {
-          "type": "BinaryExpression",
-          "operator": "+",
-          "left": {
-            "type": "Literal",
-            "value": 30,
-            "pos": {
-              "file": "unknown",
-              "line": 3
-            }
-          },
-          "right": {
-            "type": "Literal",
-            "value": 12,
-            "pos": {
-              "file": "unknown",
-              "line": 3
-            }
-          },
+          "type": "Literal",
+          "value": 30,
           "pos": {
             "file": "unknown",
             "line": 3

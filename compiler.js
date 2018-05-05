@@ -239,7 +239,7 @@ function getNextLocation(){
 
 //----------------------- MAIN ---------------------------------
 for (let i = 0; i < myJSon.length; i++) {
-    listOfCodes.push({comment: "// Entering a block."});
+
     decideDeclaration(myJSon[i]);
     if(hashList.getHead() !== null) {
         listOfCodes.push({comment: "// Decrease SP by " + hashList.getHead().length});
@@ -254,7 +254,8 @@ function decideDeclaration(JSonObject) {
 
     switch (declaration) {
         case("FunctionDeclaration"):
-            listOfCodes.push({comment: "// $L" + functionCount + JSonObject.name + ":  //"+ (listOfCodes.length-1)});
+            listOfCodes.push({comment: "// $L" + functionCount + JSonObject.name + ":  //"+ (listOfCodes.length)});
+            listOfCodes.push({comment: "// Entering a block."});
             functionCount ++;
             for (let i = 0; i < JSonObject.body.length; i++) {
                 declarationOrStatement(JSonObject.body[i]);
