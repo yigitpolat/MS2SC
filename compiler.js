@@ -267,20 +267,21 @@ function getMemoryAddress(name) {
 function decideStatement(JSonBody) {
     decideDeclaration(JSonBody);
     let currentStatement = JSonBody.type;
+    let hashTable;
     switch (currentStatement) {
         case("IfStatement"):
-            var hashTable = new HashTable({});
+            hashTable = new HashTable({});
             hashList.add(hashTable);
-            var conditionType = JSonBody.condition;
+            let conditionType = JSonBody.condition;
             decideExpression(conditionType);
             for (let i = 0; i < JSonBody.body.length; i++) {
-                var thenStatement = JSonBody.body[i];
+                let thenStatement = JSonBody.body[i];
                 declarationOrStatement(thenStatement);
             }
-            if (doesElseExist(JSonBody) == true) {
+            if (doesElseExist(JSonBody) === true) {
                 for (let j = 0; j < JSonBody.body.length; j++) {
-                    var thenStatement = JSonBody.body[j];
-                    declarationOrStatement(thenStatement);
+                    let elseStatement = JSonBody.else[j];
+                    declarationOrStatement(elseStatement);
                 }
             }
             hashList.removeHead();
@@ -289,7 +290,7 @@ function decideStatement(JSonBody) {
             decideExpression(JSonBody.expression);
             return;
         case("ForStatement"):
-            var hashTable = new HashTable({});
+            hashTable = new HashTable({});
             hashList.add(hashTable);
             var init = JSonBody.init;
             declarationOrStatement(init);
@@ -304,7 +305,7 @@ function decideStatement(JSonBody) {
             hashList.removeHead();
             return;
         case("WhileStatement"):
-            var hashTable = new HashTable({});
+            hashTable = new HashTable({});
             hashList.add(hashTable);
             var condition = JSonBody.condition;
             decideExpression(condition);
@@ -320,7 +321,7 @@ function decideStatement(JSonBody) {
                 value = JSonBody.value;
                 listOfCodes.push({comment: "// Return (Some)"});
                 declarationOrStatement(value);
-                pop("scratchMem1");;
+                pop("scratchMem1");
             } else {
                 listOfCodes.push({comment: "// Return (None)"});
             }
@@ -365,7 +366,7 @@ function push(source) {
 }
 
 function decideExpression(expression) {
-    var expressionType = expression.type;
+    let expressionType = expression.type;
     let comment = "";
     let value = null;
     switch (expressionType) {
@@ -384,28 +385,32 @@ function decideExpression(expression) {
             doBinaryExpression(expression);
             break;
         case ("PrefixExpression"):
-            var operator = expression.operator;
-            value = decideExpression(expression.value);
+            doPrefixExpression(expression);
+            break;
         case ("SuffixExpression"):
             var operator = expression.operator;
             value = decideExpression(expression.value);
+            break;
         case ("CastExpression"):
-            value = decideExpression(expr.value);
+            value = decideExpression(expression.value);
+            break;
         case ("CallExpression"):
             let hashTable = new HashTable({});
             hashList.unshift(hashTable);
-            var arguments = expr.arguments;
+            var arguments = expression.arguments;
             for (let i = 0; i < arguments.length; i++) {
                 var argument = decideExpression(arguments[i]);
             }
+            break;
         case ("IndexExpression"):
-            value = decideExpression(expr.value);
-            var index = decideExpression(expr.index);
+            value = decideExpression(expression.value);
+            var index = decideExpression(expression.index);
+            break;
     }
 }
 
 function doBinaryExpression(expression) {
-    var operator = expression.operator;
+    let operator = expression.operator;
     if(operator === "=") {
         doAssignment(expression);
         emit("ADD", getMemoryAddress("stackPointer"), getMemoryAddress("negativeOne"), "");
@@ -492,7 +497,6 @@ function doBinaryExpression(expression) {
         //TODO
 
     }
-
     push("scratchMem1");
 }
 
@@ -526,6 +530,70 @@ function lookup(key) {
         hashTable = hashList.getNext();
     }
     return null;
+}
+
+function doPrefixExpression(expression) {
+    let operator = expression.operator;
+    let comment;
+    switch (operator) {
+        case("++"):
+            comment = "PrePost: " + operator;
+            listOfCodes.push({comment: comment});
+            access(lookupVar);
+            pop("scratchMem1");
+            emit("CPI", getMemoryAddress("scratchMem2"), getMemoryAddress("scratchMem1"), "");
+            emit("ADDi", getMemoryAddress("scratchMem2"), "1", "");
+            emit("CPIi", getMemoryAddress("scratchMem1"), getMemoryAddress("scratchMem2"), "");
+            push("scratchMem2");
+            break;
+        case("--"):
+            comment = "PrePost: " + operator;
+            listOfCodes.push({comment: comment});
+            access(lookupVar);
+            pop("scratchMem1");
+            emit("CPI", getMemoryAddress("scratchMem2"), getMemoryAddress("scratchMem1"), "");
+            emit("ADD", getMemoryAddress("scratchMem2"), getMemoryAddress("negativeOne"), "");
+            emit("CPIi", getMemoryAddress("scratchMem1"), getMemoryAddress("scratchMem2"), "");
+            push("scratchMem2");
+            break;
+        case("!"):
+            let labEnd; //?????
+            comment = "Unary operation operand";
+            listOfCodes.push({comment: comment});
+            declarationOrStatement(expression.value);
+            pop("scratchMem1");
+            comment = "LogicalNot until label "; // labEnd???
+            //CopyAdress??
+            emit("BZJ", getMemoryAddress("scratchMem2"), getMemoryAddress("scratchMem1"), "");
+            push("zero");
+            //Goto???
+            //Label labFalse???
+            emit("CPi", getMemoryAddress("scratchMem1"), "1");
+            push("scratchMem1");
+            //Label labEnd???
+            //TODO
+            break;
+        case("-"):
+            comment = "Unary operation operand";
+            listOfCodes.push({comment: comment});
+            declarationOrStatement(expression.value);
+            pop("scratchMem1");
+            emit("NAND", getMemoryAddress("scratchMem1"), getMemoryAddress("scratchMem1"), "");
+            emit("ADDi", getMemoryAddress("scratchMem1"), "1", "");
+            push("scratchMem1");
+            break;
+        case("~"):
+            comment = "Unary operation operand";
+            listOfCodes.push({comment: comment});
+            declarationOrStatement(expression.value);
+            pop("scratchMem1");
+            emit("NAND", getMemoryAddress("scratchMem1"), getMemoryAddress("scratchMem1"), "");
+            push("scratchMem1");
+            break;
+        default:
+            comment = "unknown prim1: " + operator;
+            listOfCodes.push({comment: comment});
+    }
 }
 
 function modifyTopOfStack() {
