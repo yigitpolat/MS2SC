@@ -4,7 +4,7 @@ var myJSon = JSON.parse(content);
 let hashList = new LinkedList();
 var lookupVar;
 var functionCount = 1;
-
+var isAssignment = false;
 
 //----------------------- Linked List ---------------------------------
 function Node(data) {
@@ -321,6 +321,13 @@ function decideStatement(JSonBody) {
                 value = JSonBody.value;
                 listOfCodes.push({comment: "// Return (Some)"});
                 declarationOrStatement(value);
+                /*
+                if(value.type === "Identifier"){
+                    doAccess(value.value);
+                }else{
+                    declarationOrStatement(value);
+                }
+                */
                 pop("scratchMem1");
             } else {
                 listOfCodes.push({comment: "// Return (None)"});
@@ -380,7 +387,7 @@ function decideExpression(expression) {
             value = expression.value;
             declarationOrStatement(value);
             lookupVar = value; //doğru olmayabilir
-            access(lookupVar);
+            if(isAssignment === false) doAccess(lookupVar);
             return value;
         case ("BinaryExpression"):
             doBinaryExpression(expression);
@@ -431,7 +438,7 @@ function doBinaryExpression(expression) {
             break;
         case("-"):
             comment = "// Subtraction: 3 insts";
-            emit("NAND", getMemoryAddress("scratchMem1"), getMemoryAddress("scratchMem2"), comment);
+            emit("NAND", getMemoryAddress("scratchMem2"), getMemoryAddress("scratchMem2"), comment);
             emit("ADDi", getMemoryAddress("scratchMem2"), "1", "");
             emit("ADD", getMemoryAddress("scratchMem1"), getMemoryAddress("scratchMem2"), "");
             break;
@@ -503,18 +510,34 @@ function doBinaryExpression(expression) {
 function doAssignment(expression) {
     let comment = "// Assignment";
     listOfCodes.push({comment: comment});
+    isAssignment = true;
     declarationOrStatement(expression.left);
     declarationOrStatement(expression.right);
-    //access(lookupVar);
+    access(lookupVar);
     pop("scratchMem1");
     pop("scratchMem2");
     incrementSP(1);
     emit("CPIi", getMemoryAddress("scratchMem1"), getMemoryAddress("scratchMem2"), "");
+    isAssignment = false;
+}
+
+function doAccess(value){
+    access(value);
+    pop("scratchMem1");
+    emit("CPI", getMemoryAddress("scratchMem2"), getMemoryAddress("scratchMem1"), "");
+    push("scratchMem2");
+
 }
 
 function access(value) {
     let loc = lookup(value);
-    let comment = "// Access\n// Local var '" + value + "' @ " + loc;
+    let comment = "";
+    //TODO comment degisecek. fazla access yazıyor. Machine.ml gibi degisitirilcek
+    if(isAssignment){
+        comment += "// Local var '" + value + "' @ " + loc;
+    }else{
+        comment += "// Access\n// Local var '" + value + "' @ " + loc;
+    }
     listOfCodes.push({comment: comment});
     emit("CP", getMemoryAddress("scratchMem1"), getMemoryAddress("basePointer"), "");
     emit("ADDi", getMemoryAddress("scratchMem1"), loc, "");
@@ -574,7 +597,7 @@ function doPrefixExpression(expression) {
             //TODO
             break;
         case("-"):
-            comment = "Unary operation operand";
+            comment = "// Unary operation operand";
             listOfCodes.push({comment: comment});
             declarationOrStatement(expression.value);
             pop("scratchMem1");

@@ -20,8 +20,56 @@
       {
         "type": "ReturnStatement",
         "value": {
-          "type": "Literal",
-          "value": 30,
+          "type": "BinaryExpression",
+          "operator": "+",
+          "left": {
+            "type": "BinaryExpression",
+            "operator": "-",
+            "left": {
+              "type": "Literal",
+              "value": 0,
+              "pos": {
+                "file": "unknown",
+                "line": 3
+              }
+            },
+            "right": {
+              "type": "Literal",
+              "value": 2,
+              "pos": {
+                "file": "unknown",
+                "line": 3
+              }
+            },
+            "pos": {
+              "file": "unknown",
+              "line": 3
+            }
+          },
+          "right": {
+            "type": "BinaryExpression",
+            "operator": "-",
+            "left": {
+              "type": "Literal",
+              "value": 1,
+              "pos": {
+                "file": "unknown",
+                "line": 3
+              }
+            },
+            "right": {
+              "type": "Literal",
+              "value": 2,
+              "pos": {
+                "file": "unknown",
+                "line": 3
+              }
+            },
+            "pos": {
+              "file": "unknown",
+              "line": 3
+            }
+          },
           "pos": {
             "file": "unknown",
             "line": 3
