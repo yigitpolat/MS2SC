@@ -380,6 +380,7 @@ function decideExpression(expression) {
             value = expression.value;
             declarationOrStatement(value);
             lookupVar = value; //doğru olmayabilir
+            access(lookupVar);
             return value;
         case ("BinaryExpression"):
             doBinaryExpression(expression);
@@ -388,8 +389,7 @@ function decideExpression(expression) {
             doPrefixExpression(expression);
             break;
         case ("SuffixExpression"):
-            var operator = expression.operator;
-            value = decideExpression(expression.value);
+            doSuffixExpression(expression);
             break;
         case ("CastExpression"):
             value = decideExpression(expression.value);
@@ -505,7 +505,7 @@ function doAssignment(expression) {
     listOfCodes.push({comment: comment});
     declarationOrStatement(expression.left);
     declarationOrStatement(expression.right);
-    access(lookupVar);
+    //access(lookupVar);
     pop("scratchMem1");
     pop("scratchMem2");
     incrementSP(1);
@@ -514,7 +514,7 @@ function doAssignment(expression) {
 
 function access(value) {
     let loc = lookup(value);
-    let comment = "// Local var '" + value + "' @ " + loc;
+    let comment = "// Access\n// Local var '" + value + "' @ " + loc;
     listOfCodes.push({comment: comment});
     emit("CP", getMemoryAddress("scratchMem1"), getMemoryAddress("basePointer"), "");
     emit("ADDi", getMemoryAddress("scratchMem1"), loc, "");
@@ -590,9 +590,28 @@ function doPrefixExpression(expression) {
             emit("NAND", getMemoryAddress("scratchMem1"), getMemoryAddress("scratchMem1"), "");
             push("scratchMem1");
             break;
-        default:
-            comment = "unknown prim1: " + operator;
-            listOfCodes.push({comment: comment});
+    }
+}
+
+function doSuffixExpression(expression) {
+    let operator = expression.operator;
+    let comment;
+    comment = "PrePost: " + operator;
+    listOfCodes.push({comment: comment});
+    access(lookupVar);
+    pop("scratchMem1");
+    emit("CPI", getMemoryAddress("scratchMem2"), getMemoryAddress("scratchMem1"), "");
+    switch (operator) {
+        case("++"):
+            push("scratchMem2");
+            emit("ADDi", getMemoryAddress("scratchMem2"), "1", "");
+            emit("CPIi", getMemoryAddress("scratchMem2"), getMemoryAddress("scratchMem2"), "");
+            break;
+        case("--"):
+            push("scratchMem2");
+            emit("ADDi", getMemoryAddress("scratchMem2"), getMemoryAddress("negativeOne"), "");
+            emit("CPIi", getMemoryAddress("scratchMem2"), getMemoryAddress("scratchMem2"), "");
+            break;
     }
 }
 
@@ -618,16 +637,6 @@ function printListOfCodes() {
 
 function printTopOfStack() {
     console.log("// $topofstack:  //" + listOfCodes[1].value);
-}
-
-function doSuffixExpression(operator, value) {
-    //prefix?? --> herşey oluyo
-    switch (operator) {
-        case("++"):
-
-        case("--"):
-
-    }
 }
 
 function removeFromEnvironment(key) {
