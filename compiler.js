@@ -5,6 +5,7 @@ let hashList = new LinkedList();
 var lookupVar;
 var functionCount = 1;
 var isAssignment = false;
+var labelCount = 3;
 
 //----------------------- Linked List ---------------------------------
 function Node(data) {
@@ -135,10 +136,10 @@ for (let i = 0; i < myJSon.length; i++) {
     decideDeclaration(myJSon[i]);
     if(hashList.getHead() !== null) {
         let comment = hashList.getHead().length;
-        listOfCodes.push({comment: "// Decrease SP by " + comment});
+        emitComment("// Decrease SP by " + comment);
         decrementSP(hashList.getHead().length); //TODO
     } else {
-        listOfCodes.push({comment: "// Decrease SP by 0" });
+        emitComment("// Decrease SP by 0");
     }
 }
 modifyTopOfStack();
@@ -150,8 +151,8 @@ function decideDeclaration(JSonObject) {
 
     switch (declaration) {
         case("FunctionDeclaration"):
-            listOfCodes.push({comment: "// $L" + functionCount + JSonObject.name + ":  //"+ getNextLocation()});
-            listOfCodes.push({comment: "// Entering a block."});
+            emitComment("// $L" + functionCount + JSonObject.name + ":  //"+ getNextLocation());
+            emitComment("// Entering a block.");
             functionCount ++;
             for (let i = 0; i < JSonObject.body.length; i++) {
                 declarationOrStatement(JSonObject.body[i]);
@@ -192,12 +193,12 @@ function addVarDeclarationToListOfCodes(variable) {
     var comment = "";
     if(doesValueExist(variable)) {
         comment = "// Initialization of var '" + variable.name + "'";
-        listOfCodes.push({comment : comment});
+        emitComment(comment);
         declarationOrStatement(variable.value);
 
     }else {
         comment = "// Allocate var '" + variable.name + "'";
-        listOfCodes.push({comment : comment});
+        emitComment(comment);
         incrementSP(1);
     }
 }
@@ -213,6 +214,10 @@ function incrementSP(number) {
 
 function emit(opCode, opA, opB, comment) {
     listOfCodes.push({type: "inst", location: getNextLocation(), opCode: opCode, opA: opA, opB: opB, comment: comment});
+}
+
+function emitComment(comment) {
+    listOfCodes.push({comment: comment});
 }
 
 function getNextLocation(){
@@ -273,17 +278,40 @@ function decideStatement(JSonBody) {
             hashTable = new HashTable({});
             hashList.add(hashTable);
             let conditionType = JSonBody.condition;
+            let elseLabel;
+            let endLabel;
+            let comment = "// If stmt. Else: " + elseLabel + ", End: " + endLabel;
+            emitComment(comment);
             decideExpression(conditionType);
+            pop("scratchMem1");
+            //CopyAddress(scratchMem2, elseLabel)???
+            emit("BZJ", getMemoryAddress("scratchMem2"), getMemoryAddress("scratchMem1"), "");
             for (let i = 0; i < JSonBody.body.length; i++) {
                 let thenStatement = JSonBody.body[i];
                 declarationOrStatement(thenStatement);
+                //Goto endLabel???
             }
             if (doesElseExist(JSonBody) === true) {
+                emitLabel(endLabel);//???
                 for (let j = 0; j < JSonBody.body.length; j++) {
                     let elseStatement = JSonBody.else[j];
                     declarationOrStatement(elseStatement);
                 }
+                emitLabel(endLabel);//???
             }
+
+        //     let labelse = newLabel() in
+        //         let labend  = newLabel() in
+        //     [Comment("If stmt. Else: " ^ labelse ^ ", End: " ^ labend)]
+        // @ cExpr e varEnv funEnv
+        // @ pop scratchMem1
+        // @ [CopyAddress(scratchMem2, labelse)]
+        // @ [BZJ(scratchMem2, scratchMem1)]
+        // @ cStmt stmt1 varEnv funEnv loopEnv
+        // @ [Goto labend]
+        // @ [Label labelse]
+        // @ cStmt stmt2 varEnv funEnv loopEnv
+        // @ [Label labend]
             hashList.removeHead();
             return;
         case("ExpressionStatement"):
@@ -319,7 +347,7 @@ function decideStatement(JSonBody) {
             let value = null;
             if(typeof JSonBody.value !== 'undefined') {
                 value = JSonBody.value;
-                listOfCodes.push({comment: "// Return (Some)"});
+                emitComment("// Return (Some)");
                 declarationOrStatement(value);
                 /*
                 if(value.type === "Identifier"){
@@ -330,14 +358,14 @@ function decideStatement(JSonBody) {
                 */
                 pop("scratchMem1");
             } else {
-                listOfCodes.push({comment: "// Return (None)"});
+                emitComment("// Return (None)");
             }
             emit("CP", getMemoryAddress("stackPointer"), getMemoryAddress("basePointer"), "");
             pop("basePointer");
             pop("scratchMem2");
             push("scratchMem1");
             emit("BZJi", getMemoryAddress("scratchMem2"), "0", "");
-            listOfCodes.push({comment: "// Return op end."});
+            emitComment("// Return op end.");
             return;
         default:
             decideExpression(JSonBody);
@@ -350,7 +378,7 @@ function doesElseExist(JSonBody) {
 
 function pop(destination) {
     let comment = "// Pop to " + destination;
-    listOfCodes.push({comment: comment});
+    emitComment(comment);
     decrementSP(1);
     emit("CPI", getMemoryAddress(destination), getMemoryAddress("stackPointer"), "");
 }
@@ -426,9 +454,9 @@ function doBinaryExpression(expression) {
     let comment1 = "// Binary operation operand1";
     let comment2 = "// Binary operation operand2";
     let comment = "";
-    listOfCodes.push({comment: comment1});
+    emitComment(comment1);
     var leftValue = declarationOrStatement(expression.left);
-    listOfCodes.push({comment: comment2});
+    emitComment(comment2);
     var rightValue = declarationOrStatement(expression.right);
     pop("scratchMem2");
     pop("scratchMem1");
@@ -509,7 +537,7 @@ function doBinaryExpression(expression) {
 
 function doAssignment(expression) {
     let comment = "// Assignment";
-    listOfCodes.push({comment: comment});
+    emitComment(comment);
     isAssignment = true;
     declarationOrStatement(expression.left);
     declarationOrStatement(expression.right);
@@ -538,7 +566,7 @@ function access(value) {
     }else{
         comment += "// Access\n// Local var '" + value + "' @ " + loc;
     }
-    listOfCodes.push({comment: comment});
+    emitComment(comment);
     emit("CP", getMemoryAddress("scratchMem1"), getMemoryAddress("basePointer"), "");
     emit("ADDi", getMemoryAddress("scratchMem1"), loc, "");
     push("scratchMem1");
@@ -561,7 +589,7 @@ function doPrefixExpression(expression) {
     switch (operator) {
         case("++"):
             comment = "PrePost: " + operator;
-            listOfCodes.push({comment: comment});
+            emitComment(comment);
             access(lookupVar);
             pop("scratchMem1");
             emit("CPI", getMemoryAddress("scratchMem2"), getMemoryAddress("scratchMem1"), "");
@@ -571,7 +599,7 @@ function doPrefixExpression(expression) {
             break;
         case("--"):
             comment = "PrePost: " + operator;
-            listOfCodes.push({comment: comment});
+            emitComment(comment);
             access(lookupVar);
             pop("scratchMem1");
             emit("CPI", getMemoryAddress("scratchMem2"), getMemoryAddress("scratchMem1"), "");
@@ -581,24 +609,26 @@ function doPrefixExpression(expression) {
             break;
         case("!"):
             let labEnd; //?????
+            let labFalse; //???
             comment = "Unary operation operand";
-            listOfCodes.push({comment: comment});
+            emitComment(comment);
             declarationOrStatement(expression.value);
             pop("scratchMem1");
             comment = "LogicalNot until label "; // labEnd???
+            emitComment(comment);
             //CopyAdress??
             emit("BZJ", getMemoryAddress("scratchMem2"), getMemoryAddress("scratchMem1"), "");
             push("zero");
             //Goto???
-            //Label labFalse???
+            emitLabel(labFalse);
             emit("CPi", getMemoryAddress("scratchMem1"), "1");
             push("scratchMem1");
-            //Label labEnd???
+            emitLabel(labEnd);
             //TODO
             break;
         case("-"):
             comment = "// Unary operation operand";
-            listOfCodes.push({comment: comment});
+            emitComment(comment);
             declarationOrStatement(expression.value);
             pop("scratchMem1");
             emit("NAND", getMemoryAddress("scratchMem1"), getMemoryAddress("scratchMem1"), "");
@@ -607,7 +637,7 @@ function doPrefixExpression(expression) {
             break;
         case("~"):
             comment = "Unary operation operand";
-            listOfCodes.push({comment: comment});
+            emitComment(comment);
             declarationOrStatement(expression.value);
             pop("scratchMem1");
             emit("NAND", getMemoryAddress("scratchMem1"), getMemoryAddress("scratchMem1"), "");
@@ -616,11 +646,17 @@ function doPrefixExpression(expression) {
     }
 }
 
+function emitLabel(label) {
+    listOfCodes.push({label: label + labelCount});
+    labelCount++;
+    //???TODO
+}
+
 function doSuffixExpression(expression) {
     let operator = expression.operator;
     let comment;
     comment = "PrePost: " + operator;
-    listOfCodes.push({comment: comment});
+    emitComment(comment);
     access(lookupVar);
     pop("scratchMem1");
     emit("CPI", getMemoryAddress("scratchMem2"), getMemoryAddress("scratchMem1"), "");
