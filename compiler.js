@@ -5,7 +5,7 @@ let hashList = new LinkedList();
 var lookupVar;
 var functionCount = 1;
 var isAssignment = false;
-var labelCount = 3;
+var labelCount = 2;
 
 //----------------------- Linked List ---------------------------------
 function Node(data) {
@@ -18,7 +18,7 @@ function LinkedList() {
     this.length = 0;
 }
 
-/*
+
 LinkedList.prototype.get = function(num) {
     var nodeToCheck = this.head;
     var count = 0;
@@ -31,9 +31,9 @@ LinkedList.prototype.get = function(num) {
         nodeToCheck = nodeToCheck.next;
         count++;
     }
-    return nodeToCheck;
+    return nodeToCheck.data;
 };
-*/
+
 
 
 /*
@@ -70,18 +70,21 @@ LinkedList.prototype.getHead = function () {
     if (!this.head) return null;
     var headHashList = this.head;
     return headHashList.data;
+    //TODO return headHashList
 };
 
 LinkedList.prototype.removeHead = function () {
     if (!this.head) return null;
-    this.head = this.head.next;
+    var currentNode = this.head;
+    this.head = currentNode.next;
     this.length--;
     //DELETE THE PREVIOUS HEAD
 };
 
 
 LinkedList.prototype.getNext = function () {
-    return this.next;
+    var currentNode = this.head;
+    return currentNode.next.data;
 };
 
 
@@ -275,44 +278,46 @@ function decideStatement(JSonBody) {
     let hashTable;
     switch (currentStatement) {
         case("IfStatement"):
-            hashTable = new HashTable({});
-            hashList.add(hashTable);
+
             let conditionType = JSonBody.condition;
-            let elseLabel;
-            let endLabel;
-            let comment = "// If stmt. Else: " + elseLabel + ", End: " + endLabel;
+            let elseLabelCount = getLabelCount();
+            let endLabelCount = getLabelCount();
+            let elseLocation = 1000; //TODO will modify
+            let endLocation = 2000;  //TODO will modify
+            let comment = "// If stmt. Else: $L" + elseLabelCount + ", End: $L" + endLabelCount;
             emitComment(comment);
             decideExpression(conditionType);
             pop("scratchMem1");
-            //CopyAddress(scratchMem2, elseLabel)???
+            emit("CPi", getMemoryAddress("scratchMem2"), endLocation, "");
             emit("BZJ", getMemoryAddress("scratchMem2"), getMemoryAddress("scratchMem1"), "");
+            hashTable = new HashTable({});
+            emitComment("// Entering a block.");
+            hashList.add(hashTable);
             for (let i = 0; i < JSonBody.body.length; i++) {
                 let thenStatement = JSonBody.body[i];
                 declarationOrStatement(thenStatement);
-                //Goto endLabel???
             }
+            let number = hashList.getHead().length;
+            emitComment("// Decrease SP by " + number);
+            hashList.removeHead();
+            //TODO GOTO
+            decrementSP(number);
+            emit("BZJi", getMemoryAddress("zero"), endLocation, "");
+            emitComment("// $L" + elseLabelCount + "  //" + getNextLocation()+"");
+            emitComment("// Entering a block.");
+            hashTable = new HashTable({});
+            hashList.add(hashTable);
             if (doesElseExist(JSonBody) === true) {
-                emitLabel(endLabel);//???
-                for (let j = 0; j < JSonBody.body.length; j++) {
+                for (let j = 0; j < JSonBody.else.length; j++) {
                     let elseStatement = JSonBody.else[j];
                     declarationOrStatement(elseStatement);
                 }
-                emitLabel(endLabel);//???
             }
-
-        //     let labelse = newLabel() in
-        //         let labend  = newLabel() in
-        //     [Comment("If stmt. Else: " ^ labelse ^ ", End: " ^ labend)]
-        // @ cExpr e varEnv funEnv
-        // @ pop scratchMem1
-        // @ [CopyAddress(scratchMem2, labelse)]
-        // @ [BZJ(scratchMem2, scratchMem1)]
-        // @ cStmt stmt1 varEnv funEnv loopEnv
-        // @ [Goto labend]
-        // @ [Label labelse]
-        // @ cStmt stmt2 varEnv funEnv loopEnv
-        // @ [Label labend]
+            let number2 = hashList.getHead().length;
+            emitComment("// Decrease SP by " + number2);
+            decrementSP(number2);
             hashList.removeHead();
+            emitComment("// $L" + elseLabelCount + "  //" + getNextLocation()+"");
             return;
         case("ExpressionStatement"):
             decideExpression(JSonBody.expression);
@@ -573,12 +578,14 @@ function access(value) {
 }
 
 function lookup(key) {
+    var count = 1;
     var hashTable = hashList.getHead();
     while (hashTable !== null) {
         if (hashTable.hasItem(key)) {
             return hashTable.getItem(key);
         }
-        hashTable = hashList.getNext();
+        hashTable = hashList.get(count);
+        count ++;
     }
     return null;
 }
@@ -646,11 +653,11 @@ function doPrefixExpression(expression) {
     }
 }
 
-function emitLabel(label) {
-    listOfCodes.push({label: label + labelCount});
+function getLabelCount(){
     labelCount++;
-    //???TODO
+    return labelCount;
 }
+
 
 function doSuffixExpression(expression) {
     let operator = expression.operator;
@@ -688,7 +695,7 @@ function printListOfCodes() {
             console.log(listOfCodes[i].location + ": " + listOfCodes[i].opCode + " " + listOfCodes[i].opA + " " + listOfCodes[i].opB);
         } else if (listOfCodes[i].type === "data") {
             console.log(listOfCodes[i].location + ": " + listOfCodes[i].value + " " + listOfCodes[i].comment);
-        } else{
+        } else {
             console.log(listOfCodes[i].comment);
         }
     }
