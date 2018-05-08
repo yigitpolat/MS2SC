@@ -323,12 +323,21 @@ function decideStatement(JSonBody) {
             decideExpression(JSonBody.expression);
             return;
         case("ForStatement"):
-            hashTable = new HashTable({});
-            hashList.add(hashTable);
+            let forConditionLabelCount = getLabelCount();
+            let forEndLabelCount = getLabelCount();
+            let forExitLabelCount = getLabelCount();
+            let exitLocation = 3000;
+
+            emitComment( "// For loop. Test: $L" + forConditionLabelCount +", End: $L" + forEndLabelCount +  ", Exit: $L" + forExitLabelCount);
             var init = JSonBody.init;
             declarationOrStatement(init);
+            emitComment("// $L" + forConditionLabelCount + ": " + getNextLocation()+"");
             var condition = JSonBody.condition;
             decideExpression(condition);
+            pop("scratchMem1");
+            emit("CPi", getMemoryAddress("scratchMem2"), exitLocation, "");
+            emit("BZJ", getMemoryAddress("scratchMem2"), getMemoryAddress("scratchMem1"), "");
+            //--------------------KALDIM
             var step = JSonBody.step;
             decideExpression(step);
             for (let i = 0; i < JSonBody.body.length; i++) {
