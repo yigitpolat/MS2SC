@@ -28,18 +28,10 @@
           },
           "name": "int"
         },
-        "name": "m",
+        "name": "sum",
         "pos": {
           "file": "unknown",
           "line": 4
-        },
-        "value": {
-          "type": "Literal",
-          "value": 0,
-          "pos": {
-            "file": "unknown",
-            "line": 4
-          }
         }
       },
       {
@@ -68,17 +60,13 @@
         }
       },
       {
-        "type": "IfStatement",
-        "pos": {
-          "file": "unknown",
-          "line": 6
-        },
+        "type": "WhileStatement",
         "condition": {
           "type": "BinaryExpression",
-          "operator": "==",
+          "operator": "<",
           "left": {
             "type": "Identifier",
-            "value": "m",
+            "value": "n",
             "pos": {
               "file": "unknown",
               "line": 6
@@ -86,7 +74,7 @@
           },
           "right": {
             "type": "Literal",
-            "value": 0,
+            "value": 10,
             "pos": {
               "file": "unknown",
               "line": 6
@@ -99,14 +87,10 @@
         },
         "body": [
           {
-            "type": "IfStatement",
-            "pos": {
-              "file": "unknown",
-              "line": 7
-            },
-            "condition": {
+            "type": "ExpressionStatement",
+            "expression": {
               "type": "BinaryExpression",
-              "operator": "==",
+              "operator": "=",
               "left": {
                 "type": "Identifier",
                 "value": "n",
@@ -116,8 +100,24 @@
                 }
               },
               "right": {
-                "type": "Literal",
-                "value": 0,
+                "type": "BinaryExpression",
+                "operator": "+",
+                "left": {
+                  "type": "Identifier",
+                  "value": "n",
+                  "pos": {
+                    "file": "unknown",
+                    "line": 7
+                  }
+                },
+                "right": {
+                  "type": "Literal",
+                  "value": 1,
+                  "pos": {
+                    "file": "unknown",
+                    "line": 7
+                  }
+                },
                 "pos": {
                   "file": "unknown",
                   "line": 7
@@ -128,12 +128,38 @@
                 "line": 7
               }
             },
-            "body": [
-              {
-                "type": "ReturnStatement",
-                "value": {
-                  "type": "Literal",
-                  "value": 42,
+            "pos": {
+              "file": "unknown",
+              "line": 7
+            }
+          },
+          {
+            "type": "ExpressionStatement",
+            "expression": {
+              "type": "BinaryExpression",
+              "operator": "=",
+              "left": {
+                "type": "Identifier",
+                "value": "sum",
+                "pos": {
+                  "file": "unknown",
+                  "line": 8
+                }
+              },
+              "right": {
+                "type": "BinaryExpression",
+                "operator": "+",
+                "left": {
+                  "type": "Identifier",
+                  "value": "sum",
+                  "pos": {
+                    "file": "unknown",
+                    "line": 8
+                  }
+                },
+                "right": {
+                  "type": "Identifier",
+                  "value": "n",
                   "pos": {
                     "file": "unknown",
                     "line": 8
@@ -143,27 +169,37 @@
                   "file": "unknown",
                   "line": 8
                 }
-              }
-            ]
-          }
-        ],
-        "else": [
-          {
-            "type": "ReturnStatement",
-            "value": {
-              "type": "Literal",
-              "value": 0,
+              },
               "pos": {
                 "file": "unknown",
-                "line": 11
+                "line": 8
               }
             },
             "pos": {
               "file": "unknown",
-              "line": 11
+              "line": 8
             }
           }
-        ]
+        ],
+        "pos": {
+          "file": "unknown",
+          "line": 6
+        }
+      },
+      {
+        "type": "ReturnStatement",
+        "value": {
+          "type": "Identifier",
+          "value": "sum",
+          "pos": {
+            "file": "unknown",
+            "line": 10
+          }
+        },
+        "pos": {
+          "file": "unknown",
+          "line": 10
+        }
       }
     ]
   }
