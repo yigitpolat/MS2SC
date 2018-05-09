@@ -335,9 +335,9 @@ function decideStatement(JSonBody) {
             let conditionLabelCount = getLabelCount();
             endLabelCount = getLabelCount();
             exitLabelCount = getLabelCount();
-            let conditionLocation = 900; //TODO
-            endLocation = 1000; //TODO will modify
-            exitLocation = 2000;  //TODO will modify
+            let conditionLocation = 3000; //TODO
+            endLocation = 4000; //TODO will modify
+            exitLocation = 5000;  //TODO will modify
             comment = "For loop. Test: $L" + conditionLabelCount + ", End: $L" + endLabelCount + ", Exit: $L" + exitLabelCount;
             emitComment(comment);
             hashTable = new HashTable({});
@@ -366,8 +366,8 @@ function decideStatement(JSonBody) {
         case("WhileStatement"):
             let testLabelCount = getLabelCount();
             exitLabelCount = getLabelCount();
-            let testLocation = 1000; //TODO
-            exitLocation = 2000;  //TODO will modify
+            let testLocation = 6000; //TODO
+            exitLocation = 7000;  //TODO will modify
             comment = "While loop. Test: $L" + testLabelCount + ", Exit: $L" + exitLabelCount;
             emitComment(comment);
             hashTable = new HashTable({});
