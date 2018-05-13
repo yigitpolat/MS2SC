@@ -275,22 +275,15 @@ function getMemoryAddress(name) {
 function decideStatement(JSonBody) {
     decideDeclaration(JSonBody);
     let currentStatement = JSonBody.type;
-    let condition;
     let hashTable;
-    let comment;
-    let endLabelCount;
-    let exitLabelCount;
-    let endLocation;
-    let exitLocation;
-    let number;
     switch (currentStatement) {
         case("IfStatement"):
             let conditionType = JSonBody.condition;
             let elseLabelCount = getLabelCount();
-            endLabelCount = getLabelCount();
+            let endLabelCount = getLabelCount();
             let elseLocation = 1000; //TODO will modify
-            endLocation = 2000;  //TODO will modify
-            comment = "// If stmt. Else: $L" + elseLabelCount + ", End: $L" + endLabelCount;
+            let endLocation = 2000;  //TODO will modify
+            let comment = "// If stmt. Else: $L" + elseLabelCount + ", End: $L" + endLabelCount;
             emitComment(comment);
             decideExpression(conditionType);
             pop("scratchMem1");
@@ -303,11 +296,11 @@ function decideStatement(JSonBody) {
                 let thenStatement = JSonBody.body[i];
                 declarationOrStatement(thenStatement);
             }
-            number = hashList.getHead().length;
-            emitComment("// Decrease SP by " + number1);
+            let number = hashList.getHead().length;
+            emitComment("// Decrease SP by " + number);
             hashList.removeHead();
             //TODO GOTO
-            decrementSP(number1);
+            decrementSP(number);
             emit("BZJi", getMemoryAddress("zero"), endLocation, "");
             emitComment("// $L" + elseLabelCount + "  //" + getNextLocation()+"");
             emitComment("// Entering a block.");
@@ -319,16 +312,54 @@ function decideStatement(JSonBody) {
                     declarationOrStatement(elseStatement);
                 }
             }
-            number = hashList.getHead().length;
+            let number2 = hashList.getHead().length;
             emitComment("// Decrease SP by " + number2);
             decrementSP(number2);
             hashList.removeHead();
-            emitComment("// $L" + endLabelCount + "  //" + getNextLocation()+"");
+            emitComment("// $L" + elseLabelCount + "  //" + getNextLocation()+"");
             return;
         case("ExpressionStatement"):
             decideExpression(JSonBody.expression);
             return;
         case("ForStatement"):
+            let forConditionLabelCount = getLabelCount();
+            let forEndLabelCount = getLabelCount();
+            let forExitLabelCount = getLabelCount();
+            let conditionLocation = 2000;
+            let exitLocation = 3000;
+
+            emitComment( "// For loop. Test: $L" + forConditionLabelCount +", End: $L" + forEndLabelCount +  ", Exit: $L" + forExitLabelCount);
+            var init = JSonBody.init;
+            declarationOrStatement(init);
+            emitComment("// $L" + forConditionLabelCount + ": " + getNextLocation()+"");
+            var condition = JSonBody.condition;
+            decideExpression(condition);
+            pop("scratchMem1");
+            emit("CPi", getMemoryAddress("scratchMem2"), exitLocation, "");
+            emit("BZJ", getMemoryAddress("scratchMem2"), getMemoryAddress("scratchMem1"), "");
+            emitComment("// Entering a block.");
+            hashTable = new HashTable({});
+            hashList.add(hashTable);
+            for (let i = 0; i < JSonBody.body.length; i++) {
+                var bodyElement = JSonBody.body[i];
+                declarationOrStatement(bodyElement);
+
+            }
+            let numberrr = hashList.getHead().length;
+            emitComment("// Decrease SP by " + numberrr);
+            decrementSP(numberrr);
+            emitComment("// $L" + forEndLabelCount + "  //" + getNextLocation()+"");
+            var step = JSonBody.step;
+            decideExpression(step);
+            hashList.removeHead();
+            emit("BZJi", getMemoryAddress("zero"), conditionLocation, "");
+            emitComment("// $L" + forExitLabelCount + "  //" + getNextLocation()+"");
+            return;
+
+
+
+
+            /*
             let init = JSonBody.init;
             condition = JSonBody.condition;
             let step = JSonBody.step;
@@ -363,6 +394,8 @@ function decideStatement(JSonBody) {
             emit("BZJi", getMemoryAddress("zero"), conditionLocation, "");
             emitComment("// $L" + exitLabelCount + "  //" + getNextLocation()+"");
             return;
+            */
+
         case("WhileStatement"):
             let testLabelCount = getLabelCount();
             exitLabelCount = getLabelCount();
@@ -460,7 +493,7 @@ function decideExpression(expression) {
         case ("Identifier"):
             value = expression.value;
             declarationOrStatement(value);
-            lookupVar = value; //doğru olmayabilir
+            lookupVar = value; //doğru olmayabilir TODO hatalı değer loop1.c için
             if(isAssignment === false) doAccess(lookupVar);
             return value;
         case ("BinaryExpression"):
@@ -586,13 +619,14 @@ function doAssignment(expression) {
     emitComment(comment);
     isAssignment = true;
     declarationOrStatement(expression.left);
+    isAssignment = false;
     declarationOrStatement(expression.right);
     access(lookupVar);
     pop("scratchMem1");
     pop("scratchMem2");
     incrementSP(1);
     emit("CPIi", getMemoryAddress("scratchMem1"), getMemoryAddress("scratchMem2"), "");
-    isAssignment = false;
+    // isAssignment = false;
 }
 
 function doAccess(value){
@@ -608,7 +642,7 @@ function access(value) {
     let comment = "";
     //TODO comment degisecek. fazla access yazıyor. Machine.ml gibi degisitirilcek
     if(isAssignment){
-        comment += "// Local var '" + value + "' @ " + loc;
+        comment += "// Local var '" + value + "' @ " + loc;  //TODO loop1.c bozuk
     }else{
         comment += "// Access\n// Local var '" + value + "' @ " + loc;
     }
