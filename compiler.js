@@ -41,7 +41,7 @@ LinkedList.prototype.search = function(searchValue) {
     let currentNode = this.head;
 
     while(currentNode) {
-        if (currentNode.value === searchValue) return currentNode;
+        if (currentNo"de.value === searchValue) return currentNode;
         currentNode = currentNode.next;
     }
     return null;
@@ -345,9 +345,9 @@ function decideStatement(JSonBody) {
                 declarationOrStatement(bodyElement);
 
             }
-            let numberrr = hashList.getHead().length;
-            emitComment("// Decrease SP by " + numberrr);
-            decrementSP(numberrr);
+            let number3 = hashList.getHead().length;
+            emitComment("// Decrease SP by " + number3);
+            decrementSP(number3);
             emitComment("// $L" + forEndLabelCount + "  //" + getNextLocation()+"");
             var step = JSonBody.step;
             decideExpression(step);
@@ -398,26 +398,26 @@ function decideStatement(JSonBody) {
 
         case("WhileStatement"):
             let testLabelCount = getLabelCount();
-            exitLabelCount = getLabelCount();
+            let exitLabelCount = getLabelCount();
             let testLocation = 6000; //TODO
-            exitLocation = 7000;  //TODO will modify
-            comment = "While loop. Test: $L" + testLabelCount + ", Exit: $L" + exitLabelCount;
-            emitComment(comment);
-            hashTable = new HashTable({});
-            hashList.add(hashTable);
+            let whileExitLocation = 7000;  //TODO will modify
+            emitComment("While loop. Test: $L" + testLabelCount + ", Exit: $L" + whileExitLocation);
             emitComment("// $L" + testLabelCount + "  //" + getNextLocation()+"");
             condition = JSonBody.condition;
             decideExpression(condition);
             pop("scratchMem1");
-            emit("CPi", getMemoryAddress("scratchMem2"), exitLocation, "");
+            emit("CPi", getMemoryAddress("scratchMem2"), whileExitLocation, "");
             emit("BZJ", getMemoryAddress("scratchMem2"), getMemoryAddress("scratchMem1"), "");
+            emitComment("// Entering a block.");
+            hashTable = new HashTable({});
+            hashList.add(hashTable);
             for (let i = 0; i < JSonBody.body.length; i++) {
                 let bodyElement = JSonBody.body[i];
                 declarationOrStatement(bodyElement);
             }
-            number = hashList.getHead().length;
-            emitComment("// Decrease SP by " + number);
-            decrementSP(number);
+            let number5 = hashList.getHead().length;
+            emitComment("// Decrease SP by " + number5);
+            decrementSP(number5);
             hashList.removeHead();
             emit("BZJi", getMemoryAddress("zero"), testLocation, "");
             emitComment("// $L" + exitLabelCount + "  //" + getNextLocation()+"");
