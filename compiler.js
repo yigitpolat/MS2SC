@@ -102,7 +102,7 @@ var compiler = (function () {
     var labelCount = 2;
     var listOfCodes;
     return function (ast) {
-        var assemblyCode = [];
+        var assemblyCode = "";
         var myJSon = JSON.parse(ast);
         initializeListOfCodes();
         for (let i = 0; i < myJSon.length; i++) {
@@ -390,9 +390,6 @@ function decideStatement(JSonBody) {
             emit("BZJi", getMemoryAddress("zero"), conditionLocation, "");
             emitComment("// $L" + forExitLabelCount + "  //" + getNextLocation()+"");
             return;
-
-
-
 
             /*
             let init = JSonBody.init;
@@ -802,17 +799,17 @@ function access(value) {
             for (let i = 0; i < listOfCodes.length; i++) {
                 if (listOfCodes[i].type === "inst") {
                     if (listOfCodes[i].comment.length > 0) console.log(listOfCodes[i].comment);
-                    assemblyCode.push(listOfCodes[i].location + ": " + listOfCodes[i].opCode + " " + listOfCodes[i].opA + " " + listOfCodes[i].opB + "\n");
+                    assemblyCode = assemblyCode.concat(listOfCodes[i].location + ": " + listOfCodes[i].opCode + " " + listOfCodes[i].opA + " " + listOfCodes[i].opB + "\n");
                 } else if (listOfCodes[i].type === "data") {
-                    assemblyCode.push(listOfCodes[i].location + ": " + listOfCodes[i].value + " " + listOfCodes[i].comment + "\n");
+                    assemblyCode = assemblyCode.concat(listOfCodes[i].location + ": " + listOfCodes[i].value + " " + listOfCodes[i].comment + "\n");
                 } else {
-                    assemblyCode.push(listOfCodes[i].comment + "\n");
+                    assemblyCode = assemblyCode.concat(listOfCodes[i].comment + "\n");
                 }
             }
         }
 
         function printTopOfStack() {
-            assemblyCode.push("// $topofstack:  //" + listOfCodes[1].value + "\n");
+            assemblyCode = assemblyCode.concat("// $topofstack:  //" + listOfCodes[1].value + "\n");
         }
 
         function removeFromEnvironment(key) {
