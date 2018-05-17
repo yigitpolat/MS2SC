@@ -67,6 +67,7 @@ LinkedList.prototype.removeHead = function () {
     //DELETE THE PREVIOUS HEAD
 };
 
+
 LinkedList.prototype.getNext = function () {
     var currentNode = this.head;
     return currentNode.next.data;
@@ -103,6 +104,7 @@ var compiler = (function() {
             if(hashList.getHead() !== null) {
                 let comment = hashList.getHead().length;
                 emitComment("// Decrease SP by " + comment);
+                decrementSP(hashList.getHead().length - 1); //TODO
                 decrementSP(hashList.getHead().length ); //TODO -1 dogru mu
             } else {
                 emitComment("// Decrease SP by 0");
@@ -180,9 +182,13 @@ var compiler = (function() {
                     }
                     return;
                 case("GlobalVariableDeclaration"):
-                //var name = JSonObject.name;
-                //var value = declarationOrStatement(JSonObject)
-                //addToEnvironment(name);
+                    let name = JSonObject.name;
+                    addToEnvironment(name);
+                    let location = lookup(name);
+                    let comment = "Global var '" + name + "' @ " + location;
+                    emitComment(comment);
+                    emit("CPi", getMemoryAddress("scratchMem1"), location, "");
+                    push("scratchMem1");
             }
         }
 
@@ -199,10 +205,11 @@ var compiler = (function() {
 
 //Values are adding to the Hash Table
         function addToEnvironment(key) {
+            let hashTable;
             if (hashList.length > 0) {
                 hashTable = hashList.getHead();
             } else {
-                var hashTable = new HashTable({});
+                hashTable = new HashTable({});
                 hashList.add(hashTable);
             }
             hashTable.setItem(key, hashTable.getNextIndex());
@@ -497,50 +504,49 @@ var compiler = (function() {
             incrementSP(1);
         }
 
-        function decideExpression(expression) {
-            let expressionType = expression.type;
-            let comment = "";
-            let value = null;
-            switch (expressionType) {
-                case ("Literal"):
-                    value = expression.value;
-                    comment = "// Const. int " + value + "";
-                    emit("CPi", getMemoryAddress("scratchMem1"), "" + value + "", comment);
-                    push("scratchMem1");
-                    return value;
-                case ("Identifier"):
-                    value = expression.value;
-                    declarationOrStatement(value);
-                    lookupVar = value; //doğru olmayabilir TODO hatalı değer loop1.c için
-                    if(isAssignment === false) doAccess(lookupVar);
-                    return value;
-                case ("BinaryExpression"):
-                    doBinaryExpression(expression);
-                    break;
-                case ("PrefixExpression"):
-                    doPrefixExpression(expression);
-                    break;
-                case ("SuffixExpression"):
-                    doSuffixExpression(expression);
-                    break;
-                case ("CastExpression"):
-                    value = decideExpression(expression.value);
-                    break;
-                case ("CallExpression"):
-                    let hashTable = new HashTable({});
-                    //TODO
-                    //hashList.unshift(hashTable);
-                    var arguments = expression.arguments;
-                    for (let i = 0; i < arguments.length; i++) {
-                        var argument = decideExpression(arguments[i]);
-                    }
-                    break;
-                case ("IndexExpression"):
-                    value = decideExpression(expression.value);
-                    var index = decideExpression(expression.index);
-                    break;
+function decideExpression(expression) {
+    let expressionType = expression.type;
+    let comment = "";
+    let value = null;
+    switch (expressionType) {
+        case ("Literal"):
+            value = expression.value;
+            comment = "// Const. int " + value + "";
+            emit("CPi", getMemoryAddress("scratchMem1"), "" + value + "", comment);
+            push("scratchMem1");
+            return value;
+        case ("Identifier"):
+            value = expression.value;
+            declarationOrStatement(value);
+            //lookupVar = value; //doğru olmayabilir TODO hatalı değer loop1.c için
+            if(isAssignment === false) doAccess(value);
+            return value;
+        case ("BinaryExpression"):
+            doBinaryExpression(expression);
+            break;
+        case ("PrefixExpression"):
+            doPrefixExpression(expression);
+            break;
+        case ("SuffixExpression"):
+            doSuffixExpression(expression);
+            break;
+        case ("CastExpression"):
+            value = decideExpression(expression.value);
+            break;
+        case ("CallExpression"):
+            let hashTable = new HashTable({});
+            hashList.unshift(hashTable);
+            let arguments = expression.arguments;
+            for (let i = 0; i < arguments.length; i++) {
+                let argument = decideExpression(arguments[i]);
             }
-        }
+            break;
+        case ("IndexExpression"):
+            value = decideExpression(expression.value);
+            let index = decideExpression(expression.index);
+            break;
+    }
+}
 
         function doBinaryExpression(expression) {
             let operator = expression.operator;
@@ -638,9 +644,10 @@ var compiler = (function() {
             emitComment(comment);
             isAssignment = true;
             declarationOrStatement(expression.left);
+            let name = expression.left.value;
             isAssignment = false;
             declarationOrStatement(expression.right);
-            access(lookupVar);
+            access(name);
             pop("scratchMem1");
             pop("scratchMem2");
             incrementSP(1);
@@ -673,20 +680,20 @@ var compiler = (function() {
         }
 
         function lookup(key) {
-            var count = 1;
             var hashTable = hashList.getHead();
             while (hashTable !== null) {
                 if (hashTable.hasItem(key)) {
                     return hashTable.getItem(key);
                 }
-                hashTable = hashList.get(count);
-                count ++;
+                hashTable = hashList.getNext();
             }
             return null;
         }
 
         function doPrefixExpression(expression) {
             let operator = expression.operator;
+            let comment;
+            let name = expression.value.value;
             if(isUnary(operator)){
                 doUnary(expression);
                 return;
@@ -890,17 +897,7 @@ var compiler = (function() {
                 this.length = 0;
             }
         }
-
-
-
-
-
-
-
-
     }
-
-
 })();
 
 if(typeof module == "object") module.exports = compilerFunction;
