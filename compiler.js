@@ -104,8 +104,7 @@ var compiler = (function() {
             if(hashList.getHead() !== null) {
                 let comment = hashList.getHead().length;
                 emitComment("// Decrease SP by " + comment);
-                decrementSP(hashList.getHead().length - 1); //TODO
-                decrementSP(hashList.getHead().length ); //TODO -1 dogru mu
+                decrementSP(hashList.getHead().length); //TODO
             } else {
                 emitComment("// Decrease SP by 0");
             }
