@@ -1,5 +1,5 @@
 var fs = require("fs");
-var content = fs.readFileSync("AST.json").toString();
+var content = fs.readFileSync("local_compiler/AST.json").toString();
 var myJSon = JSON.parse(content);
 let hashList = new LinkedList();
 var isAssignment = false;
