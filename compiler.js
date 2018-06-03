@@ -83,8 +83,6 @@ var compiler = (function () {
 
     return function (ast) {
         let hashList = new LinkedList();
-        var lookupVar;
-        var labelCount = 1;
         var isAssignment = false;
         var labelCount = 2;
         var listOfCodes;
@@ -505,8 +503,7 @@ var compiler = (function () {
                 case ("Identifier"):
                     value = expression.value;
                     declarationOrStatement(value);
-                    lookupVar = value; //doğru olmayabilir TODO hatalı değer loop1.c için
-                    if (isAssignment === false) doAccess(lookupVar);
+                    if(isAssignment === false) doAccess(value);
                     return value;
                 case ("BinaryExpression"):
                     doBinaryExpression(expression);
@@ -690,9 +687,10 @@ var compiler = (function () {
             emitComment(comment);
             isAssignment = true;
             declarationOrStatement(expression.left);
+            let name = expression.left.value;
             isAssignment = false;
             declarationOrStatement(expression.right);
-            access(lookupVar);
+            access(name);
             pop("scratchMem1");
             pop("scratchMem2");
             incrementSP(1);
@@ -700,11 +698,11 @@ var compiler = (function () {
             // isAssignment = false;
         }
 
-        function doAccess(value) {
+        function doAccess(value){
             access(value);
             pop("scratchMem1");
             emit("CPI", getMemoryAddress("scratchMem2"), getMemoryAddress("scratchMem1"), "");
-            if (isPrefixExpression) return;
+            if(isPrefixExpression) return;
             push("scratchMem2");
 
         }
@@ -713,9 +711,9 @@ var compiler = (function () {
             let loc = lookup(value);
             let comment = "";
             //TODO comment degisecek. fazla access yazıyor. Machine.ml gibi degisitirilcek
-            if (isAssignment) {
+            if(isAssignment){
                 comment += "// Local var '" + value + "' @ " + loc;  //TODO loop1.c bozuk
-            } else {
+            }else{
                 comment += "// Access\n// Local var '" + value + "' @ " + loc;
             }
             emitComment(comment);
