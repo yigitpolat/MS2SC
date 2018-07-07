@@ -40,18 +40,6 @@ LinkedList.prototype.add = function (value) {
     return node;
 };
 
-/*
-LinkedList.prototype.search = function(searchValue) {
-    let currentNode = this.head;
-
-    while(currentNode) {
-        if (currentNo"de.value === searchValue) return currentNode;
-        currentNode = currentNode.next;
-    }
-    return null;
-}
-*/
-
 LinkedList.prototype.getHead = function () {
     if (!this.head) return null;
     var headHashList = this.head;
@@ -518,6 +506,7 @@ var compiler = (function () {
                     value = decideExpression(expression.value);
                     break;
                 case ("CallExpression"):
+                    /*
                     let hashTable = new HashTable({});
                     hashList.add(hashTable);
                     let returnLabelCount = getAndIncreaseLabelCount();
@@ -542,6 +531,7 @@ var compiler = (function () {
                     emit("CP", getMemoryAddress("basePointer"), getMemoryAddress("stackPointer"), "");
                     decreaseBP(numArgs);
                     // emit("BZJi", getMemoryAddress("zero"), ) //TODO
+                    */
                     break;
                 case ("IndexExpression"):
                     value = decideExpression(expression.value);
@@ -868,19 +858,6 @@ var compiler = (function () {
             }
         }
 
-        function insertGlobalVariableInstructions(difference) {
-            var index;
-            for (var i = 17; i < listOfCodes.length; i++) {
-                if (listOfCodes[i].comment.includes("Calling main, numArgs: 0")) {
-                    index = i;
-                    break;
-                }
-            }
-            listOfCodes.splice.apply(listOfCodes, [index, 0].concat(difference));
-            listOfCodes.splice(listOfCodes.length - difference.length, difference.length);
-            fixLocations();
-        }
-
         function fixLocations() {
             let i = 0;
             let previous = i;
@@ -918,7 +895,10 @@ var compiler = (function () {
                     break;
                 }
             }
-            listOfCodes.splice.apply(listOfCodes, [index + 1, 0].concat({comment: "// $globalinit:  //" + (index + 1)}));
+            if(globalVariableList.length !== 0){
+                index = globalVariableList.length - 1 + index;
+            }
+            listOfCodes.splice.apply(listOfCodes, [index, 0].concat({comment: "// $globalinit:  //" + (index)}));
             fixLocations();
         }
 
@@ -959,7 +939,7 @@ var compiler = (function () {
 
         function modifyGoMain(){
             let index = findAdjustBP();
-            listOfCodes[index + 1].opB = getNextLocation();
+            listOfCodes[index + 1].opB = listOfCodes[findHalt()].location + 1;
         }
 
         function findAdjustBP(){
