@@ -1,6 +1,31 @@
 [
   {
-    "type": "FunctionDeclaration",
+    "type": "GlobalVariableDeclaration",
+    "defType": {
+      "type": "Type",
+      "modifier": [],
+      "pos": {
+        "file": "unknown",
+        "line": 1
+      },
+      "name": "int"
+    },
+    "name": "a",
+    "pos": {
+      "file": "unknown",
+      "line": 1
+    },
+    "value": {
+      "type": "Literal",
+      "value": 5,
+      "pos": {
+        "file": "unknown",
+        "line": 1
+      }
+    }
+  },
+  {
+    "type": "GlobalVariableDeclaration",
     "defType": {
       "type": "Type",
       "modifier": [],
@@ -10,60 +35,37 @@
       },
       "name": "int"
     },
-    "name": "main",
+    "name": "b",
     "pos": {
       "file": "unknown",
       "line": 2
     },
-    "arguments": [],
-    "body": [
-      {
-        "type": "ReturnStatement",
-        "value": {
-          "type": "BinaryExpression",
-          "operator": ">",
-          "left": {
-            "type": "PrefixExpression",
-            "operator": "-",
-            "value": {
-              "type": "Literal",
-              "value": 10,
-              "pos": {
-                "file": "unknown",
-                "line": 3
-              }
-            },
-            "pos": {
-              "file": "unknown",
-              "line": 3
-            }
-          },
-          "right": {
-            "type": "PrefixExpression",
-            "operator": "-",
-            "value": {
-              "type": "Literal",
-              "value": 12,
-              "pos": {
-                "file": "unknown",
-                "line": 3
-              }
-            },
-            "pos": {
-              "file": "unknown",
-              "line": 3
-            }
-          },
-          "pos": {
-            "file": "unknown",
-            "line": 3
-          }
-        },
-        "pos": {
-          "file": "unknown",
-          "line": 3
-        }
+    "value": {
+      "type": "Literal",
+      "value": 6,
+      "pos": {
+        "file": "unknown",
+        "line": 2
       }
-    ]
+    }
+  },
+  {
+    "type": "FunctionDeclaration",
+    "defType": {
+      "type": "Type",
+      "modifier": [],
+      "pos": {
+        "file": "unknown",
+        "line": 5
+      },
+      "name": "int"
+    },
+    "name": "main",
+    "pos": {
+      "file": "unknown",
+      "line": 5
+    },
+    "arguments": [],
+    "body": []
   }
 ]
