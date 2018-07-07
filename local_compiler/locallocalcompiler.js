@@ -1,14 +1,18 @@
 var fs = require("fs");
 var content = fs.readFileSync("AST.json").toString();
 var myJSon = JSON.parse(content);
-let hashList = new LinkedList();
+var hashList = new LinkedList();
 var isAssignment = false;
+var isPrefixExpression = false;
 var labelCount = 1;
-let isPrefixExpression = false;
 var globalVariableAddress = 17;
 var globalVariableList = [];
 let globalVariableEnvironment = new HashTable({});
 var mainReturn = 0;
+var globalVariableEnvironment = new HashTable({});
+var labelEnvironment = new HashTable({});
+var lastLabel = 1;
+var functionEnvironment = new HashTable({});
 
 
 //----------------------- Linked List ---------------------------------
@@ -22,6 +26,22 @@ function LinkedList() {
     this.length = 0;
 }
 
+// /**
+//  * @return {number}
+//  */
+// function Label() {
+//     labelEnvironment.add(lastLabel);
+//     lastLabel++;
+//     return lastLabel;
+// }
+//
+// Label.prototype.update = function(labelIndex, address) {
+//     labelEnvironment.setItem(labelIndex, address);
+// };
+//
+// Label.prototype.getLabel = function (labelIndex) {
+//    return labelEnvironment.getItem(labelIndex);
+// };
 
 LinkedList.prototype.get = function(num) {
     var nodeToCheck = this.head;
@@ -155,6 +175,9 @@ function decideDeclaration(JSonObject) {
             }
             let hashTable = new HashTable({});
             hashList.add(hashTable);
+            for(let k = 0; k < JSonObject.arguments.length; k++) {
+                addToEnvironment(JSonObject.arguments[k].name);
+            }
             emitComment("// $L" + labelCount + JSonObject.name + ":  //"+ getNextLocation());
             emitComment("// Entering a block.");
             labelCount ++;
@@ -232,6 +255,12 @@ function addToEnvironment(key) {
         hashList.add(hashTable);
     }
     hashTable.setItem(key, hashTable.getNextIndex());
+    hashTable.nextIndex += 1;
+}
+
+function addToFunEnvironment(funName, argName) {
+    let hashTable = functionEnvironment.getItem(funName);
+    hashTable.setItem(argName, hashTable.getNextIndex());
     hashTable.nextIndex += 1;
 }
 
@@ -478,6 +507,16 @@ function decrementSP(number) {
     }
 }
 
+function decrementBP(number) {
+    if(number === 0) {
+        return;
+    } else {
+        emit("ADD", getMemoryAddress("basePointer"), getMemoryAddress("negativeOne"), "");
+        listOfCodes[2].value -= 1;
+        decrementBP(number - 1);
+    }
+}
+
 function push(source) {
     let comment = "// Push " + source;
     emit("CPIi", getMemoryAddress("stackPointer"), getMemoryAddress(source), comment);
@@ -515,12 +554,16 @@ function decideExpression(expression) {
             break;
         case ("CallExpression"):
             let hashTable = new HashTable({});
-            hashList.add(hashTable);
+            let functionName = expression.base.value;
+            functionEnvironment.setItem(functionName, hashTable);
+            for(let k = 0; k < expression.arguments.length; k++) {
+                addToFunEnvironment(functionName, expression.arguments[k].value);
+            }
             let returnLabelCount = getAndIncreaseLabelCount();
             let returnLabelLocation = null;
             let numArgs = expression.arguments.length;
             let arguments = expression.arguments;
-            comment = "Calling " + expression.name + ", numArgs: " + numArgs;
+            comment = "// Calling " + functionName + ", numArgs: " + numArgs;
             emitComment(comment);
             emit("CPi",getMemoryAddress("scratchMem1"), returnLabelLocation, "");
             let returnLocationIndex = listOfCodes.length-1;
@@ -536,8 +579,9 @@ function decideExpression(expression) {
             comment = "Adjust BP to (SP - " + numArgs + ")";
             emitComment(comment);
             emit("CP", getMemoryAddress("basePointer"), getMemoryAddress("stackPointer"), "");
-            decreaseBP(numArgs);
-            // emit("BZJi", getMemoryAddress("zero"), ) //TODO
+            decrementBP(numArgs);
+            emit("BZJi", getMemoryAddress("zero"), null, ""); //TODO
+            emitComment("// $L" + returnLabelCount + "  //" + getNextLocation()+"");
             break;
         case ("IndexExpression"):
             value = decideExpression(expression.value);
