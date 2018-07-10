@@ -12,6 +12,7 @@ var globalVariableEnvironment = new HashTable({});
 var labelEnvironment = new HashTable({});
 var lastLabel = 1;
 var functionEnvironment = new HashTable({});
+var functionCallAddress = null;
 
 var loopBeginning;
 var loopEnd;
@@ -174,6 +175,9 @@ function decideDeclaration(JSonObject) {
             if(returnMain === 1){
                 listOfCodes = listOfCodes.concat(mainReturn);
                 returnMain = 0;
+            }
+            if(typeof listOfCodes[functionCallAddress] !== 'undefined') {
+                listOfCodes[functionCallAddress].opB = getNextLocation();
             }
             let hashTable = new HashTable({});
             hashList.add(hashTable);
@@ -589,6 +593,7 @@ function decideExpression(expression) {
             emit("CP", getMemoryAddress("basePointer"), getMemoryAddress("stackPointer"), "");
             decrementBP(numArgs);
             emit("BZJi", getMemoryAddress("zero"), null, ""); //TODO
+            functionCallAddress = listOfCodes.length - 1;
             emitComment("// $L" + returnLabelCount + "  //" + getNextLocation()+"");
             break;
         case ("IndexExpression"):
