@@ -7,12 +7,14 @@ var isPrefixExpression = false;
 var labelCount = 1;
 var globalVariableAddress = 17;
 var globalVariableList = [];
-let globalVariableEnvironment = new HashTable({});
-var mainReturn = 0;
+var returnMain = 1;
 var globalVariableEnvironment = new HashTable({});
 var labelEnvironment = new HashTable({});
 var lastLabel = 1;
 var functionEnvironment = new HashTable({});
+
+var loopBeginning;
+var loopEnd;
 
 
 //----------------------- Linked List ---------------------------------
@@ -169,9 +171,9 @@ function decideDeclaration(JSonObject) {
 
     switch (declaration) {
         case("FunctionDeclaration"):
-            if(mainReturn === 1){
+            if(returnMain === 1){
                 listOfCodes = listOfCodes.concat(mainReturn);
-                mainReturn = 0;
+                returnMain = 0;
             }
             let hashTable = new HashTable({});
             hashList.add(hashTable);
@@ -405,6 +407,7 @@ function decideStatement(JSonBody) {
             let forExitLabelCount = getAndIncreaseLabelCount();      //TODO will modify
             let exitLocation = null;
             emitComment( "// For loop. Test: $L" + forConditionLabelCount +", End: $L" + forEndLabelCount +  ", Exit: $L" + forExitLabelCount);
+            loopBeginning = getNextLocation();
             var init = JSonBody.init;
             declarationOrStatement(init);
             emitComment("// $L" + forConditionLabelCount + ": //" + getNextLocation()+"");
@@ -441,6 +444,7 @@ function decideStatement(JSonBody) {
             let whileExitLocation = null;
             emitComment("While loop. Test: $L" + whileTestLabelCount + ", Exit: $L" + whileExitLabelCount);
             emitComment("// $L" + whileTestLabelCount + "  //" + getNextLocation() + "");
+            loopBeginning = getNextLocation();
             let whileTestLocationIndex = getNextLocation();
             condition = JSonBody.condition;
             decideExpression(condition);
@@ -536,6 +540,10 @@ function decideExpression(expression) {
             return value;
         case ("Identifier"):
             value = expression.value;
+            if(value === "continue" || value === "break"){
+                doBreakOrContinue(expression);
+                break;
+            }
             declarationOrStatement(value);
             //lookupVar = value; //doğru olmayabilir TODO hatalı değer loop1.c için
             if(isAssignment === false) doAccess(value);
@@ -588,6 +596,20 @@ function decideExpression(expression) {
             var index = decideExpression(expression.index);
             break;
     }
+}
+
+function doBreakOrContinue(expression){
+    var value = expression.value;
+    switch(value){
+        case ("continue") :
+            emit("BZJi", getMemoryAddress("zero"), loopBeginning, "" );
+            break;
+        case("break") :
+            emit("BZJi", getMemoryAddress("zero"), null, "" );
+            listOfCodes.
+            break;
+    }
+
 }
 
 function doBinaryExpression(expression) {
