@@ -192,6 +192,10 @@ function decideDeclaration(JSonObject) {
             }
             return;
         case("GlobalVariableDeclaration"):
+            if(checkIfPointerType(JSonObject)) {
+                addGlobalArrayDeclarationToListOfCodes(JSonObject);
+                return;
+            }
             let tempListOfCodes = listOfCodes.slice();
             globalVariableEnvironment.setItem(JSonObject.name, globalVariableEnvironment.getNextIndex());
             globalVariableList.push({type: "data", location: getNextLocation(), value: 0, comment: "//GLOBAL: " + JSonObject.name});
@@ -204,6 +208,23 @@ function decideDeclaration(JSonObject) {
             var difference = listOfCodes.diff(tempListOfCodes);
             insertGlobalVariableInstructions(difference);
     }
+}
+
+function addGlobalArrayDeclarationToListOfCodes(JSonObject){
+    let tempListOfCodes = listOfCodes.slice();
+    for(var i = 0 ; i<JSonObject.defType.length.value; i++){
+        globalVariableEnvironment.setItem(JSonObject.name, globalVariableEnvironment.getNextIndex());
+        globalVariableList.push({type: "data", location: getNextLocation(), value: 0, comment: "//GLOBAL: " + JSonObject.name + "[" + i + "]"});
+    }
+    globalVariableList.push({type: "data", location: getNextLocation(), value: 0, comment: "//GLOBAL: " + JSonObject.name});
+    if(doesValueExist(JSonObject)){
+        decideStatement(JSonObject.value);
+        pop("scratchMem1");
+        emit("CP", globalVariableAddress, getMemoryAddress("scratchMem1"), "");
+    }
+    globalVariableAddress++;
+    var difference = listOfCodes.diff(tempListOfCodes);
+    insertGlobalVariableInstructions(difference);
 }
 
 function insertGlobalVariableInstructions(difference){
@@ -244,12 +265,36 @@ function fixLocations(){
 function declarationOrStatement(JSonBody) {
     if (JSonBody.type === "VariableDeclaration") {
         var name = JSonBody.name;
+        if(checkIfPointerType(JSonBody) && checkIfArray(JSonBody)){
+            addArrayDeclarationToListOfCodes(JSonBody);
+            return;
+        }
         addToEnvironment(name);
         addVarDeclarationToListOfCodes(JSonBody);
         return;
     } else {
         decideStatement(JSonBody);
     }
+}
+
+function checkIfPointerType(JSonBody){
+    return (JSonBody.defType.type === "PointerType")
+}
+
+function checkIfArray(JSonBody){
+    return typeof JSonBody.defType.length !== 'undefined';
+}
+
+function addArrayDeclarationToListOfCodes(JSonBody){
+    var comment = "// Allocate array " + JSonBody.name + "[" + JSonBody.defType.length.value + "]";
+    emitComment(comment);
+    for(var i = 0; i<JSonBody.defType.length.value + 1; i++){
+        addToEnvironment(JSonBody.name);
+    }
+    emit("CP", getMemoryAddress("scratchMem1"), getMemoryAddress("stackPointer"), "");
+    incrementSP(JSonBody.defType.length.value);
+    push("scratchMem1");
+    return;
 }
 
 //Values are adding to the Hash Table
@@ -478,6 +523,13 @@ function decideStatement(JSonBody) {
                 emitComment("// Return (Some)");
                 declarationOrStatement(value);
                 pop("scratchMem1");
+
+                //ARRAY YAPARKEN EKLEDIM
+                if(value.type === "IndexExpression"){
+                    emit("CPI", getMemoryAddress("scratchMem2"), getMemoryAddress("scratchMem1"), "");
+                    push("scratchMem2");
+                    pop("scratchMem1");
+                }
             } else {
                 emitComment("// Return (None)");
             }
@@ -597,8 +649,16 @@ function decideExpression(expression) {
             emitComment("// $L" + returnLabelCount + "  //" + getNextLocation()+"");
             break;
         case ("IndexExpression"):
-            value = decideExpression(expression.value);
-            var index = decideExpression(expression.index);
+            emitComment("// Array indexing -- base");
+            value = expression.value.value;
+            emitComment("// Access");
+            doAccess(value);
+            emitComment("// Array indexing -- index");
+            declarationOrStatement(expression.index);
+            pop("scratchMem1");
+            pop("scratchMem2");
+            emit("ADD", getMemoryAddress("scratchMem1"), getMemoryAddress("scratchMem2"), "");
+            push("scratchMem1");
             break;
     }
 }
@@ -611,7 +671,6 @@ function doBreakOrContinue(expression){
             break;
         case("break") :
             emit("BZJi", getMemoryAddress("zero"), null, "" );
-            listOfCodes.
             break;
     }
 
@@ -745,17 +804,31 @@ function doBinaryExpression(expression) {
             emit("ADD", getMemoryAddress("scratchMem2"), getMemoryAddress("scratchMem3"), "");
             emit("SRL", getMemoryAddress("scratchMem1"),getMemoryAddress("scratchMem2"),"");
             break;
+
     }
     push("scratchMem1");
 }
 function doAssignment(expression) {
     let comment = "// Assignment";
     emitComment(comment);
+    declarationOrStatement(expression.right);
     isAssignment = true;
+
+
+    if(expression.left.type === "IndexExpression"){
+        declarationOrStatement(expression.left);
+        pop("scratchMem1");
+        pop("scratchMem2");
+        incrementSP(1);
+        emit("CPIi", getMemoryAddress("scratchMem1"), getMemoryAddress("scratchMem2"), "");
+        return;
+    }
+
+
     declarationOrStatement(expression.left);
     let name = expression.left.value;
     isAssignment = false;
-    declarationOrStatement(expression.right);
+    //declarationOrStatement(expression.right);
     access(name);
     pop("scratchMem1");
     pop("scratchMem2");
@@ -847,6 +920,14 @@ function doPrefixExpression(expression) {
         doUnary(expression);
         return;
     }
+    if(operator === "&"){
+        doAddressOperator(expression);
+        return;
+    }
+    if(operator === "*"){
+        doDeRefOperator(expression);
+        return;
+    }
     emitComment("// PrePost: pre " + operator);
     isPrefixExpression = true;
     declarationOrStatement(expression.value);
@@ -908,6 +989,16 @@ function doUnary(expression){
             push("scratchMem1");
             break;
     }
+}
+
+function doAddressOperator(expression){
+    emitComment("// Address-of");
+    access(expression.value.value);
+}
+
+function doDeRefOperator(expression){
+    emitComment("// Deref.");
+    declarationOrStatement(expression.value);
 }
 
 function getAndIncreaseLabelCount(){

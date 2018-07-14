@@ -6,14 +6,14 @@
       "modifier": [],
       "pos": {
         "file": "unknown",
-        "line": 1
+        "line": 2
       },
       "name": "int"
     },
     "name": "main",
     "pos": {
       "file": "unknown",
-      "line": 1
+      "line": 2
     },
     "arguments": [],
     "body": [
@@ -24,22 +24,14 @@
           "modifier": [],
           "pos": {
             "file": "unknown",
-            "line": 2
+            "line": 3
           },
           "name": "int"
         },
         "name": "a",
         "pos": {
           "file": "unknown",
-          "line": 2
-        },
-        "value": {
-          "type": "Literal",
-          "value": 4,
-          "pos": {
-            "file": "unknown",
-            "line": 2
-          }
+          "line": 3
         }
       },
       {
@@ -49,47 +41,14 @@
           "modifier": [],
           "pos": {
             "file": "unknown",
-            "line": 3
+            "line": 4
           },
           "name": "int"
         },
         "name": "b",
         "pos": {
           "file": "unknown",
-          "line": 3
-        },
-        "value": {
-          "type": "Literal",
-          "value": 6,
-          "pos": {
-            "file": "unknown",
-            "line": 3
-          }
-        }
-      },
-      {
-        "type": "VariableDeclaration",
-        "defType": {
-          "type": "Type",
-          "modifier": [],
-          "pos": {
-            "file": "unknown",
-            "line": 4
-          },
-          "name": "int"
-        },
-        "name": "c",
-        "pos": {
-          "file": "unknown",
           "line": 4
-        },
-        "value": {
-          "type": "Literal",
-          "value": 7,
-          "pos": {
-            "file": "unknown",
-            "line": 4
-          }
         }
       },
       {
@@ -103,10 +62,51 @@
           },
           "name": "int"
         },
-        "name": "x",
+        "name": "c",
         "pos": {
           "file": "unknown",
           "line": 5
+        }
+      },
+      {
+        "type": "VariableDeclaration",
+        "defType": {
+          "type": "PointerType",
+          "target": {
+            "type": "Type",
+            "modifier": [],
+            "pos": {
+              "file": "unknown",
+              "line": 6
+            },
+            "name": "int"
+          },
+          "pos": {
+            "file": "unknown",
+            "line": 6
+          }
+        },
+        "name": "p",
+        "pos": {
+          "file": "unknown",
+          "line": 6
+        }
+      },
+      {
+        "type": "VariableDeclaration",
+        "defType": {
+          "type": "Type",
+          "modifier": [],
+          "pos": {
+            "file": "unknown",
+            "line": 7
+          },
+          "name": "int"
+        },
+        "name": "d",
+        "pos": {
+          "file": "unknown",
+          "line": 7
         }
       },
       {
@@ -116,144 +116,82 @@
           "operator": "=",
           "left": {
             "type": "Identifier",
-            "value": "x",
+            "value": "p",
             "pos": {
               "file": "unknown",
-              "line": 6
+              "line": 8
             }
           },
           "right": {
-            "type": "CallExpression",
-            "base": {
+            "type": "PrefixExpression",
+            "operator": "&",
+            "value": {
               "type": "Identifier",
-              "value": "k"
-            },
-            "arguments": [
-              {
-                "type": "Identifier",
-                "value": "a",
-                "pos": {
-                  "file": "unknown",
-                  "line": 6
-                }
-              },
-              {
-                "type": "Identifier",
-                "value": "b",
-                "pos": {
-                  "file": "unknown",
-                  "line": 6
-                }
-              },
-              {
-                "type": "Identifier",
-                "value": "c",
-                "pos": {
-                  "file": "unknown",
-                  "line": 6
-                }
+              "value": "c",
+              "pos": {
+                "file": "unknown",
+                "line": 8
               }
-            ],
+            },
             "pos": {
               "file": "unknown",
-              "line": 6
+              "line": 8
             }
           },
           "pos": {
             "file": "unknown",
-            "line": 6
+            "line": 8
           }
         },
         "pos": {
           "file": "unknown",
-          "line": 6
-        }
-      }
-    ]
-  },
-  {
-    "type": "FunctionDeclaration",
-    "defType": {
-      "type": "Type",
-      "modifier": [],
-      "pos": {
-        "file": "unknown",
-        "line": 9
-      },
-      "name": "int"
-    },
-    "name": "k",
-    "pos": {
-      "file": "unknown",
-      "line": 9
-    },
-    "arguments": [
-      {
-        "type": "Definition",
-        "defType": {
-          "type": "Type",
-          "modifier": [],
-          "pos": {
-            "file": "unknown",
-            "line": 9
-          },
-          "name": "int"
-        },
-        "name": "t",
-        "pos": {
-          "file": "unknown",
-          "line": 9
+          "line": 8
         }
       },
-      {
-        "type": "Definition",
-        "defType": {
-          "type": "Type",
-          "modifier": [],
-          "pos": {
-            "file": "unknown",
-            "line": 9
-          },
-          "name": "int"
-        },
-        "name": "y",
-        "pos": {
-          "file": "unknown",
-          "line": 9
-        }
-      },
-      {
-        "type": "Definition",
-        "defType": {
-          "type": "Type",
-          "modifier": [],
-          "pos": {
-            "file": "unknown",
-            "line": 9
-          },
-          "name": "int"
-        },
-        "name": "j",
-        "pos": {
-          "file": "unknown",
-          "line": 9
-        }
-      }
-    ],
-    "body": [
       {
         "type": "ExpressionStatement",
         "expression": {
-          "type": "SuffixExpression",
-          "operator": "++",
-          "value": {
-            "type": "Identifier",
-            "value": "t",
+          "type": "BinaryExpression",
+          "operator": "=",
+          "left": {
+            "type": "PrefixExpression",
+            "operator": "*",
+            "value": {
+              "type": "Identifier",
+              "value": "p",
+              "pos": {
+                "file": "unknown",
+                "line": 9
+              }
+            },
             "pos": {
               "file": "unknown",
-              "line": 10
+              "line": 9
             }
           },
+          "right": {
+            "type": "Literal",
+            "value": 42,
+            "pos": {
+              "file": "unknown",
+              "line": 9
+            }
+          },
+          "pos": {
+            "file": "unknown",
+            "line": 9
+          }
+        },
+        "pos": {
+          "file": "unknown",
+          "line": 9
+        }
+      },
+      {
+        "type": "ReturnStatement",
+        "value": {
+          "type": "Identifier",
+          "value": "c",
           "pos": {
             "file": "unknown",
             "line": 10
@@ -262,52 +200,6 @@
         "pos": {
           "file": "unknown",
           "line": 10
-        }
-      },
-      {
-        "type": "ExpressionStatement",
-        "expression": {
-          "type": "SuffixExpression",
-          "operator": "++",
-          "value": {
-            "type": "Identifier",
-            "value": "y",
-            "pos": {
-              "file": "unknown",
-              "line": 11
-            }
-          },
-          "pos": {
-            "file": "unknown",
-            "line": 11
-          }
-        },
-        "pos": {
-          "file": "unknown",
-          "line": 11
-        }
-      },
-      {
-        "type": "ExpressionStatement",
-        "expression": {
-          "type": "SuffixExpression",
-          "operator": "++",
-          "value": {
-            "type": "Identifier",
-            "value": "j",
-            "pos": {
-              "file": "unknown",
-              "line": 12
-            }
-          },
-          "pos": {
-            "file": "unknown",
-            "line": 12
-          }
-        },
-        "pos": {
-          "file": "unknown",
-          "line": 12
         }
       }
     ]
