@@ -824,12 +824,16 @@ function doAssignment(expression) {
         return;
     }
 
-
     declarationOrStatement(expression.left);
     let name = expression.left.value;
     isAssignment = false;
-    //declarationOrStatement(expression.right);
-    access(name);
+
+    if(expression.left.operator === "*"){
+        name = expression.left.value.value;
+        doAccess(name);
+    }else{
+        access(name);
+    }
     pop("scratchMem1");
     pop("scratchMem2");
     incrementSP(1);
