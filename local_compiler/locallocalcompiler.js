@@ -583,6 +583,18 @@ function push(source) {
     incrementSP(1);
 }
 
+function getNumArgs(expression) {
+    let numArgs;
+    if (expression.arguments[0] === null) {
+        numArgs = 0;
+    } else if (expression.arguments.length == 1 && expression.arguments[0] !== null) {
+        numArgs = 1;
+    } else {
+        numArgs = expression.arguments.length - 1;
+    }
+    return numArgs;
+}
+
 function decideExpression(expression) {
     let expressionType = expression.type;
     let comment = "";
@@ -620,31 +632,34 @@ function decideExpression(expression) {
             let hashTable = new HashTable({});
             let functionName = expression.base.value;
             functionEnvironment.setItem(functionName, hashTable);
-            for(let k = 0; k < expression.arguments.length; k++) {
-                addToFunEnvironment(functionName, expression.arguments[k].value);
+
+            let numArgs = getNumArgs(expression);
+
+            if(expression.arguments[0] !== null){
+                for(let k = 0; k < numArgs; k++) {
+                    addToFunEnvironment(functionName, expression.arguments[k].value);
+                }
             }
+
             let returnLabelCount = getAndIncreaseLabelCount();
             let returnLabelLocation = null;
-            let numArgs = expression.arguments.length;
+
             let arguments = expression.arguments;
-            comment = "// Calling " + functionName + ", numArgs: " + numArgs;
-            emitComment(comment);
+
+            emitComment("// Calling " + functionName + ", numArgs: " + numArgs);
             emit("CPi",getMemoryAddress("scratchMem1"), returnLabelLocation, "");
             let returnLocationIndex = listOfCodes.length-1;
             push("scratchMem1");
             push("basePointer");
-            comment = "Evaluating args.";
-            emitComment(comment);
-            for (let i = 0; i < arguments.length; i++) {
+            emitComment("Evaluating args.");
+            for (let i = 0; i < numArgs; i++) {
                 let argument = declarationOrStatement(arguments[i]);
             }
-            comment = "Args evaluated.";
-            emitComment(comment);
-            comment = "Adjust BP to (SP - " + numArgs + ")";
-            emitComment(comment);
+            emitComment("Args evaluated.");
+            emitComment("Adjust BP to (SP - " + numArgs + ")");
             emit("CP", getMemoryAddress("basePointer"), getMemoryAddress("stackPointer"), "");
             decrementBP(numArgs);
-            emit("BZJi", getMemoryAddress("zero"), null, ""); //TODO
+            emit("BZJi", getMemoryAddress("zero"), "3000", ""); //TODO
             functionCallAddress = listOfCodes.length - 1;
             emitComment("// $L" + returnLabelCount + "  //" + getNextLocation()+"");
             break;
