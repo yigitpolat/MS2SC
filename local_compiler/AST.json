@@ -6,53 +6,30 @@
       "modifier": [],
       "pos": {
         "file": "unknown",
-        "line": 2
+        "line": 3
       },
       "name": "int"
     },
-    "name": "main",
+    "name": "getValue1",
     "pos": {
       "file": "unknown",
-      "line": 2
+      "line": 3
     },
     "arguments": [],
     "body": [
       {
-        "type": "VariableDeclaration",
-        "defType": {
-          "type": "Type",
-          "modifier": [],
+        "type": "ReturnStatement",
+        "value": {
+          "type": "Literal",
+          "value": 42,
           "pos": {
             "file": "unknown",
-            "line": 3
-          },
-          "name": "int"
+            "line": 4
+          }
         },
-        "name": "a",
         "pos": {
           "file": "unknown",
-          "line": 3
-        },
-        "value": {
-          "type": "CallExpression",
-          "base": {
-            "type": "Identifier",
-            "value": "yp"
-          },
-          "arguments": [
-            {
-              "type": "Literal",
-              "value": 1000,
-              "pos": {
-                "file": "unknown",
-                "line": 3
-              }
-            }
-          ],
-          "pos": {
-            "file": "unknown",
-            "line": 3
-          }
+          "line": 4
         }
       }
     ]
@@ -64,65 +41,22 @@
       "modifier": [],
       "pos": {
         "file": "unknown",
-        "line": 6
+        "line": 7
       },
       "name": "int"
     },
-    "name": "yp",
+    "name": "getValue2",
     "pos": {
       "file": "unknown",
-      "line": 6
+      "line": 7
     },
-    "arguments": [
-      {
-        "type": "Definition",
-        "defType": {
-          "type": "Type",
-          "modifier": [],
-          "pos": {
-            "file": "unknown",
-            "line": 6
-          },
-          "name": "int"
-        },
-        "name": "k",
-        "pos": {
-          "file": "unknown",
-          "line": 6
-        }
-      }
-    ],
+    "arguments": [],
     "body": [
-      {
-        "type": "VariableDeclaration",
-        "defType": {
-          "type": "Type",
-          "modifier": [],
-          "pos": {
-            "file": "unknown",
-            "line": 7
-          },
-          "name": "int"
-        },
-        "name": "b",
-        "pos": {
-          "file": "unknown",
-          "line": 7
-        },
-        "value": {
-          "type": "Literal",
-          "value": 5000,
-          "pos": {
-            "file": "unknown",
-            "line": 7
-          }
-        }
-      },
       {
         "type": "ReturnStatement",
         "value": {
-          "type": "Identifier",
-          "value": "k",
+          "type": "Literal",
+          "value": 21,
           "pos": {
             "file": "unknown",
             "line": 8
@@ -131,6 +65,126 @@
         "pos": {
           "file": "unknown",
           "line": 8
+        }
+      }
+    ]
+  },
+  {
+    "type": "FunctionDeclaration",
+    "defType": {
+      "type": "Type",
+      "modifier": [],
+      "pos": {
+        "file": "unknown",
+        "line": 11
+      },
+      "name": "int"
+    },
+    "name": "main",
+    "pos": {
+      "file": "unknown",
+      "line": 11
+    },
+    "arguments": [],
+    "body": [
+      {
+        "type": "VariableDeclaration",
+        "defType": {
+          "type": "Type",
+          "modifier": [],
+          "pos": {
+            "file": "unknown",
+            "line": 12
+          },
+          "name": "int"
+        },
+        "name": "a",
+        "pos": {
+          "file": "unknown",
+          "line": 12
+        },
+        "value": {
+          "type": "Literal",
+          "value": 10,
+          "pos": {
+            "file": "unknown",
+            "line": 12
+          }
+        }
+      },
+      {
+        "type": "ReturnStatement",
+        "value": {
+          "type": "BinaryExpression",
+          "operator": ":",
+          "left": {
+            "type": "BinaryExpression",
+            "operator": "?",
+            "left": {
+              "type": "BinaryExpression",
+              "operator": "==",
+              "left": {
+                "type": "Identifier",
+                "value": "a",
+                "pos": {
+                  "file": "unknown",
+                  "line": 13
+                }
+              },
+              "right": {
+                "type": "Literal",
+                "value": 10,
+                "pos": {
+                  "file": "unknown",
+                  "line": 13
+                }
+              },
+              "pos": {
+                "file": "unknown",
+                "line": 13
+              }
+            },
+            "right": {
+              "type": "CallExpression",
+              "base": {
+                "type": "Identifier",
+                "value": "getValue1"
+              },
+              "arguments": [
+                null
+              ],
+              "pos": {
+                "file": "unknown",
+                "line": 13
+              }
+            },
+            "pos": {
+              "file": "unknown",
+              "line": 13
+            }
+          },
+          "right": {
+            "type": "CallExpression",
+            "base": {
+              "type": "Identifier",
+              "value": "getValue2"
+            },
+            "arguments": [
+              null
+            ],
+            "pos": {
+              "file": "unknown",
+              "line": 13
+            }
+          },
+          "pos": {
+            "file": "unknown",
+            "line": 13
+          }
+        },
+        "pos": {
+          "file": "unknown",
+          "line": 13
         }
       }
     ]
