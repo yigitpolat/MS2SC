@@ -1,26 +1,33 @@
 var fs = require("fs");
 var content = fs.readFileSync("AST.json").toString();
 var myJSon = JSON.parse(content);
+
 var hashList = new LinkedList();
+
 var isAssignment = false;
 var isPrefixExpression = false;
+var isReturnStatement = false;
+var returnMain = true;
+
 var labelCount = 0;
 var globalVariableAddress = 17;
 var globalVariableList = [];
 
-var returnMain = 1;
 var returnMainAddress;
+var mainBeginning;
 
 var globalVariableEnvironment = new HashTable({});
 var labelEnvironment = new HashTable({});
 var lastLabel = 1;
+
 var functionEnvironment = new HashTable({});
 var functionCallAddress = null;
+var functionLocationList = [];
 
 var loopBeginning;
 var loopEnd;
 
-var isReturnStatement = false;
+
 
 
 //----------------------- Linked List ---------------------------------
@@ -112,50 +119,51 @@ Array.prototype.diff = function (a) {
 };
 
 var baseList = [{type: "inst", location: 0, opCode: "BZJi", opA: "3", opB: "17", comment: ""},
-                {type: "data", location: 1, value: 0, comment: "//&($topofstack)"},
-                {type: "data", location: 2, value: 0, comment: "//&($topofstack)"},
-                {type: "data", location: 3, value: 0, comment: "//zero"},
-                {type: "data", location: 4, value: 4294967295, comment: "//negativeOne"},
-                {type: "data", location: 5, value: 0, comment: "//VSCPU-5"},
-                {type: "data", location: 6, value: 0, comment: "//VSCPU-6"},
-                {type: "data", location: 7, value: 0, comment: "//VSCPU-7"},
-                {type: "data", location: 8, value: 0, comment: "//VSCPU-8"},
-                {type: "data", location: 9, value: 0, comment: "//VSCPU-9"},
-                {type: "data", location: 10, value: 0, comment: "//VSCPU-10"},
-                {type: "data", location: 11, value: 0, comment: "//scratchMem1"},
-                {type: "data", location: 12, value: 0, comment: "//scratchMem2"},
-                {type: "data", location: 13, value: 0, comment: "//scratchMem3"},
-                {type: "data", location: 14, value: 0, comment: "//scratchMem4"},
-                {type: "data", location: 15, value: 0, comment: "//scratchMem5"},
-                {type: "data", location: 16, value: 0, comment: "//scratchMem6"}];
+    {type: "data", location: 1, value: 0, comment: "//&($topofstack)"},
+    {type: "data", location: 2, value: 0, comment: "//&($topofstack)"},
+    {type: "data", location: 3, value: 0, comment: "//zero"},
+    {type: "data", location: 4, value: 4294967295, comment: "//negativeOne"},
+    {type: "data", location: 5, value: 0, comment: "//VSCPU-5"},
+    {type: "data", location: 6, value: 0, comment: "//VSCPU-6"},
+    {type: "data", location: 7, value: 0, comment: "//VSCPU-7"},
+    {type: "data", location: 8, value: 0, comment: "//VSCPU-8"},
+    {type: "data", location: 9, value: 0, comment: "//VSCPU-9"},
+    {type: "data", location: 10, value: 0, comment: "//VSCPU-10"},
+    {type: "data", location: 11, value: 0, comment: "//scratchMem1"},
+    {type: "data", location: 12, value: 0, comment: "//scratchMem2"},
+    {type: "data", location: 13, value: 0, comment: "//scratchMem3"},
+    {type: "data", location: 14, value: 0, comment: "//scratchMem4"},
+    {type: "data", location: 15, value: 0, comment: "//scratchMem5"},
+    {type: "data", location: 16, value: 0, comment: "//scratchMem6"}];
 
 var listOfCodes = [];
 
 var mainReturn = [  {comment: "// Calling main, numArgs: 0"},
-                    {type: "inst", location: 17, opCode: "CPi", opA: "11", opB: "24", comment: ""},
-                    {comment: "// Push scratchMem1"},
-                    {type: "inst", location: 18, opCode: "CPIi", opA: "1", opB: "11", comment: ""},
-                    {type: "inst", location: 19, opCode: "ADDi", opA: "1", opB: "1", comment: ""},
-                    {comment: "// Push basePointer"},
-                    {type: "inst", location: 20, opCode: "CPIi", opA: "1", opB: "2", comment: ""},
-                    {type: "inst", location: 21, opCode: "ADDi", opA: "1", opB: "1", comment: ""},
-                    {comment: "// Evaluating args.\n// Args evaluated.\n// Adjust BP to (SP - 0)"},
-                    {type: "inst", location: 22, opCode: "CP", opA: "2", opB: "1", comment: ""},
-                    {type: "inst", location: 23, opCode: "BZJi", opA: "3", opB: "27", comment: ""},
-                    {comment: ""},
-                    {type: "inst", location: 24, opCode: "ADD", opA: "1", opB: "4", comment: ""},
-                    {type: "inst", location: 25, opCode: "CPI", opA: "11", opB: "1", comment: ""},
-                    {type: "data", location: 26, value: 0, comment: "//HALT"}];
+    {type: "inst", location: null, opCode: "CPi", opA: "11", opB: "24", comment: ""},
+    {comment: "// Push scratchMem1"},
+    {type: "inst", location: null, opCode: "CPIi", opA: "1", opB: "11", comment: ""},
+    {type: "inst", location: null, opCode: "ADDi", opA: "1", opB: "1", comment: ""},
+    {comment: "// Push basePointer"},
+    {type: "inst", location: null, opCode: "CPIi", opA: "1", opB: "2", comment: ""},
+    {type: "inst", location: null, opCode: "ADDi", opA: "1", opB: "1", comment: ""},
+    {comment: "// Evaluating args.\n// Args evaluated.\n// Adjust BP to (SP - 0)"},
+    {type: "inst", location: null, opCode: "CP", opA: "2", opB: "1", comment: ""},
+    {type: "inst", location: null, opCode: "BZJi", opA: "3", opB: "27", comment: ""},
+    {comment: null},
+    {type: "inst", location: null, opCode: "ADD", opA: "1", opB: "4", comment: ""},
+    {type: "inst", location: null, opCode: "CPI", opA: "11", opB: "1", comment: ""},
+    {type: "data", location: null, value: 0, comment: "//HALT"}];
 
 
 
 //----------------------- MAIN ---------------------------------
 listOfCodes = listOfCodes.concat(baseList);
+fixLocations();
 hashList.add(globalVariableEnvironment);
 for (let i = 0; i < myJSon.length; i++) {
     decideDeclaration(myJSon[i]);
     if(myJSon[i].type !== "GlobalVariableDeclaration"){
-        if(hashList.length > 1) {
+        if(hashList.length > 1 && checkIfNumberOfArgs(myJSon[i])) {
             let comment = hashList.getHead().length;
             emitComment("// Decrease SP by " + comment);
             decrementSP(hashList.getHead().length); //TODO
@@ -165,38 +173,57 @@ for (let i = 0; i < myJSon.length; i++) {
     }
 }
 
-globalVariableList.push({comment: "// $globalinit:  //"});
-listOfCodes.splice.apply(listOfCodes, [17, 0].concat(globalVariableList));
+function checkIfNumberOfArgs(myJSon){
+    return hashList.getHead().length != myJSon.arguments.length;
+}
+
+listOfCodes.splice.apply(listOfCodes, [17 + (globalVariableList.length), 0].concat({comment: "// $globalinit:  //" + (globalVariableList.length + 17)}));
 fixLocations();
+modifyFirstJump();
 modifyMainReturn();
+//modifyFunctionLabelLocations();
 modifyTopOfStack();
 printListOfCodes();
 printTopOfStack();
 
-function modifyMainReturn(){
-    listOfCodes[returnMainAddress - 2].comment = "// $L" + getAndIncreaseLabelCount() + ":  //24\n// Pop to scratchMem1"
-    //TODO BZJi
+
+function modifyFirstJump(){
+    listOfCodes[0].opB = 17 + globalVariableList.length;
 }
+
+function modifyMainReturn(){
+    listOfCodes[returnMainAddress - 12].opB = listOfCodes[returnMainAddress - 1].location;
+    listOfCodes[returnMainAddress - 2].comment = "// $L" + getAndIncreaseLabelCount() + ":  //" + listOfCodes[returnMainAddress - 1].location + "\n// Pop to scratchMem1";
+    listOfCodes[returnMainAddress - 3].opB = mainBeginning;
+}
+
 
 function decideDeclaration(JSonObject) {
     let declaration = JSonObject.type;
 
     switch (declaration) {
         case("FunctionDeclaration"):
-            if(returnMain === 1){
+            if(returnMain === true){
                 listOfCodes = listOfCodes.concat(mainReturn);
+                fixLocations();
                 returnMainAddress = listOfCodes.length - 1;
-                returnMain = 0;
+                returnMain = false;
             }
+            /*
             if(typeof listOfCodes[functionCallAddress] !== 'undefined') {
                 listOfCodes[functionCallAddress].opB = getNextLocation();
+            }
+            */
+            if(JSonObject.name === "main"){
+                mainBeginning = getNextLocation();
             }
             let hashTable = new HashTable({});
             hashList.add(hashTable);
             for(let k = 0; k < JSonObject.arguments.length; k++) {
                 addToEnvironment(JSonObject.arguments[k].name);
             }
-            emitComment("// $L" + getAndIncreaseLabelCount() + JSonObject.name + ":  //"+ getNextLocation());
+            emitComment("// $L" + getAndIncreaseLabelCount() + JSonObject.name + ":  //" + getNextLocation());
+            functionLocationList.push({name: JSonObject.name, location: getNextLocation()});
             emitComment("// Entering a block.");
             for (let i = 0; i < JSonObject.body.length; i++) {
                 declarationOrStatement(JSonObject.body[i]);
@@ -207,17 +234,27 @@ function decideDeclaration(JSonObject) {
                 addGlobalArrayDeclarationToListOfCodes(JSonObject);
                 return;
             }
-            let tempListOfCodes = listOfCodes.slice();
             globalVariableEnvironment.setItem(JSonObject.name, globalVariableEnvironment.getNextIndex());
+
+            let tempGlobVarList = globalVariableList.slice(); //Yp
+
             globalVariableList.push({type: "data", location: getNextLocation(), value: 0, comment: "//GLOBAL: " + JSonObject.name});
+
+            var dif = globalVariableList.diff(tempGlobVarList);
+            listOfCodes.splice.apply(listOfCodes, [17 + (globalVariableList.length - 1), 0].concat(dif));
+
+
             if(doesValueExist(JSonObject)){
                 decideStatement(JSonObject.value);
                 pop("scratchMem1");
                 emit("CP", globalVariableAddress, getMemoryAddress("scratchMem1"), "");
             }
+
+            let tempListOfCodes = listOfCodes.slice();
             globalVariableAddress++;
             var difference = listOfCodes.diff(tempListOfCodes);
             insertGlobalVariableInstructions(difference);
+            fixLocations();
     }
 }
 
@@ -595,7 +632,7 @@ function getNumArgs(expression) {
     } else if (expression.arguments.length == 1 && expression.arguments[0] !== null) {
         numArgs = 1;
     } else {
-        numArgs = expression.arguments.length - 1;
+        numArgs = expression.arguments.length;
     }
     return numArgs;
 }
@@ -637,36 +674,32 @@ function decideExpression(expression) {
             let hashTable = new HashTable({});
             let functionName = expression.base.value;
             functionEnvironment.setItem(functionName, hashTable);
-
             let numArgs = getNumArgs(expression);
-
             if(expression.arguments[0] !== null){
                 for(let k = 0; k < numArgs; k++) {
                     addToFunEnvironment(functionName, expression.arguments[k].value);
                 }
             }
-
             let returnLabelCount = getAndIncreaseLabelCount();
-            let returnLabelLocation = null;
-
             let arguments = expression.arguments;
-
             emitComment("// Calling " + functionName + ", numArgs: " + numArgs);
-            emit("CPi",getMemoryAddress("scratchMem1"), returnLabelLocation, "");
-            let returnLocationIndex = listOfCodes.length-1;
+            emit("CPi",getMemoryAddress("scratchMem1"), null, "");
+            let returnLocationIndex = listOfCodes.length - 1;
             push("scratchMem1");
             push("basePointer");
-            emitComment("Evaluating args.");
+            emitComment("// Evaluating args.");
             for (let i = 0; i < numArgs; i++) {
                 let argument = declarationOrStatement(arguments[i]);
             }
-            emitComment("Args evaluated.");
-            emitComment("Adjust BP to (SP - " + numArgs + ")");
+            emitComment("// Args evaluated.");
+            emitComment("// Adjust BP to (SP - " + numArgs + ")");
             emit("CP", getMemoryAddress("basePointer"), getMemoryAddress("stackPointer"), "");
             decrementBP(numArgs);
-            emit("BZJi", getMemoryAddress("zero"), "3000", ""); //TODO
+            let jumpLocation = findJumpLocation(functionName);
+            emit("BZJi", getMemoryAddress("zero"), jumpLocation, ""); //TODO
             functionCallAddress = listOfCodes.length - 1;
-            emitComment("// $L" + returnLabelCount + "  //" + getNextLocation()+"");
+            listOfCodes[returnLocationIndex].opB = getNextLocation();
+            emitComment("// $L" + returnLabelCount + ":  //" + getNextLocation()+"");
             break;
         case ("IndexExpression"):
             emitComment("// Array indexing -- base");
@@ -679,18 +712,24 @@ function decideExpression(expression) {
             pop("scratchMem2");
             emit("ADD", getMemoryAddress("scratchMem1"), getMemoryAddress("scratchMem2"), "");
             push("scratchMem1");
-
-
             if(isReturnStatement === true){
                 pop("scratchMem1");
                 emit("CPI", getMemoryAddress("scratchMem2"), getMemoryAddress("scratchMem1"), "");
                 push("scratchMem2");
 
             }
-
-
             break;
     }
+}
+
+function findJumpLocation(functionName){
+    let loc;
+    for(let i = 0 ; i<functionLocationList.length; i++){
+        if(functionLocationList[i].name === functionName){
+            loc = functionLocationList[i].location;
+        }
+    }
+    return loc;
 }
 
 function doBreakOrContinue(expression){
