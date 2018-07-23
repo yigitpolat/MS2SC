@@ -155,7 +155,7 @@ var mainReturn = [  {comment: "// Calling main, numArgs: 0"},
     {comment: null},
     {type: "inst", location: null, opCode: "ADD", opA: "1", opB: "4", comment: ""},
     {type: "inst", location: null, opCode: "CPI", opA: "11", opB: "1", comment: ""},
-    {type: "data", location: null, value: 0, comment: "//HALT"}];
+    {type: "inst", location: null, opCode: "BZJi", opA: "3", opB: "26", comment: "// $HALT:  //"}];
 
 
 
@@ -198,6 +198,7 @@ function modifyMainReturn(){
     listOfCodes[returnMainAddress - 12].opB = listOfCodes[returnMainAddress - 1].location;
     listOfCodes[returnMainAddress - 2].comment = "// $L" + getAndIncreaseLabelCount() + ":  //" + listOfCodes[returnMainAddress - 1].location + "\n// Pop to scratchMem1";
     listOfCodes[returnMainAddress - 3].opB = mainBeginning;
+
 }
 
 
