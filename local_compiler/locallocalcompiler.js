@@ -217,7 +217,7 @@ function isFunctionCalled(functionName) {
 function modifyFunctionCallAddress(location) {
     for(let i = 0; i < listOfCodes.length; i++) {
         if(typeof listOfCodes[i].type !== 'undefined') {
-            if(listOfCodes[i].location = location) {
+            if(listOfCodes[i].location === location) {
                 listOfCodes[i].opB = getNextLocation();
             }
 
