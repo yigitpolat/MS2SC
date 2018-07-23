@@ -23,6 +23,7 @@ var lastLabel = 1;
 var functionEnvironment = new HashTable({});
 var functionCallAddress = null;
 var functionLocationList = [];
+var undefinedFunctionList = [];
 
 var loopBeginning;
 var loopEnd;
@@ -198,25 +199,55 @@ function modifyMainReturn(){
     listOfCodes[returnMainAddress - 12].opB = listOfCodes[returnMainAddress - 1].location;
     listOfCodes[returnMainAddress - 2].comment = "// $L" + getAndIncreaseLabelCount() + ":  //" + listOfCodes[returnMainAddress - 1].location + "\n// Pop to scratchMem1";
     listOfCodes[returnMainAddress - 3].opB = mainBeginning;
+    listOfCodes[returnMainAddress+1].opB = listOfCodes[returnMainAddress+1].location;
+    listOfCodes[returnMainAddress+1].comment = listOfCodes[returnMainAddress+1].comment + listOfCodes[returnMainAddress+1].location;
 
 }
 
+
+function isFunctionCalled(functionName) {
+    for(let i = 0; i < undefinedFunctionList.length; i++) {
+        if(undefinedFunctionList[i].name = functionName) {
+            return true;
+        }
+    }
+    return false;
+}
+
+function modifyFunctionCallAddress(location) {
+    for(let i = 0; i < listOfCodes.length; i++) {
+        if(typeof listOfCodes[i].type !== 'undefined') {
+            if(listOfCodes[i].location = location) {
+                listOfCodes[i].opB = getNextLocation();
+            }
+
+        }
+    }
+}
 
 function decideDeclaration(JSonObject) {
     let declaration = JSonObject.type;
 
     switch (declaration) {
         case("FunctionDeclaration"):
+            let functionName = JSonObject.name;
             if(returnMain === true){
                 listOfCodes = listOfCodes.concat(mainReturn);
                 fixLocations();
                 returnMainAddress = listOfCodes.length - 1;
                 returnMain = false;
             }
-            if(functionCallAddress !== null) {
+
+            if(isFunctionCalled(functionName)) {
+                let loc = findLocation(functionName, undefinedFunctionList);
+                modifyFunctionCallAddress(loc);
+            }
+/*
+            if(functionCallAddress === "undefined") {
                 listOfCodes[functionCallAddress].opB = getNextLocation();
                 functionCallAddress = null;
             }
+*/
             if(JSonObject.name === "main"){
                 mainBeginning = getNextLocation();
             }
@@ -313,7 +344,6 @@ function fixLocations(){
         }
     }
 }
-
 
 
 function declarationOrStatement(JSonBody) {
@@ -713,9 +743,12 @@ function decideExpression(expression) {
             emitComment("// Adjust BP to (SP - " + numArgs + ")");
             emit("CP", getMemoryAddress("basePointer"), getMemoryAddress("stackPointer"), "");
             decrementBP(numArgs);
-            let jumpLocation = findJumpLocation(functionName);
+            let jumpLocation = findLocation(functionName, functionLocationList);
+            if(jumpLocation === undefined) {
+                undefinedFunctionList.push({name: functionName, location: getNextLocation()});
+            }
             emit("BZJi", getMemoryAddress("zero"), jumpLocation, ""); //TODO
-            functionCallAddress = listOfCodes.length - 1;
+            //functionCallAddress = listOfCodes.length - 1;
             listOfCodes[returnLocationIndex].opB = getNextLocation();
             emitComment("// $L" + returnLabelCount + ":  //" + getNextLocation()+"");
             break;
@@ -740,11 +773,11 @@ function decideExpression(expression) {
     }
 }
 
-function findJumpLocation(functionName){
+function findLocation(functionName, list){
     let loc;
-    for(let i = 0 ; i<functionLocationList.length; i++){
-        if(functionLocationList[i].name === functionName){
-            loc = functionLocationList[i].location;
+    for(let i = 0 ; i<list.length; i++){
+        if(list[i].name === functionName){
+            loc = list[i].location;
         }
     }
     return loc;
