@@ -1070,4 +1070,4 @@ var compiler = (function () {
     }
 })();
 
-if (typeof module == "object") module.exports = compilerFunction;
+if (typeof module === "object") module.exports = compiler;
