@@ -1,174 +1,35 @@
 [
   {
-    "type": "GlobalVariableDeclaration",
-    "defType": {
-      "type": "Type",
-      "modifier": [],
-      "pos": {
-        "file": "unknown",
-        "line": 2
-      },
-      "name": "int"
-    },
-    "name": "a",
-    "pos": {
-      "file": "unknown",
-      "line": 2
-    },
-    "value": {
-      "type": "Literal",
-      "value": 5,
-      "pos": {
-        "file": "unknown",
-        "line": 2
-      }
-    }
-  },
-  {
     "type": "FunctionDeclaration",
     "defType": {
       "type": "Type",
       "modifier": [],
       "pos": {
         "file": "unknown",
-        "line": 4
+        "line": 1
       },
-      "name": "int"
-    },
-    "name": "foo",
-    "pos": {
-      "file": "unknown",
-      "line": 4
-    },
-    "arguments": [],
-    "body": [
-      {
-        "type": "ReturnStatement",
-        "value": {
-          "type": "Literal",
-          "value": 10000,
-          "pos": {
-            "file": "unknown",
-            "line": 5
-          }
-        },
-        "pos": {
-          "file": "unknown",
-          "line": 5
-        }
-      }
-    ]
-  },
-  {
-    "type": "FunctionDeclaration",
-    "defType": {
-      "type": "Type",
-      "modifier": [],
-      "pos": {
-        "file": "unknown",
-        "line": 9
-      },
-      "name": "int"
+      "name": "void"
     },
     "name": "main",
     "pos": {
       "file": "unknown",
-      "line": 9
+      "line": 1
     },
     "arguments": [],
     "body": [
       {
-        "type": "ReturnStatement",
-        "value": {
-          "type": "BinaryExpression",
-          "operator": "+",
-          "left": {
-            "type": "Literal",
-            "value": 8000,
-            "pos": {
-              "file": "unknown",
-              "line": 10
-            }
-          },
-          "right": {
-            "type": "CallExpression",
-            "base": {
-              "type": "Identifier",
-              "value": "baz"
-            },
-            "arguments": [
-              null
-            ],
-            "pos": {
-              "file": "unknown",
-              "line": 10
-            }
-          },
+        "type": "ExpressionStatement",
+        "expression": {
+          "type": "Identifier",
+          "value": "yp",
           "pos": {
             "file": "unknown",
-            "line": 10
+            "line": 2
           }
         },
         "pos": {
           "file": "unknown",
-          "line": 10
-        }
-      }
-    ]
-  },
-  {
-    "type": "FunctionDeclaration",
-    "defType": {
-      "type": "Type",
-      "modifier": [],
-      "pos": {
-        "file": "unknown",
-        "line": 14
-      },
-      "name": "int"
-    },
-    "name": "baz",
-    "pos": {
-      "file": "unknown",
-      "line": 14
-    },
-    "arguments": [],
-    "body": [
-      {
-        "type": "ReturnStatement",
-        "value": {
-          "type": "BinaryExpression",
-          "operator": "+",
-          "left": {
-            "type": "CallExpression",
-            "base": {
-              "type": "Identifier",
-              "value": "foo"
-            },
-            "arguments": [
-              null
-            ],
-            "pos": {
-              "file": "unknown",
-              "line": 15
-            }
-          },
-          "right": {
-            "type": "Literal",
-            "value": 1000,
-            "pos": {
-              "file": "unknown",
-              "line": 15
-            }
-          },
-          "pos": {
-            "file": "unknown",
-            "line": 15
-          }
-        },
-        "pos": {
-          "file": "unknown",
-          "line": 15
+          "line": 2
         }
       }
     ]
