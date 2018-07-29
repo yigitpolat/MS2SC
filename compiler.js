@@ -260,7 +260,7 @@ var compiler = (function () {
                     for (let i = 0; i < JSonObject.body.length; i++) {
                         declarationOrStatement(JSonObject.body[i]);
                     }
-                    if(isReturnStatement === false){
+                    if(isReturnStatement === false && JSonObject.defType.name === "void"){
                         doReturnNone();
                     }
                     return;
@@ -531,6 +531,7 @@ var compiler = (function () {
                     return;
                 case("ExpressionStatement"):
                     decideExpression(JSonBody.expression);
+                    decrementSP(1);
                     return;
                 case("ForStatement"):
                     let forConditionLabelCount = getAndIncreaseLabelCount(); //TODO will modify

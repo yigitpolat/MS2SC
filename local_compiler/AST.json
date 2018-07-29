@@ -31,6 +31,21 @@
           "file": "unknown",
           "line": 3
         }
+      },
+      {
+        "type": "ExpressionStatement",
+        "expression": {
+          "type": "Literal",
+          "value": 6,
+          "pos": {
+            "file": "unknown",
+            "line": 4
+          }
+        },
+        "pos": {
+          "file": "unknown",
+          "line": 4
+        }
       }
     ]
   }
