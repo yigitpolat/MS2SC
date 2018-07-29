@@ -129,35 +129,15 @@ var compiler = (function () {
                 {type: "data", location: 14, value: 0, comment: "//scratchMem4"},
                 {type: "data", location: 15, value: 0, comment: "//scratchMem5"},
                 {type: "data", location: 16, value: 0, comment: "//scratchMem6"},
-                {
-                    type: "inst",
-                    location: 17,
-                    opCode: "CPi",
-                    opA: "11",
-                    opB: "24",
-                    comment: "// Calling main, numArgs: 0"
-                },
+                {type: "inst", location: 17, opCode: "CPi", opA: "11", opB: "24", comment: "// Calling main, numArgs: 0"},
                 {type: "inst", location: 18, opCode: "CPIi", opA: "1", opB: "11", comment: "// Push scratchMem1"},
                 {type: "inst", location: 19, opCode: "ADDi", opA: "1", opB: "1", comment: ""},
                 {type: "inst", location: 20, opCode: "CPIi", opA: "1", opB: "2", comment: "// Push basePointer"},
                 {type: "inst", location: 21, opCode: "ADDi", opA: "1", opB: "1", comment: ""},
-                {
-                    type: "inst",
-                    location: 22,
-                    opCode: "CP",
-                    opA: "2",
-                    opB: "1",
-                    comment: "// Evaluating args.\n// Args evaluated.\n// Adjust BP to (SP - 0)"
+                {type: "inst", location: 22, opCode: "CP", opA: "2", opB: "1", comment: "// Evaluating args.\n// Args evaluated.\n// Adjust BP to (SP - 0)"
                 },
                 {type: "inst", location: 23, opCode: "BZJi", opA: "3", opB: "27", comment: ""},
-                {
-                    type: "inst",
-                    location: 24,
-                    opCode: "ADD",
-                    opA: "1",
-                    opB: "4",
-                    comment: "// $L2:  //24\n// Pop to scratchMem1"
-                },
+                {type: "inst", location: 24, opCode: "ADD", opA: "1", opB: "4", comment: "// $L2:  //24\n// Pop to scratchMem1"},
                 {type: "inst", location: 25, opCode: "CPI", opA: "11", opB: "1", comment: ""},
                 {type: "data", location: 26, value: 0, comment: "//HALT"}
             ];
