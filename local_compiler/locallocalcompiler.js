@@ -703,7 +703,7 @@ function decideExpression(expression) {
                 break;
             }
             declarationOrStatement(value);
-            if(isAssignmentAssignment === false) doAccess(value);
+            if(isAssignment === false) doAccess(value);
             globalIdentifier = value;
             return;
         case ("BinaryExpression"):

@@ -1,3 +1,4 @@
+//----------------------- Linked List ---------------------------------
 function Node(data) {
     this.data = data;
     this.next = null;
@@ -8,15 +9,32 @@ function LinkedList() {
     this.length = 0;
 }
 
-LinkedList.prototype.get = function (num) {
+// /**
+//  * @return {number}
+//  */
+// function Label() {
+//     labelEnvironment.add(lastLabel);
+//     lastLabel++;
+//     return lastLabel;
+// }
+//
+// Label.prototype.update = function(labelIndex, address) {
+//     labelEnvironment.setItem(labelIndex, address);
+// };
+//
+// Label.prototype.getLabel = function (labelIndex) {
+//    return labelEnvironment.getItem(labelIndex);
+// };
+
+LinkedList.prototype.get = function(num) {
     var nodeToCheck = this.head;
     var count = 0;
     // a little error checking
-    if (num > this.length) {
+    if(num > this.length) {
         return "Doesn't Exist!"
     }
     // find the node we're looking for
-    while (count < num) {
+    while(count < num) {
         nodeToCheck = nodeToCheck.next;
         count++;
     }
@@ -39,6 +57,7 @@ LinkedList.prototype.add = function (value) {
     this.length++;
     return node;
 };
+
 
 LinkedList.prototype.getHead = function () {
     if (!this.head) return null;
@@ -70,77 +89,138 @@ Array.prototype.diff = function (a) {
 var compiler = (function () {
 
     return function (ast) {
-        let hashList = new LinkedList();
+        var hashList = new LinkedList();
+
         var isAssignment = false;
-        var labelCount = 2;
-        var listOfCodes;
-        let isPrefixExpression = false;
+        var isPrefixExpression = false;
+        var isReturnStatement = false;
+        var returnMain = true;
+
+        var labelCount = 0;
         var globalVariableAddress = 17;
         var globalVariableList = [];
-        let globalVariableEnvironment = new HashTable({});
+
+        var returnMainAddress;
+        var mainBeginning;
+
+        var globalVariableEnvironment = new HashTable({});
+        var labelEnvironment = new HashTable({});
+        var lastLabel = 1;
+
+        var functionEnvironment = new HashTable({});
+        var functionCallAddress = null;
+        var functionLocationList = [];
+        var undefinedFunctionList = [];
+
+        var loopBeginning;
+        var loopEnd;
+
+        var globalLiteral;
+        var globalIdentifier;
+
+        var baseList = [{type: "inst", location: 0, opCode: "BZJi", opA: "3", opB: "17", comment: ""},
+            {type: "data", location: 1, value: 0, comment: "//&($topofstack)"},
+            {type: "data", location: 2, value: 0, comment: "//&($topofstack)"},
+            {type: "data", location: 3, value: 0, comment: "//zero"},
+            {type: "data", location: 4, value: 4294967295, comment: "//negativeOne"},
+            {type: "data", location: 5, value: 0, comment: "//VSCPU-5"},
+            {type: "data", location: 6, value: 0, comment: "//VSCPU-6"},
+            {type: "data", location: 7, value: 0, comment: "//VSCPU-7"},
+            {type: "data", location: 8, value: 0, comment: "//VSCPU-8"},
+            {type: "data", location: 9, value: 0, comment: "//VSCPU-9"},
+            {type: "data", location: 10, value: 0, comment: "//VSCPU-10"},
+            {type: "data", location: 11, value: 0, comment: "//scratchMem1"},
+            {type: "data", location: 12, value: 0, comment: "//scratchMem2"},
+            {type: "data", location: 13, value: 0, comment: "//scratchMem3"},
+            {type: "data", location: 14, value: 0, comment: "//scratchMem4"},
+            {type: "data", location: 15, value: 0, comment: "//scratchMem5"},
+            {type: "data", location: 16, value: 0, comment: "//scratchMem6"}];
+
+        var listOfCodes = [];
+
+        var mainReturn = [  {comment: "// Calling main, numArgs: 0"},
+            {type: "inst", location: null, opCode: "CPi", opA: "11", opB: "24", comment: ""},
+            {comment: "// Push scratchMem1"},
+            {type: "inst", location: null, opCode: "CPIi", opA: "1", opB: "11", comment: ""},
+            {type: "inst", location: null, opCode: "ADDi", opA: "1", opB: "1", comment: ""},
+            {comment: "// Push basePointer"},
+            {type: "inst", location: null, opCode: "CPIi", opA: "1", opB: "2", comment: ""},
+            {type: "inst", location: null, opCode: "ADDi", opA: "1", opB: "1", comment: ""},
+            {comment: "// Evaluating args.\n// Args evaluated.\n// Adjust BP to (SP - 0)"},
+            {type: "inst", location: null, opCode: "CP", opA: "2", opB: "1", comment: ""},
+            {type: "inst", location: null, opCode: "BZJi", opA: "3", opB: "27", comment: ""},
+            {comment: null},
+            {type: "inst", location: null, opCode: "ADD", opA: "1", opB: "4", comment: ""},
+            {type: "inst", location: null, opCode: "CPI", opA: "11", opB: "1", comment: ""},
+            {type: "inst", location: null, opCode: "BZJi", opA: "3", opB: "26", comment: "// $HALT:  //"}];
 
 
         //----------------------- MAIN ---------------------------------
         var assemblyCode = "";
         var myJSon = JSON.parse(ast);
+        listOfCodes = listOfCodes.concat(baseList);
+        fixLocations();
         hashList.add(globalVariableEnvironment);
-        initializeListOfCodes();
         for (let i = 0; i < myJSon.length; i++) {
             decideDeclaration(myJSon[i]);
-            if (myJSon[i].type !== "GlobalVariableDeclaration") {
-                if (hashList.length > 1) {
-                    let comment = hashList.getHead().length;
+            if(myJSon[i].type !== "GlobalVariableDeclaration"){
+                if(hashList.length > 1 && checkIfNumberOfArgs(myJSon[i])) {
+                    let comment = hashList.getHead().length - myJSon[i].arguments.length;
                     emitComment("// Decrease SP by " + comment);
-                    decrementSP(hashList.getHead().length); //TODO
+                    decrementSP(hashList.getHead().length - myJSon[i].arguments.length);
                 } else {
                     emitComment("// Decrease SP by 0");
                 }
             }
         }
-        listOfCodes.splice.apply(listOfCodes, [17, 0].concat(globalVariableList));
-        modifyGlobalInitComment();
+
+        function checkIfNumberOfArgs(myJSon){
+            return hashList.getHead().length !== myJSon.arguments.length;
+        }
+
+        listOfCodes.splice.apply(listOfCodes, [17 + (globalVariableList.length), 0].concat({comment: "// $globalinit:  //" + (globalVariableList.length + 17)}));
+        fixLocations();
+        modifyFirstJump();
+        modifyMainReturn();
+//modifyFunctionLabelLocations();
         modifyTopOfStack();
-        modifyMainBZJi();
-        modifyMainReturnAddress();
-        modifyGoMain();
-        modifyPopScratchMem();
         stringifyListOfCodes();
         printTopOfStack();
         return assemblyCode;
 
-//----------------------- Linked List ---------------------------------
+        function modifyFirstJump(){
+            listOfCodes[0].opB = 17 + globalVariableList.length;
+        }
+
+        function modifyMainReturn(){
+            listOfCodes[returnMainAddress - 12].opB = listOfCodes[returnMainAddress - 1].location;
+            listOfCodes[returnMainAddress - 2].comment = "// $L" + getAndIncreaseLabelCount() + ":  //" + listOfCodes[returnMainAddress - 1].location + "\n// Pop to scratchMem1";
+            listOfCodes[returnMainAddress - 3].opB = mainBeginning;
+            listOfCodes[returnMainAddress+1].opB = listOfCodes[returnMainAddress+1].location;
+            listOfCodes[returnMainAddress+1].comment = listOfCodes[returnMainAddress+1].comment + listOfCodes[returnMainAddress+1].location;
+
+        }
 
 
-        function initializeListOfCodes() {
-            listOfCodes = [{type: "inst", location: 0, opCode: "BZJi", opA: "3", opB: "17", comment: ""},
-                {type: "data", location: 1, value: 0, comment: "//&($topofstack)"},
-                {type: "data", location: 2, value: 0, comment: "//&($topofstack)"},
-                {type: "data", location: 3, value: 0, comment: "//zero"},
-                {type: "data", location: 4, value: 4294967295, comment: "//negativeOne"},
-                {type: "data", location: 5, value: 0, comment: "//VSCPU-5"},
-                {type: "data", location: 6, value: 0, comment: "//VSCPU-6"},
-                {type: "data", location: 7, value: 0, comment: "//VSCPU-7"},
-                {type: "data", location: 8, value: 0, comment: "//VSCPU-8"},
-                {type: "data", location: 9, value: 0, comment: "//VSCPU-9"},
-                {type: "data", location: 10, value: 0, comment: "//VSCPU-10"},
-                {type: "data", location: 11, value: 0, comment: "//scratchMem1"},
-                {type: "data", location: 12, value: 0, comment: "//scratchMem2"},
-                {type: "data", location: 13, value: 0, comment: "//scratchMem3"},
-                {type: "data", location: 14, value: 0, comment: "//scratchMem4"},
-                {type: "data", location: 15, value: 0, comment: "//scratchMem5"},
-                {type: "data", location: 16, value: 0, comment: "//scratchMem6"},
-                {type: "inst", location: 17, opCode: "CPi", opA: "11", opB: "24", comment: "// Calling main, numArgs: 0"},
-                {type: "inst", location: 18, opCode: "CPIi", opA: "1", opB: "11", comment: "// Push scratchMem1"},
-                {type: "inst", location: 19, opCode: "ADDi", opA: "1", opB: "1", comment: ""},
-                {type: "inst", location: 20, opCode: "CPIi", opA: "1", opB: "2", comment: "// Push basePointer"},
-                {type: "inst", location: 21, opCode: "ADDi", opA: "1", opB: "1", comment: ""},
-                {type: "inst", location: 22, opCode: "CP", opA: "2", opB: "1", comment: "// Evaluating args.\n// Args evaluated.\n// Adjust BP to (SP - 0)"
-                },
-                {type: "inst", location: 23, opCode: "BZJi", opA: "3", opB: "27", comment: ""},
-                {type: "inst", location: 24, opCode: "ADD", opA: "1", opB: "4", comment: "// $L2:  //24\n// Pop to scratchMem1"},
-                {type: "inst", location: 25, opCode: "CPI", opA: "11", opB: "1", comment: ""},
-                {type: "data", location: 26, value: 0, comment: "//HALT"}
-            ];
+
+        function isFunctionCalled(functionName) {
+            for(let i = 0; i < undefinedFunctionList.length; i++) {
+                if(undefinedFunctionList[i].name = functionName) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        function modifyFunctionCallAddress(location) {
+            for(let i = 0; i < listOfCodes.length; i++) {
+                if(typeof listOfCodes[i].type !== 'undefined') {
+                    if(listOfCodes[i].location === location) {
+                        listOfCodes[i].opB = getNextLocation();
+                    }
+
+                }
+            }
         }
 
         function decideDeclaration(JSonObject) {
@@ -148,38 +228,129 @@ var compiler = (function () {
 
             switch (declaration) {
                 case("FunctionDeclaration"):
+                    let functionName = JSonObject.name;
+                    if(returnMain === true){
+                        listOfCodes = listOfCodes.concat(mainReturn);
+                        fixLocations();
+                        returnMainAddress = listOfCodes.length - 1;
+                        returnMain = false;
+                    }
+
+                    if(isFunctionCalled(functionName)) {
+                        let loc = findLocation(functionName, undefinedFunctionList);
+                        modifyFunctionCallAddress(loc);
+                    }
+                    /*
+                                if(functionCallAddress === "undefined") {
+                                    listOfCodes[functionCallAddress].opB = getNextLocation();
+                                    functionCallAddress = null;
+                                }
+                    */
+                    if(JSonObject.name === "main"){
+                        mainBeginning = getNextLocation();
+                    }
                     let hashTable = new HashTable({});
                     hashList.add(hashTable);
-                    emitComment("// $L" + labelCount + JSonObject.name + ":  //" + getNextLocation());
+                    for(let k = 0; k < JSonObject.arguments.length; k++) {
+                        addToEnvironment(JSonObject.arguments[k].name);
+                    }
+                    emitComment("// $L" + getAndIncreaseLabelCount() + JSonObject.name + ":  //" + getNextLocation());
+                    functionLocationList.push({name: JSonObject.name, location: getNextLocation()});
                     emitComment("// Entering a block.");
-                    labelCount++;
                     for (let i = 0; i < JSonObject.body.length; i++) {
                         declarationOrStatement(JSonObject.body[i]);
                     }
+                    if(isReturnStatement === false){
+                        doReturnNone();
+                    }
                     return;
                 case("GlobalVariableDeclaration"):
-                    let tempListOfCodes = listOfCodes.slice();
+                    if(checkIfPointerType(JSonObject)) {
+                        addGlobalArrayDeclarationToListOfCodes(JSonObject);
+                        return;
+                    }
                     globalVariableEnvironment.setItem(JSonObject.name, globalVariableEnvironment.getNextIndex());
-                    globalVariableList.push({
-                        type: "data",
-                        location: getNextLocation(),
-                        value: 0,
-                        comment: "//GLOBAL: " + JSonObject.name
-                    })
-                    if (doesValueExist(JSonObject)) {
+
+                    let tempGlobVarList = globalVariableList.slice(); //Yp
+
+                    globalVariableList.push({type: "data", location: getNextLocation(), value: 0, comment: "//GLOBAL: " + JSonObject.name});
+
+                    var dif = globalVariableList.diff(tempGlobVarList);
+                    listOfCodes.splice.apply(listOfCodes, [17 + (globalVariableList.length - 1), 0].concat(dif));
+
+
+                    if(doesValueExist(JSonObject)){
                         decideStatement(JSonObject.value);
                         pop("scratchMem1");
                         emit("CP", globalVariableAddress, getMemoryAddress("scratchMem1"), "");
                     }
+
+                    let tempListOfCodes = listOfCodes.slice();
                     globalVariableAddress++;
                     var difference = listOfCodes.diff(tempListOfCodes);
                     insertGlobalVariableInstructions(difference);
+                    fixLocations();
             }
         }
+
+        function addGlobalArrayDeclarationToListOfCodes(JSonObject){
+            let tempListOfCodes = listOfCodes.slice();
+            for(var i = 0 ; i<JSonObject.defType.length.value; i++){
+                globalVariableEnvironment.setItem(JSonObject.name, globalVariableEnvironment.getNextIndex());
+                globalVariableList.push({type: "data", location: getNextLocation(), value: 0, comment: "//GLOBAL: " + JSonObject.name + "[" + i + "]"});
+            }
+            globalVariableList.push({type: "data", location: getNextLocation(), value: 0, comment: "//GLOBAL: " + JSonObject.name});
+            if(doesValueExist(JSonObject)){
+                decideStatement(JSonObject.value);
+                pop("scratchMem1");
+                emit("CP", globalVariableAddress, getMemoryAddress("scratchMem1"), "");
+            }
+            globalVariableAddress++;
+            var difference = listOfCodes.diff(tempListOfCodes);
+            insertGlobalVariableInstructions(difference);
+        }
+
+        function insertGlobalVariableInstructions(difference){
+            var index = 17;
+            var count = checkDifferenceLength(difference);
+            index = index + count;
+            listOfCodes.splice.apply(listOfCodes, [index, 0].concat(difference));
+            listOfCodes.splice(listOfCodes.length - difference.length , difference.length);
+            fixLocations();
+        }
+
+        function checkDifferenceLength(difference){
+            var count = 0;
+            for(var i = 0 ; i<difference.length; i++){
+                if(typeof listOfCodes[i].type !== 'undefined');
+                count++;
+            }
+            return count;
+        }
+
+
+        function fixLocations(){
+            let i = 0;
+            let previous = i;
+            while(i<listOfCodes.length){
+                if(typeof listOfCodes[i].type !== 'undefined'){
+                    listOfCodes[i].location = previous;
+                    previous++;
+                    i++;
+                } else {
+                    i++;
+                }
+            }
+        }
+
 
         function declarationOrStatement(JSonBody) {
             if (JSonBody.type === "VariableDeclaration") {
                 var name = JSonBody.name;
+                if(checkIfPointerType(JSonBody) && checkIfArray(JSonBody)){
+                    addArrayDeclarationToListOfCodes(JSonBody);
+                    return;
+                }
                 addToEnvironment(name);
                 addVarDeclarationToListOfCodes(JSonBody);
                 return;
@@ -188,28 +359,53 @@ var compiler = (function () {
             }
         }
 
+        function checkIfPointerType(JSonBody){
+            return (JSonBody.defType.type === "PointerType")
+        }
+
+        function checkIfArray(JSonBody){
+            return typeof JSonBody.defType.length !== 'undefined';
+        }
+
+        function addArrayDeclarationToListOfCodes(JSonBody){
+            var comment = "// Allocate array " + JSonBody.name + "[" + JSonBody.defType.length.value + "]";
+            emitComment(comment);
+            for(var i = 0; i<JSonBody.defType.length.value + 1; i++){
+                addToEnvironment(JSonBody.name);
+            }
+            emit("CP", getMemoryAddress("scratchMem1"), getMemoryAddress("stackPointer"), "");
+            incrementSP(JSonBody.defType.length.value);
+            push("scratchMem1");
+            return;
+        }
+
 //Values are adding to the Hash Table
         function addToEnvironment(key) {
-            let hashTable;
             if (hashList.length > 0) {
                 hashTable = hashList.getHead();
             } else {
-                hashTable = new HashTable({});
+                var hashTable = new HashTable({});
                 hashList.add(hashTable);
             }
             hashTable.setItem(key, hashTable.getNextIndex());
             hashTable.nextIndex += 1;
         }
 
+        function addToFunEnvironment(funName, argName) {
+            let hashTable = functionEnvironment.getItem(funName);
+            hashTable.setItem(argName, hashTable.getNextIndex());
+            hashTable.nextIndex += 1;
+        }
+
         function addVarDeclarationToListOfCodes(variable) {
             var hashTable = hashList.getHead();
             var comment = "";
-            if (doesValueExist(variable)) {
+            if(doesValueExist(variable)) {
                 comment = "// Initialization of var '" + variable.name + "'";
                 emitComment(comment);
                 declarationOrStatement(variable.value);
 
-            } else {
+            }else {
                 comment = "// Allocate var '" + variable.name + "'";
                 emitComment(comment);
                 incrementSP(1);
@@ -226,24 +422,17 @@ var compiler = (function () {
         }
 
         function emit(opCode, opA, opB, comment) {
-            listOfCodes.push({
-                type: "inst",
-                location: getNextLocation(),
-                opCode: opCode,
-                opA: opA,
-                opB: opB,
-                comment: comment
-            });
+            listOfCodes.push({type: "inst", location: getNextLocation(), opCode: opCode, opA: opA, opB: opB, comment: comment});
         }
 
         function emitComment(comment) {
             listOfCodes.push({comment: comment});
         }
 
-        function getNextLocation() {
+        function getNextLocation(){
             let loc;
-            for (let i = listOfCodes.length - 1; i > 0; i--) {
-                if (typeof listOfCodes[i].location !== 'undefined') {
+            for(let i = listOfCodes.length -1; i>0; i--){
+                if(typeof listOfCodes[i].location !== 'undefined'){
                     loc = listOfCodes[i].location + 1;
                     break;
                 }
@@ -296,8 +485,8 @@ var compiler = (function () {
             switch (currentStatement) {
                 case("IfStatement"):
                     let conditionType = JSonBody.condition;
-                    let elseLabelCount = getAndIncreaseLabelCount(); //TODO will modify
-                    let endLabelCount = getAndIncreaseLabelCount();  //TODO will modify
+                    let elseLabelCount = getAndIncreaseLabelCount();
+                    let endLabelCount = getAndIncreaseLabelCount();
                     let elseLocation = null;
                     let endLocation = null;
                     let comment = "// If stmt. Else: $L" + elseLabelCount + ", End: $L" + endLabelCount;
@@ -348,10 +537,11 @@ var compiler = (function () {
                     let forEndLabelCount = getAndIncreaseLabelCount();       //TODO will modify
                     let forExitLabelCount = getAndIncreaseLabelCount();      //TODO will modify
                     let exitLocation = null;
-                    emitComment("// For loop. Test: $L" + forConditionLabelCount + ", End: $L" + forEndLabelCount + ", Exit: $L" + forExitLabelCount);
+                    emitComment( "// For loop. Test: $L" + forConditionLabelCount +", End: $L" + forEndLabelCount +  ", Exit: $L" + forExitLabelCount);
+                    loopBeginning = getNextLocation();
                     var init = JSonBody.init;
                     declarationOrStatement(init);
-                    emitComment("// $L" + forConditionLabelCount + ": //" + getNextLocation() + "");
+                    emitComment("// $L" + forConditionLabelCount + ": //" + getNextLocation()+"");
                     let conditionalLocationIndex = getNextLocation();
                     var condition = JSonBody.condition;
                     decideExpression(condition);
@@ -370,12 +560,12 @@ var compiler = (function () {
                     let number3 = hashList.getHead().length;
                     emitComment("// Decrease SP by " + number3);
                     decrementSP(number3);
-                    emitComment("// $L:" + forEndLabelCount + "  //" + getNextLocation() + "");
+                    emitComment("// $L" + forEndLabelCount + ":  //" + getNextLocation()+"");
                     var step = JSonBody.step;
                     decideExpression(step);
                     hashList.removeHead();
                     emit("BZJi", getMemoryAddress("zero"), conditionalLocationIndex, "");
-                    emitComment("// $L" + forExitLabelCount + "  //" + getNextLocation() + "");
+                    emitComment("// $L" + forExitLabelCount + "  //" + getNextLocation()+"");
                     listOfCodes[exitLocationIndex].opB = getNextLocation();
                     return;
                 case("WhileStatement"):
@@ -385,12 +575,13 @@ var compiler = (function () {
                     let whileExitLocation = null;
                     emitComment("While loop. Test: $L" + whileTestLabelCount + ", Exit: $L" + whileExitLabelCount);
                     emitComment("// $L" + whileTestLabelCount + "  //" + getNextLocation() + "");
+                    loopBeginning = getNextLocation();
                     let whileTestLocationIndex = getNextLocation();
                     condition = JSonBody.condition;
                     decideExpression(condition);
                     pop("scratchMem1");
                     emit("CPi", getMemoryAddress("scratchMem2"), whileExitLocation, "");
-                    let whileExitLocationIndex = listOfCodes.length - 1;
+                    let whileExitLocationIndex = listOfCodes.length -1;
                     emit("BZJ", getMemoryAddress("scratchMem2"), getMemoryAddress("scratchMem1"), "");
                     emitComment("// Entering a block.");
                     hashTable = new HashTable({});
@@ -404,12 +595,13 @@ var compiler = (function () {
                     decrementSP(number5);
                     hashList.removeHead();
                     emit("BZJi", getMemoryAddress("zero"), whileTestLocationIndex, "");
-                    emitComment("// $L" + whileExitLabelCount + "  //" + getNextLocation() + "");
+                    emitComment("// $L" + whileExitLabelCount + "  //" + getNextLocation()+"");
                     listOfCodes[whileExitLocationIndex].opB = getNextLocation();
                     return;
                 case("ReturnStatement"):
+                    isReturnStatement = true;
                     let value = null;
-                    if (typeof JSonBody.value !== 'undefined') {
+                    if(typeof JSonBody.value !== 'undefined') {
                         value = JSonBody.value;
                         emitComment("// Return (Some)");
                         declarationOrStatement(value);
@@ -427,6 +619,17 @@ var compiler = (function () {
                 default:
                     decideExpression(JSonBody);
             }
+        }
+
+        function doReturnNone(){
+            emitComment("// Return (None)");
+            emit("CP", getMemoryAddress("stackPointer"), getMemoryAddress("basePointer"), "");
+            pop("basePointer");
+            pop("scratchMem2");
+            push("scratchMem1");
+            emit("BZJi", getMemoryAddress("scratchMem2"), "0", "");
+            emitComment("// Return op end.");
+            return;
         }
 
         function doesElseExist(JSonBody) {
@@ -451,10 +654,32 @@ var compiler = (function () {
             }
         }
 
+        function decrementBP(number) {
+            if(number === 0) {
+                return;
+            } else {
+                emit("ADD", getMemoryAddress("basePointer"), getMemoryAddress("negativeOne"), "");
+                listOfCodes[2].value -= 1;
+                decrementBP(number - 1);
+            }
+        }
+
         function push(source) {
             let comment = "// Push " + source;
             emit("CPIi", getMemoryAddress("stackPointer"), getMemoryAddress(source), comment);
             incrementSP(1);
+        }
+
+        function getNumArgs(expression) {
+            let numArgs;
+            if (expression.arguments[0] === null) {
+                numArgs = 0;
+            } else if (expression.arguments.length == 1 && expression.arguments[0] !== null) {
+                numArgs = 1;
+            } else {
+                numArgs = expression.arguments.length;
+            }
+            return numArgs;
         }
 
         function decideExpression(expression) {
@@ -467,12 +692,18 @@ var compiler = (function () {
                     comment = "// Const. int " + value + "";
                     emit("CPi", getMemoryAddress("scratchMem1"), "" + value + "", comment);
                     push("scratchMem1");
-                    return value;
+                    globalLiteral = value;
+                    return;
                 case ("Identifier"):
                     value = expression.value;
+                    if(value === "continue" || value === "break"){
+                        doBreakOrContinue(expression);
+                        break;
+                    }
                     declarationOrStatement(value);
                     if(isAssignment === false) doAccess(value);
-                    return value;
+                    globalIdentifier = value;
+                    return;
                 case ("BinaryExpression"):
                     doBinaryExpression(expression);
                     break;
@@ -486,57 +717,100 @@ var compiler = (function () {
                     value = decideExpression(expression.value);
                     break;
                 case ("CallExpression"):
-                    /*
                     let hashTable = new HashTable({});
-                    hashList.add(hashTable);
+                    let functionName = expression.base.value;
+                    functionEnvironment.setItem(functionName, hashTable);
+                    let numArgs = getNumArgs(expression);
+                    if(expression.arguments[0] !== null){
+                        for(let k = 0; k < numArgs; k++) {
+                            addToFunEnvironment(functionName, expression.arguments[k].value);
+                        }
+                    }
                     let returnLabelCount = getAndIncreaseLabelCount();
-                    let returnLabelLocation = null;
-                    let numArgs = expression.arguments.length;
                     let arguments = expression.arguments;
-                    comment = "Calling " + expression.name + ", numArgs: " + numArgs;
-                    emitComment(comment);
-                    emit("CPi",getMemoryAddress("scratchMem1"), returnLabelLocation, "");
-                    let returnLocationIndex = listOfCodes.length-1;
+                    emitComment("// Calling " + functionName + ", numArgs: " + numArgs);
+                    emit("CPi",getMemoryAddress("scratchMem1"), null, "");
+                    let returnLocationIndex = listOfCodes.length - 1;
                     push("scratchMem1");
                     push("basePointer");
-                    comment = "Evaluating args.";
-                    emitComment(comment);
-                    for (let i = 0; i < arguments.length; i++) {
+                    emitComment("// Evaluating args.");
+                    for (let i = 0; i < numArgs; i++) {
                         declarationOrStatement(arguments[i]);
                     }
-                    comment = "Args evaluated.";
-                    emitComment(comment);
-                    comment = "Adjust BP to (SP - " + numArgs + ")";
-                    emitComment(comment);
+                    emitComment("// Args evaluated.");
+                    emitComment("// Adjust BP to (SP - " + numArgs + ")");
                     emit("CP", getMemoryAddress("basePointer"), getMemoryAddress("stackPointer"), "");
-                    decreaseBP(numArgs);
-                    // emit("BZJi", getMemoryAddress("zero"), ) //TODO
-                    */
+                    decrementBP(numArgs);
+                    let jumpLocation = findLocation(functionName, functionLocationList);
+                    if(jumpLocation === undefined) {
+                        undefinedFunctionList.push({name: functionName, location: getNextLocation()});
+                    }
+                    emit("BZJi", getMemoryAddress("zero"), jumpLocation, ""); //TODO
+                    //functionCallAddress = listOfCodes.length - 1;
+                    listOfCodes[returnLocationIndex].opB = getNextLocation();
+                    emitComment("// $L" + returnLabelCount + ":  //" + getNextLocation()+"");
                     break;
                 case ("IndexExpression"):
-                    value = decideExpression(expression.value);
-                    var index = decideExpression(expression.index);
+                    emitComment("// Array indexing -- base");
+                    value = expression.value.value;
+                    emitComment("// Access");
+                    doAccess(value);
+                    emitComment("// Array indexing -- index");
+                    declarationOrStatement(expression.index);
+                    pop("scratchMem1");
+                    pop("scratchMem2");
+                    emit("ADD", getMemoryAddress("scratchMem1"), getMemoryAddress("scratchMem2"), "");
+                    push("scratchMem1");
+                    if(isReturnStatement === true){
+                        pop("scratchMem1");
+                        emit("CPI", getMemoryAddress("scratchMem2"), getMemoryAddress("scratchMem1"), "");
+                        push("scratchMem2");
+
+                    }
                     break;
             }
         }
 
+        function findLocation(functionName, list){
+            let loc;
+            for(let i = 0 ; i<list.length; i++){
+                if(list[i].name === functionName){
+                    loc = list[i].location;
+                }
+            }
+            return loc;
+        }
+
+        function doBreakOrContinue(expression){
+            var value = expression.value;
+            switch(value){
+                case ("continue") :
+                    emit("BZJi", getMemoryAddress("zero"), loopBeginning, "" );
+                    break;
+                case("break") :
+                    emit("BZJi", getMemoryAddress("zero"), null, "" );
+                    break;
+            }
+
+        }
+
         function doBinaryExpression(expression) {
             let operator = expression.operator;
-            if (operator === "=") {
+            if(operator === "=") {
                 doAssignment(expression);
                 emit("ADD", getMemoryAddress("stackPointer"), getMemoryAddress("negativeOne"), "");
                 return;
-            }
-            if (operator === "&&" || operator === "||") {
+            }else if(operator === "&&" || operator === "||"){
                 doLogicalOperation(expression);
                 return;
+            }else if(operator === ":"){
+                doTernary(expression);
+                return;
             }
-            let comment1 = "// Binary operation operand1";
-            let comment2 = "// Binary operation operand2";
             let comment = "";
-            emitComment(comment1);
+            emitComment("// Binary operation operand1");
             declarationOrStatement(expression.left);        //var leftValue =  deleted
-            emitComment(comment2);
+            emitComment("// Binary operation operand2");
             declarationOrStatement(expression.right);       //var rightValue = deleted
             pop("scratchMem2");
             pop("scratchMem1");
@@ -551,7 +825,28 @@ var compiler = (function () {
                     emit("ADD", getMemoryAddress("scratchMem1"), getMemoryAddress("scratchMem2"), "");
                     break;
                 case("/"):
-                //TODO
+                    emitComment("// Loop for operation: " + operator);
+                    let negB1 = getMemoryAddress("scratchMem4"); //(* will store -B in scratchMem4 *)
+                    let loopExit1 = null;
+                    emit("CPi", getMemoryAddress("scratchMem3"),0,"");
+                    emit("CP", negB1, getMemoryAddress("scratchMem2"),"");
+                    emit("NAND", negB1,negB1,"");
+                    emit("ADDi", negB1,1,"");
+                    emit("CPi", getMemoryAddress("scratchMem6"), loopExit1, "");
+                    let loopExitLocationIndex1 = listOfCodes.length-1;
+                    emit("ADD", getMemoryAddress("scratchMem2"),getMemoryAddress("negativeOne"),"");
+                    emitComment("// $L" + getAndIncreaseLabelCount() + ":  //" + getNextLocation());
+                    let loopBeginLocationIndex1 = getNextLocation();
+                    emit("CP", getMemoryAddress("scratchMem5"),getMemoryAddress("scratchMem2") , "");
+                    emit("LT", getMemoryAddress("scratchMem5"),getMemoryAddress("scratchMem1") , "");
+                    emit("BZJ", getMemoryAddress("scratchMem6"),getMemoryAddress("scratchMem5") , "");
+                    emit("ADD", getMemoryAddress("scratchMem1"),negB1, "");
+                    emit("ADDi", getMemoryAddress("scratchMem3"), 1 , "");
+                    emit("BZJi", getMemoryAddress("zero"),loopBeginLocationIndex1 , "");
+                    emitComment("// $L" + getAndIncreaseLabelCount() + ":  //" + getNextLocation());
+                    listOfCodes[loopExitLocationIndex1].opB = getNextLocation();
+                    emit("CP", getMemoryAddress("scratchMem1"), getMemoryAddress("scratchMem3"), "");
+                    break;
                 case("*"):
                     emit("MUL", getMemoryAddress("scratchMem1"), getMemoryAddress("scratchMem2"), "");
                     break;
@@ -581,7 +876,7 @@ var compiler = (function () {
                     break;
                 case(">="):
                     comment = "// >=: 3 insts";
-                    emit("ADDi", getMemoryAddress("scratchMem2"), "1", comment);
+                    emit("ADDi", getMemoryAddress("scratchMem1"), "1", comment);
                     emit("LT", getMemoryAddress("scratchMem2"), getMemoryAddress("scratchMem1"), "");
                     emit("CP", getMemoryAddress("scratchMem1"), getMemoryAddress("scratchMem2"), "");
                     break;
@@ -601,24 +896,24 @@ var compiler = (function () {
                     emit("LTi", getMemoryAddress("scratchMem1"), "1", "");
                     break;
                 case("%"):
-                    emitComment("// Loop for operation: %");
+                    emitComment("// Loop for operation: %" );
                     let negB = getMemoryAddress("scratchMem4"); //(* will store -B in scratchMem4 *)
                     let loopExit = null;
-                    emit("CPi", getMemoryAddress("scratchMem3"), 0, "");
-                    emit("CP", negB, getMemoryAddress("scratchMem2"), "");
-                    emit("NAND", negB, negB, "");
-                    emit("ADDi", negB, 1, "");
+                    emit("CPi", getMemoryAddress("scratchMem3"),0,"");
+                    emit("CP", negB, getMemoryAddress("scratchMem2"),"");
+                    emit("NAND", negB,negB,"");
+                    emit("ADDi", negB,1,"");
                     emit("CPi", getMemoryAddress("scratchMem6"), loopExit, "");
-                    let loopExitLocationIndex = listOfCodes.length - 1;
-                    emit("ADD", getMemoryAddress("scratchMem2"), getMemoryAddress("negativeOne"), "");
+                    let loopExitLocationIndex = listOfCodes.length-1;
+                    emit("ADD", getMemoryAddress("scratchMem2"),getMemoryAddress("negativeOne"),"");
                     emitComment("// $L" + getAndIncreaseLabelCount() + ":  //" + getNextLocation());
                     let loopBeginLocationIndex = getNextLocation();
-                    emit("CP", getMemoryAddress("scratchMem5"), getMemoryAddress("scratchMem2"), "");
-                    emit("LT", getMemoryAddress("scratchMem5"), getMemoryAddress("scratchMem1"), "");
-                    emit("BZJ", getMemoryAddress("scratchMem6"), getMemoryAddress("scratchMem5"), "");
-                    emit("ADD", getMemoryAddress("scratchMem1"), negB, "");
-                    emit("ADDi", getMemoryAddress("scratchMem3"), 1, "");
-                    emit("BZJi", getMemoryAddress("zero"), loopBeginLocationIndex, "");
+                    emit("CP", getMemoryAddress("scratchMem5"),getMemoryAddress("scratchMem2") , "");
+                    emit("LT", getMemoryAddress("scratchMem5"),getMemoryAddress("scratchMem1") , "");
+                    emit("BZJ", getMemoryAddress("scratchMem6"),getMemoryAddress("scratchMem5") , "");
+                    emit("ADD", getMemoryAddress("scratchMem1"),negB, "");
+                    emit("ADDi", getMemoryAddress("scratchMem3"), 1 , "");
+                    emit("BZJi", getMemoryAddress("zero"),loopBeginLocationIndex , "");
                     emitComment("// $L" + getAndIncreaseLabelCount() + ":  //" + getNextLocation());
                     listOfCodes[loopExitLocationIndex].opB = getNextLocation();
                     break;
@@ -632,7 +927,7 @@ var compiler = (function () {
                     emit("CPi", getMemoryAddress("scratchMem1"), 0, "");
                     emitComment("// $L" + getAndIncreaseLabelCount() + ": //" + getNextLocation());
                     listOfCodes[labSkipLocationIndex].opB = getNextLocation();
-                    emit("SRL", getMemoryAddress("scratchMem1"), getMemoryAddress("scratchMem2"), "");
+                    emit("SRL", getMemoryAddress("scratchMem1"),getMemoryAddress("scratchMem2"),"");
                     break;
                 case("<<"):
                     let labSkip2 = null;
@@ -646,26 +941,75 @@ var compiler = (function () {
                     listOfCodes[labSkip2LocationIndex].opB = getNextLocation();
                     emit("CPi", getMemoryAddress("scratchMem3"), 32, "");
                     emit("ADD", getMemoryAddress("scratchMem2"), getMemoryAddress("scratchMem3"), "");
-                    emit("SRL", getMemoryAddress("scratchMem1"), getMemoryAddress("scratchMem2"), "");
+                    emit("SRL", getMemoryAddress("scratchMem1"),getMemoryAddress("scratchMem2"),"");
                     break;
+                case("?"):
+                    return;
+                case("+="):
+
+                    return;
+                case("-="):
+                    return;
+                case("*="):
+                    return;
+                case("/="):
+                    return;
             }
             push("scratchMem1");
+        }
+
+        function doTernary(expression){
+            let elseLabelCount = getAndIncreaseLabelCount();
+            let endLabelCount = getAndIncreaseLabelCount();
+            let elseLocation = null;
+            let endLocation = null;
+            emitComment("// Ternary. Else: $L" + elseLabelCount + ", End: $L" + endLabelCount);
+            declarationOrStatement(expression.left.left);
+            pop("scratchMem1");
+            emit("CPi", getMemoryAddress("scratchMem2"), elseLocation, "");
+            let elseLocationIndex = listOfCodes.length - 1;
+            emit("BZJ", getMemoryAddress("scratchMem2"),getMemoryAddress("scratchMem1"),"");
+            declarationOrStatement(expression.left.right);
+            emit("BZJi", getMemoryAddress("zero"), endLocation, "");
+            let endLocationIndex = listOfCodes.length - 1;
+            emitComment("// $L" + elseLabelCount + ":  //" + getNextLocation() + "");
+            listOfCodes[elseLocationIndex].opB = getNextLocation();
+            declarationOrStatement(expression.right);
+            emitComment("// $L" + endLabelCount + ":  //" + getNextLocation() + "");
+            listOfCodes[endLocationIndex].opB = getNextLocation();
         }
 
         function doAssignment(expression) {
             let comment = "// Assignment";
             emitComment(comment);
-            isAssignment = true;
-            declarationOrStatement(expression.left);
-            let name = expression.left.value;
-            isAssignment = false;
             declarationOrStatement(expression.right);
-            access(name);
+            isAssignment = true;
+
+
+            if(expression.left.type === "IndexExpression"){
+                declarationOrStatement(expression.left);
+                pop("scratchMem1");
+                pop("scratchMem2");
+                incrementSP(1);
+                emit("CPIi", getMemoryAddress("scratchMem1"), getMemoryAddress("scratchMem2"), "");
+                isAssignment = false;
+                return;
+            }
+
+            declarationOrStatement(expression.left);
+            let name = globalIdentifier;
+            isAssignment = false;
+
+
+            if(expression.left.operator === "*"){
+                doAccess(name);
+            }else{
+                access(name);
+            }
             pop("scratchMem1");
             pop("scratchMem2");
             incrementSP(1);
             emit("CPIi", getMemoryAddress("scratchMem1"), getMemoryAddress("scratchMem2"), "");
-            // isAssignment = false;
         }
 
         function doAccess(value){
@@ -703,21 +1047,21 @@ var compiler = (function () {
             return null;
         }
 
-        function doLogicalOperation(expression) {
+        function doLogicalOperation(expression){
             let operator = expression.operator;
-            switch (operator) {
+            switch(operator){
                 case("&&"):
                     var labFalse = null;
                     var labEnd = getAndIncreaseLabelCount();
-                    emitComment("LogicalAnd until label $L" + labEnd);
+                    emitComment("// LogicalAnd until label $L" + labEnd );
                     decideExpression(expression.left);
                     pop("scratchMem2");
                     emit("CPi", getMemoryAddress("scratchMem1"), labFalse, "");
                     let labFalseLocationIndex = listOfCodes.length - 1;
-                    emit("BZJ", getMemoryAddress("scratchMem1"), getMemoryAddress("scratchMem2"), "");
+                    emit("BZJ", getMemoryAddress("scratchMem1"),getMemoryAddress("scratchMem2"),"");
                     decideExpression(expression.right);
                     emit("BZJi", getMemoryAddress("zero"), getNextLocation(), "");
-                    let labEndLocationIndex = listOfCodes.length - 1;
+                    let labEndLocationIndex = listOfCodes.length-1;
                     emitComment("// $L" + labEnd + ":  //" + getNextLocation());
                     listOfCodes[labFalseLocationIndex].opB = getNextLocation();
                     incrementSP(1);
@@ -727,15 +1071,15 @@ var compiler = (function () {
                 case("||"):
                     var labFalse2 = null;
                     var labEnd2 = getAndIncreaseLabelCount();
-                    emitComment("// LogicalOr until label $L" + labEnd2);
+                    emitComment("// LogicalOr until label $L" + labEnd2 );
                     decideExpression(expression.left);
                     pop("scratchMem2");
                     emit("CPi", getMemoryAddress("scratchMem1"), labFalse2, "");
                     let labFalse2LocationIndex = listOfCodes.length - 1;
-                    emit("BZJ", getMemoryAddress("scratchMem1"), getMemoryAddress("scratchMem2"), "");
+                    emit("BZJ", getMemoryAddress("scratchMem1"),getMemoryAddress("scratchMem2"),"");
                     incrementSP(1);
                     emit("BZJi", getMemoryAddress("zero"), labFalse2, "");
-                    let labEnd2LocationIndex = listOfCodes.length - 1;
+                    let labEnd2LocationIndex = listOfCodes.length-1;
                     emitComment("// $L" + labEnd2 + ":  //" + getNextLocation());
                     listOfCodes[labFalse2LocationIndex].opB = getNextLocation();
                     decideExpression(expression.right);
@@ -747,8 +1091,16 @@ var compiler = (function () {
 
         function doPrefixExpression(expression) {
             let operator = expression.operator;
-            if (isUnary(operator)) {
+            if(isUnary(operator)){
                 doUnary(expression);
+                return;
+            }
+            if(operator === "&"){
+                doAddressOperator(expression);
+                return;
+            }
+            if(operator === "*"){
+                doDeRefOperator(expression);
                 return;
             }
             emitComment("// PrePost: pre " + operator);
@@ -769,16 +1121,15 @@ var compiler = (function () {
             }
         }
 
-
-        function isUnary(operator) {
-            if (operator === "-" || operator === "!" || operator === "~") {
+        function isUnary(operator){
+            if(operator === "-" || operator === "!" || operator === "~"){
                 return true;
-            } else {
+            }else{
                 return false;
             }
         }
 
-        function doUnary(expression) {
+        function doUnary(expression){
             let operator = expression.operator;
             emitComment("// Unary operation operand");
             declarationOrStatement(expression.value);
@@ -791,16 +1142,16 @@ var compiler = (function () {
                     let labEnd = null;
                     emitComment("// LogicalNot until label $L" + labEndCount);
                     emit("CPi", getMemoryAddress("scratchMem2"), labFalse, "");
-                    let labFalseLocationIndex = listOfCodes.length - 1;
+                    let labFalseLocationIndex = listOfCodes.length-1;
                     emit("BZJ", getMemoryAddress("scratchMem2"), getMemoryAddress("scratchMem1"), "");
                     push("zero");
                     emit("BZJi", getMemoryAddress("zero"), labEnd, "");
-                    let labEndLocationIndex = listOfCodes.length - 1;
-                    emitComment("// $L" + labFalseCount + "  //" + getNextLocation() + "");
+                    let labEndLocationIndex = listOfCodes.length-1;
+                    emitComment("// $L" + labFalseCount + "  //" + getNextLocation()+"");
                     listOfCodes[labFalseLocationIndex].opB = getNextLocation();
                     emit("CPi", getMemoryAddress("scratchMem1"), "1", "");
                     push("scratchMem1");
-                    emitComment("// $L" + labEndCount + "  //" + getNextLocation() + "");
+                    emitComment("// $L" + labEndCount + "  //" + getNextLocation()+"");
                     listOfCodes[labEndLocationIndex].opB = getNextLocation();
                     break;
                 case("-"):
@@ -815,8 +1166,23 @@ var compiler = (function () {
             }
         }
 
+        function doAddressOperator(expression){
+            emitComment("// Address-of");
+            declarationOrStatement(expression.value);
+            access(expression.value.value);
+        }
 
-        function getAndIncreaseLabelCount() {
+        function doDeRefOperator(expression){
+            emitComment("// Deref.");
+            declarationOrStatement(expression.value);
+            if(isReturnStatement === true || !isAssignment){        //functionCall6 için yaptım
+                pop("scratchMem1");
+                emit("CPI", getMemoryAddress("scratchMem2"), getMemoryAddress("scratchMem1"), "");
+                push("scratchMem2");
+            }
+        }
+
+        function getAndIncreaseLabelCount(){
             labelCount++;
             return labelCount;
         }
@@ -838,102 +1204,9 @@ var compiler = (function () {
             }
         }
 
-        function fixLocations() {
-            let i = 0;
-            let previous = i;
-            while (i < listOfCodes.length) {
-                if (typeof listOfCodes[i].type !== 'undefined') {
-                    listOfCodes[i].location = previous;
-                    previous++;
-                    i++;
-                } else {
-                    i++;
-                }
-            }
-        }
-
-        function insertGlobalVariableInstructions(difference){
-            var index = findCallingMain();
-            listOfCodes.splice.apply(listOfCodes, [index, 0].concat(difference));
-            listOfCodes.splice(listOfCodes.length - difference.length , difference.length);
-            fixLocations();
-        }
-
-        function findCallingMain(){
-            for(let i = 17; i<listOfCodes.length; i++){
-                if(listOfCodes[i].comment.includes("Calling main, numArgs: 0")){
-                    return i;
-                }
-            }
-        }
-
-        function modifyGlobalInitComment() {
-            var index;
-            for (var i = 17; i < listOfCodes.length; i++) {
-                if (listOfCodes[i + 1].type !== "data") {
-                    index = i;
-                    break;
-                }
-            }
-            if(globalVariableList.length !== 0){
-                index = globalVariableList.length - 1 + index;
-            }
-            listOfCodes.splice.apply(listOfCodes, [index, 0].concat({comment: "// $globalinit:  //" + (index)}));
-            fixLocations();
-        }
-
-
-        function decreaseBP(numArgs) {
-            if(numArgs === 0) {
-                return;
-            } else {
-                emit("ADD", getMemoryAddress("basePointer"), getMemoryAddress("negativeOne"), "");
-                decreaseBP(numArgs-1);
-            }
-        }
-
-
         function modifyTopOfStack() {
-            // listOfCodes[1].value = listOfCodes[listOfCodes.length - 1].location + 1;
-            // listOfCodes[2].value = listOfCodes[listOfCodes.length - 1].location + 1 ;
             listOfCodes[1].value = getNextLocation();
             listOfCodes[2].value = getNextLocation();
-        }
-
-        function modifyMainBZJi(){
-            listOfCodes[0].opB = globalVariableList.length + 17;
-        }
-
-        function modifyMainReturnAddress (){
-            let index = findCallingMain();
-            listOfCodes[index].opB = listOfCodes[findHalt()].location - 2;
-        }
-
-        function findHalt(){
-            for(let i = 17; i<listOfCodes.length; i++){
-                if(listOfCodes[i].comment.includes("HALT")){
-                    return i;
-                }
-            }
-        }
-
-        function modifyGoMain(){
-            let index = findAdjustBP();
-            listOfCodes[index + 1].opB = listOfCodes[findHalt()].location + 1;
-        }
-
-        function findAdjustBP(){
-            for(let i = 17; i<listOfCodes.length; i++){
-                if(listOfCodes[i].comment.includes("Adjust BP")){
-                    return i;
-                }
-            }
-        }
-
-        function modifyPopScratchMem(){
-            let index = findAdjustBP();
-            var lst = listOfCodes.length;
-            listOfCodes[index + 2].comment = "// $L2:  //" + (index -  1) + "\n// Pop to scratchMem1";
         }
 
         function stringifyListOfCodes() {

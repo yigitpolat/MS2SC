@@ -171,12 +171,15 @@
         timeout = setTimeout(outputAssembly, 300);
     });
 
-    function outputAssembly()
-    {
-        let out = "Unknown error";
+    /*
+    editor.getSession().on('change', function() {
+        outputAssembly()
+    });
+*/
+
+    function outputAssembly() {
         try
         {
-            //editor2.session.getUndoManager().reset();
             let src = editor.getSession().getValue();
             let ast = cparse(src);
             let assembly = compiler(JSON.stringify(ast, undefined, 4));
@@ -184,9 +187,8 @@
         }
         catch(e)
         {
-            out = "<div style=\"font-size: 16px;\">" + e.toString() + "</div>";
+            editor2.setValue(e.toString(), -1);
         }
-        document.getElementById("out").innerHTML = out;
     }
     outputAssembly();
 </script>
