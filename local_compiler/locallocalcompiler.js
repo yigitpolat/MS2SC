@@ -703,7 +703,7 @@ function decideExpression(expression) {
                 break;
             }
             declarationOrStatement(value);
-            if(isAssignment === false) doAccess(value);
+            if(isAssignmentAssignment === false) doAccess(value);
             globalIdentifier = value;
             return;
         case ("BinaryExpression"):
@@ -827,7 +827,28 @@ function doBinaryExpression(expression) {
             emit("ADD", getMemoryAddress("scratchMem1"), getMemoryAddress("scratchMem2"), "");
             break;
         case("/"):
-        //TODO
+            emitComment("// Loop for operation: " + operator);
+            let negB1 = getMemoryAddress("scratchMem4"); //(* will store -B in scratchMem4 *)
+            let loopExit1 = null;
+            emit("CPi", getMemoryAddress("scratchMem3"),0,"");
+            emit("CP", negB1, getMemoryAddress("scratchMem2"),"");
+            emit("NAND", negB1,negB1,"");
+            emit("ADDi", negB1,1,"");
+            emit("CPi", getMemoryAddress("scratchMem6"), loopExit1, "");
+            let loopExitLocationIndex1 = listOfCodes.length-1;
+            emit("ADD", getMemoryAddress("scratchMem2"),getMemoryAddress("negativeOne"),"");
+            emitComment("// $L" + getAndIncreaseLabelCount() + ":  //" + getNextLocation());
+            let loopBeginLocationIndex1 = getNextLocation();
+            emit("CP", getMemoryAddress("scratchMem5"),getMemoryAddress("scratchMem2") , "");
+            emit("LT", getMemoryAddress("scratchMem5"),getMemoryAddress("scratchMem1") , "");
+            emit("BZJ", getMemoryAddress("scratchMem6"),getMemoryAddress("scratchMem5") , "");
+            emit("ADD", getMemoryAddress("scratchMem1"),negB1, "");
+            emit("ADDi", getMemoryAddress("scratchMem3"), 1 , "");
+            emit("BZJi", getMemoryAddress("zero"),loopBeginLocationIndex1 , "");
+            emitComment("// $L" + getAndIncreaseLabelCount() + ":  //" + getNextLocation());
+            listOfCodes[loopExitLocationIndex1].opB = getNextLocation();
+            emit("CP", getMemoryAddress("scratchMem1"), getMemoryAddress("scratchMem3"), "");
+            break;
         case("*"):
             emit("MUL", getMemoryAddress("scratchMem1"), getMemoryAddress("scratchMem2"), "");
             break;
@@ -877,7 +898,7 @@ function doBinaryExpression(expression) {
             emit("LTi", getMemoryAddress("scratchMem1"), "1", "");
             break;
         case("%"):
-            emitComment("// Loop for operation: %");
+            emitComment("// Loop for operation: %" );
             let negB = getMemoryAddress("scratchMem4"); //(* will store -B in scratchMem4 *)
             let loopExit = null;
             emit("CPi", getMemoryAddress("scratchMem3"),0,"");
@@ -925,6 +946,15 @@ function doBinaryExpression(expression) {
             emit("SRL", getMemoryAddress("scratchMem1"),getMemoryAddress("scratchMem2"),"");
             break;
         case("?"):
+            return;
+        case("+="):
+
+            return;
+        case("-="):
+            return;
+        case("*="):
+            return;
+        case("/="):
             return;
     }
     push("scratchMem1");
@@ -1025,7 +1055,7 @@ function doLogicalOperation(expression){
         case("&&"):
             var labFalse = null;
             var labEnd = getAndIncreaseLabelCount();
-            emitComment("LogicalAnd until label $L" + labEnd );
+            emitComment("// LogicalAnd until label $L" + labEnd );
             decideExpression(expression.left);
             pop("scratchMem2");
             emit("CPi", getMemoryAddress("scratchMem1"), labFalse, "");
