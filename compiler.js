@@ -531,7 +531,7 @@ var compiler = (function () {
                     return;
                 case("ExpressionStatement"):
                     decideExpression(JSonBody.expression);
-                    decrementSP(1);
+                    if(!isAssignment) decrementSP(1);
                     return;
                 case("ForStatement"):
                     let forConditionLabelCount = getAndIncreaseLabelCount(); //TODO will modify

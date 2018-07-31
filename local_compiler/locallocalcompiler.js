@@ -31,7 +31,7 @@ var loopEnd;
 var globalLiteral;
 var globalIdentifier;
 
-
+var exp = true;
 
 
 //----------------------- Linked List ---------------------------------
@@ -533,7 +533,8 @@ function decideStatement(JSonBody) {
             return;
         case("ExpressionStatement"):
             decideExpression(JSonBody.expression);
-            decrementSP(1);
+            if(exp) decrementSP(1);
+            exp = true;
             return;
         case("ForStatement"):
             let forConditionLabelCount = getAndIncreaseLabelCount(); //TODO will modify
@@ -983,6 +984,7 @@ function doTernary(expression){
 }
 
 function doAssignment(expression) {
+    exp = false;
     let comment = "// Assignment";
     emitComment(comment);
     declarationOrStatement(expression.right);
