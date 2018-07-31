@@ -118,6 +118,8 @@ var compiler = (function () {
         var globalLiteral;
         var globalIdentifier;
 
+        var exp = true;
+
         var baseList = [{type: "inst", location: 0, opCode: "BZJi", opA: "3", opB: "17", comment: ""},
             {type: "data", location: 1, value: 0, comment: "//&($topofstack)"},
             {type: "data", location: 2, value: 0, comment: "//&($topofstack)"},
@@ -531,7 +533,8 @@ var compiler = (function () {
                     return;
                 case("ExpressionStatement"):
                     decideExpression(JSonBody.expression);
-                    if(!isAssignment) decrementSP(1);
+                    if(exp) decrementSP(1);
+                    exp = true;
                     return;
                 case("ForStatement"):
                     let forConditionLabelCount = getAndIncreaseLabelCount(); //TODO will modify
@@ -981,6 +984,7 @@ var compiler = (function () {
         }
 
         function doAssignment(expression) {
+            exp = false;
             let comment = "// Assignment";
             emitComment(comment);
             declarationOrStatement(expression.right);
