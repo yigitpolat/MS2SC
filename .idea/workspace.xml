@@ -3,7 +3,7 @@
   <component name="ChangeListManager">
     <list default="true" id="b54e1193-ed39-4838-a0c3-2d8642d1ccc9" name="Default" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change beforePath="$PROJECT_DIR$/convert.js" afterPath="$PROJECT_DIR$/convert.js" />
+      <change beforePath="$PROJECT_DIR$/compiler.html" afterPath="$PROJECT_DIR$/compiler.html" />
     </list>
     <ignored path="$PROJECT_DIR$/.tmp/" />
     <ignored path="$PROJECT_DIR$/temp/" />
@@ -17,31 +17,11 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name="locallocalcompiler.js" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/local_compiler/locallocalcompiler.js">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="237">
-              <caret line="845" column="21" lean-forward="false" selection-start-line="845" selection-start-column="21" selection-end-line="845" selection-end-column="21" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="AST.json" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/local_compiler/AST.json">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="6075">
-              <caret line="405" column="1" lean-forward="false" selection-start-line="405" selection-start-column="1" selection-end-line="405" selection-end-column="1" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
       <file leaf-file-name="compiler.html" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/compiler.html">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="208">
-              <caret line="127" column="33" lean-forward="true" selection-start-line="127" selection-start-column="33" selection-end-line="127" selection-end-column="33" />
+            <state relative-caret-position="238">
+              <caret line="130" column="0" lean-forward="true" selection-start-line="130" selection-start-column="0" selection-end-line="130" selection-end-column="0" />
               <folding>
                 <element signature="n#style#0;n#head#0;n#html#0;n#!!top" expanded="false" />
                 <element signature="n#style#1;n#head#0;n#html#0;n#!!top" expanded="false" />
@@ -135,12 +115,24 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="convert.js" pinned="false" current-in-tab="true">
+      <file leaf-file-name="convert.js" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/convert.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="105">
-              <caret line="7" column="18" lean-forward="false" selection-start-line="7" selection-start-column="18" selection-end-line="7" selection-end-column="18" />
+            <state relative-caret-position="360">
+              <caret line="24" column="3" lean-forward="true" selection-start-line="24" selection-start-column="3" selection-end-line="24" selection-end-column="3" />
               <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="jquery.js" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/jquery.js">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="727">
+              <caret line="9112" column="0" lean-forward="true" selection-start-line="9112" selection-start-column="0" selection-end-line="9112" selection-end-column="0" />
+              <folding>
+                <element signature="n#!!doc" expanded="true" />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -151,6 +143,7 @@
     <option name="RECENT_TEMPLATES">
       <list>
         <option value="CSS File" />
+        <option value="JavaScript File" />
       </list>
     </option>
   </component>
@@ -204,8 +197,9 @@
         <option value="$PROJECT_DIR$/local_compiler/locallocalcompiler.js" />
         <option value="$PROJECT_DIR$/compiler.js" />
         <option value="$PROJECT_DIR$/local_compiler/AST.json" />
-        <option value="$PROJECT_DIR$/compiler.html" />
         <option value="$PROJECT_DIR$/convert.js" />
+        <option value="$PROJECT_DIR$/compiler.html" />
+        <option value="$PROJECT_DIR$/jquery.js" />
       </list>
     </option>
   </component>
@@ -355,7 +349,7 @@
       <workItem from="1532003863066" duration="12000" />
       <workItem from="1532012567547" duration="154000" />
       <workItem from="1532033797012" duration="60412000" />
-      <workItem from="1533389875064" duration="2914000" />
+      <workItem from="1533389875064" duration="4047000" />
     </task>
     <task id="LOCAL-00001" summary="compiler last update">
       <created>1524690737044</created>
@@ -644,11 +638,18 @@
       <option name="project" value="LOCAL" />
       <updated>1533399220436</updated>
     </task>
-    <option name="localTasksCounter" value="42" />
+    <task id="LOCAL-00042" summary="-https solution">
+      <created>1533400645790</created>
+      <option name="number" value="00042" />
+      <option name="presentableId" value="LOCAL-00042" />
+      <option name="project" value="LOCAL" />
+      <updated>1533400645790</updated>
+    </task>
+    <option name="localTasksCounter" value="43" />
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="242767000" />
+    <option name="totallyTimeSpent" value="243900000" />
   </component>
   <component name="TodoView">
     <todo-panel id="selected-file">
@@ -1049,14 +1050,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/local_compiler/AST.json">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="6075">
-          <caret line="405" column="1" lean-forward="false" selection-start-line="405" selection-start-column="1" selection-end-line="405" selection-end-column="1" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/cparse.js">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="534">
@@ -1081,6 +1074,14 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/convert.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="360">
+          <caret line="24" column="3" lean-forward="true" selection-start-line="24" selection-start-column="3" selection-end-line="24" selection-end-column="3" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/local_compiler/locallocalcompiler.js">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="237">
@@ -1089,10 +1090,18 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/local_compiler/AST.json">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="564">
+          <caret line="405" column="1" lean-forward="false" selection-start-line="405" selection-start-column="1" selection-end-line="405" selection-end-column="1" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/compiler.html">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="208">
-          <caret line="127" column="33" lean-forward="true" selection-start-line="127" selection-start-column="33" selection-end-line="127" selection-end-column="33" />
+        <state relative-caret-position="238">
+          <caret line="130" column="0" lean-forward="true" selection-start-line="130" selection-start-column="0" selection-end-line="130" selection-end-column="0" />
           <folding>
             <element signature="n#style#0;n#head#0;n#html#0;n#!!top" expanded="false" />
             <element signature="n#style#1;n#head#0;n#html#0;n#!!top" expanded="false" />
@@ -1175,11 +1184,13 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/convert.js">
+    <entry file="file://$PROJECT_DIR$/jquery.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="105">
-          <caret line="7" column="18" lean-forward="false" selection-start-line="7" selection-start-column="18" selection-end-line="7" selection-end-column="18" />
-          <folding />
+        <state relative-caret-position="727">
+          <caret line="9112" column="0" lean-forward="true" selection-start-line="9112" selection-start-column="0" selection-end-line="9112" selection-end-column="0" />
+          <folding>
+            <element signature="n#!!doc" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
