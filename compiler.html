@@ -5,6 +5,7 @@
 
     <title>Very Simple CPU Complier </title>
     <meta charset="UTF-8">
+    <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
 
     <link href="compiler.css" rel="stylesheet">
 
@@ -94,10 +95,9 @@
 
         <td width="33%" ><pre id="editor" class=" ace_editor ace-tomorrow-night ace_dark"><div class="ace_scroller" style="left: 50px; right: 0px; bottom: 0px;"><div class="ace_content" style="margin-top: 0px; width: 450px; height: 538px; margin-left: 0px;"><div class="ace_layer ace_print-margin-layer"><div class="ace_print-margin" style="left: 676.125px; visibility: visible;"></div></div><div class="ace_layer ace_marker-layer"><div class="ace_active-line" style="height:19px;top:0px;left:0;right:0;"></div></div><div class="ace_layer ace_text-layer" style="padding: 0px 4px;"><div class="ace_line" style="height:19px"><span class="ace_storage ace_type">void</span> <span class="ace_identifier">main</span><span class="ace_paren ace_lparen">(</span><span class="ace_paren ace_rparen">)</span> <span class="ace_paren ace_lparen">{</span></div><div class="ace_line" style="height:19px">
     <span class="ace_storage ace_type">int</span> <span class="ace_identifier">answer</span> <span class="ace_keyword ace_operator">=</span> <span class="ace_constant ace_numeric">6</span> <span class="ace_keyword ace_operator">*</span> <span class="ace_constant ace_numeric">7</span><span class="ace_punctuation ace_operator">;</span></div><div class="ace_line" style="height:19px">
-    <span class="ace_support ace_function ace_C99 ace_c">printf</span><span class="ace_paren ace_lparen">(</span><span class="ace_string">"answer = %d"</span><span class="ace_punctuation ace_operator">,</span> <span class="ace_identifier">answer</span><span class="ace_paren ace_rparen">)</span><span class="ace_punctuation ace_operator">;</span></div><div class="ace_line" style="height:19px">
     <span class="ace_keyword ace_control">if</span> <span class="ace_paren ace_lparen">(</span><span class="ace_identifier">answer</span> <span class="ace_keyword ace_operator">&gt;</span> <span class="ace_constant ace_numeric">5</span><span class="ace_paren ace_rparen">)</span> <span class="ace_paren ace_lparen">{</span></div><div class="ace_line" style="height:19px">
-        <span class="ace_identifier">answer</span><span class="ace_keyword ace_operator">++</span><span class="ace_punctuation ace_operator">;</span></div><div class="ace_line" style="height:19px">  <span class="ace_paren ace_rparen">}</span>
-    <span class="ace_keyword ace_control">else</span> <span class="ace_paren ace_lparen">{</span></div><div class="ace_line" style="height:19px">
+        <span class="ace_identifier">answer</span><span class="ace_keyword ace_operator">++</span><span class="ace_punctuation ace_operator">;</span></div><div class="ace_line" style="height:19px">
+    <span class="ace_paren ace_rparen">}</span> <span class="ace_keyword ace_control">else</span> <span class="ace_paren ace_lparen">{</span></div><div class="ace_line" style="height:19px">
         <span class="ace_identifier">answer</span> <span class="ace_keyword ace_operator">=</span> <span class="ace_identifier">answer</span> <span class="ace_keyword ace_operator">*</span> <span class="ace_constant ace_numeric">2</span><span class="ace_punctuation ace_operator">;</span></div><div class="ace_line" style="height:19px">
         <span class="ace_keyword ace_operator">++</span><span class="ace_identifier">answer</span><span class="ace_punctuation ace_operator">;</span>   </div><div class="ace_line" style="height:19px">
     <span class="ace_paren ace_rparen">}</span></div><div class="ace_line" style="height:19px">
