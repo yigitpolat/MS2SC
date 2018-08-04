@@ -3,7 +3,7 @@
   <component name="ChangeListManager">
     <list default="true" id="b54e1193-ed39-4838-a0c3-2d8642d1ccc9" name="Default" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change beforePath="$PROJECT_DIR$/compiler.html" afterPath="$PROJECT_DIR$/compiler.html" />
+      <change beforePath="$PROJECT_DIR$/convert.js" afterPath="$PROJECT_DIR$/convert.js" />
     </list>
     <ignored path="$PROJECT_DIR$/.tmp/" />
     <ignored path="$PROJECT_DIR$/temp/" />
@@ -20,8 +20,8 @@
       <file leaf-file-name="locallocalcompiler.js" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/local_compiler/locallocalcompiler.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="0">
-              <caret line="800" column="9" lean-forward="false" selection-start-line="800" selection-start-column="9" selection-end-line="800" selection-end-column="9" />
+            <state relative-caret-position="237">
+              <caret line="845" column="21" lean-forward="false" selection-start-line="845" selection-start-column="21" selection-end-line="845" selection-end-column="21" />
               <folding />
             </state>
           </provider>
@@ -37,11 +37,11 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="compiler.html" pinned="false" current-in-tab="true">
+      <file leaf-file-name="compiler.html" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/compiler.html">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="135">
-              <caret line="9" column="42" lean-forward="false" selection-start-line="9" selection-start-column="42" selection-end-line="9" selection-end-column="42" />
+            <state relative-caret-position="208">
+              <caret line="127" column="33" lean-forward="true" selection-start-line="127" selection-start-column="33" selection-end-line="127" selection-end-column="33" />
               <folding>
                 <element signature="n#style#0;n#head#0;n#html#0;n#!!top" expanded="false" />
                 <element signature="n#style#1;n#head#0;n#html#0;n#!!top" expanded="false" />
@@ -135,11 +135,11 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="convert.js" pinned="false" current-in-tab="false">
+      <file leaf-file-name="convert.js" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/convert.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="210">
-              <caret line="14" column="14" lean-forward="true" selection-start-line="14" selection-start-column="14" selection-end-line="14" selection-end-column="14" />
+            <state relative-caret-position="105">
+              <caret line="7" column="41" lean-forward="false" selection-start-line="7" selection-start-column="41" selection-end-line="7" selection-end-column="41" />
               <folding />
             </state>
           </provider>
@@ -156,8 +156,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>ace/theme/tomorrow_night</find>
-      <find>mode-c</find>
       <find>utf</find>
       <find>lookup</find>
       <find>new error</find>
@@ -186,6 +184,8 @@
       <find>forstatem</find>
       <find>forstate</find>
       <find>printf</find>
+      <find>jqu</find>
+      <find>jquery</find>
     </findStrings>
   </component>
   <component name="Git.Settings">
@@ -204,8 +204,8 @@
         <option value="$PROJECT_DIR$/local_compiler/locallocalcompiler.js" />
         <option value="$PROJECT_DIR$/compiler.js" />
         <option value="$PROJECT_DIR$/local_compiler/AST.json" />
-        <option value="$PROJECT_DIR$/convert.js" />
         <option value="$PROJECT_DIR$/compiler.html" />
+        <option value="$PROJECT_DIR$/convert.js" />
       </list>
     </option>
   </component>
@@ -355,7 +355,7 @@
       <workItem from="1532003863066" duration="12000" />
       <workItem from="1532012567547" duration="154000" />
       <workItem from="1532033797012" duration="60412000" />
-      <workItem from="1533389875064" duration="2470000" />
+      <workItem from="1533389875064" duration="2693000" />
     </task>
     <task id="LOCAL-00001" summary="compiler last update">
       <created>1524690737044</created>
@@ -630,11 +630,18 @@
       <option name="project" value="LOCAL" />
       <updated>1533398918975</updated>
     </task>
-    <option name="localTasksCounter" value="40" />
+    <task id="LOCAL-00040" summary="-https solution">
+      <created>1533398961243</created>
+      <option name="number" value="00040" />
+      <option name="presentableId" value="LOCAL-00040" />
+      <option name="project" value="LOCAL" />
+      <updated>1533398961243</updated>
+    </task>
+    <option name="localTasksCounter" value="41" />
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="242323000" />
+    <option name="totallyTimeSpent" value="242546000" />
   </component>
   <component name="TodoView">
     <todo-panel id="selected-file">
@@ -1043,14 +1050,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/local_compiler/locallocalcompiler.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="800" column="9" lean-forward="false" selection-start-line="800" selection-start-column="9" selection-end-line="800" selection-end-column="9" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/cparse.js">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="534">
@@ -1075,18 +1074,18 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/convert.js">
+    <entry file="file://$PROJECT_DIR$/local_compiler/locallocalcompiler.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="210">
-          <caret line="14" column="14" lean-forward="true" selection-start-line="14" selection-start-column="14" selection-end-line="14" selection-end-column="14" />
+        <state relative-caret-position="237">
+          <caret line="845" column="21" lean-forward="false" selection-start-line="845" selection-start-column="21" selection-end-line="845" selection-end-column="21" />
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/compiler.html">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="135">
-          <caret line="9" column="42" lean-forward="false" selection-start-line="9" selection-start-column="42" selection-end-line="9" selection-end-column="42" />
+        <state relative-caret-position="208">
+          <caret line="127" column="33" lean-forward="true" selection-start-line="127" selection-start-column="33" selection-end-line="127" selection-end-column="33" />
           <folding>
             <element signature="n#style#0;n#head#0;n#html#0;n#!!top" expanded="false" />
             <element signature="n#style#1;n#head#0;n#html#0;n#!!top" expanded="false" />
@@ -1166,6 +1165,14 @@
             <element signature="n#style#0;n#div#0;n#div#4;n#pre#0;n#td#2;n#tr#0;n#tbody#0;n#table#2;n#body#0;n#html#0;n#!!top" expanded="true" />
             <element signature="n#style#0;n#div#1;n#div#4;n#pre#0;n#td#2;n#tr#0;n#tbody#0;n#table#2;n#body#0;n#html#0;n#!!top" expanded="true" />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/convert.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="105">
+          <caret line="7" column="41" lean-forward="false" selection-start-line="7" selection-start-column="41" selection-end-line="7" selection-end-column="41" />
+          <folding />
         </state>
       </provider>
     </entry>

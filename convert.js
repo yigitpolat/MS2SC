@@ -5,7 +5,7 @@ $(document).ready(function(){
 
 	$.ajax({
             type: "POST",
-            url: "https://crossorigin.me/www.verysimplecpu.org/simulator_py/execute.cgi",
+            url: "https://crossorigin.me/http://www.verysimplecpu.org/simulator_py/execute.cgi",
             data: "sourceCode="+encoded,
 
             success: function(html){
