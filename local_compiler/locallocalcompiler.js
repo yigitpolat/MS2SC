@@ -242,12 +242,12 @@ function decideDeclaration(JSonObject) {
                 let loc = findLocation(functionName, undefinedFunctionList);
                 modifyFunctionCallAddress(loc);
             }
-/*
-            if(functionCallAddress === "undefined") {
-                listOfCodes[functionCallAddress].opB = getNextLocation();
-                functionCallAddress = null;
-            }
-*/
+            /*
+                        if(functionCallAddress === "undefined") {
+                            listOfCodes[functionCallAddress].opB = getNextLocation();
+                            functionCallAddress = null;
+                        }
+            */
             if(JSonObject.name === "main"){
                 mainBeginning = getNextLocation();
             }
@@ -810,6 +810,9 @@ function doBinaryExpression(expression) {
     }else if(operator === ":"){
         doTernary(expression);
         return;
+    }else if(operator === "+=" || operator === "-=" || operator === "*=" || operator === "/="){
+        doCompoundOp(expression);
+        return;
     }
     let comment = "";
     emitComment("// Binary operation operand1");
@@ -949,15 +952,6 @@ function doBinaryExpression(expression) {
             break;
         case("?"):
             return;
-        case("+="):
-
-            return;
-        case("-="):
-            return;
-        case("*="):
-            return;
-        case("/="):
-            return;
     }
     push("scratchMem1");
 }
@@ -983,13 +977,70 @@ function doTernary(expression){
     listOfCodes[endLocationIndex].opB = getNextLocation();
 }
 
+function doCompoundOp(expression){
+    let operator = expression.operator;
+    emitComment("// Assignment");
+    emitComment("// Binary operation operand1");
+    declarationOrStatement(expression.left);        //var leftValue =  deleted
+    emitComment("// Binary operation operand2");
+    declarationOrStatement(expression.right);
+    pop("scratchMem2");
+    pop("scratchMem1");
+    switch (operator){
+        case("+="):
+            emit("ADD", getMemoryAddress("scratchMem1"), getMemoryAddress("scratchMem2"), "");
+            break;
+        case("-="):
+            emit("NAND", getMemoryAddress("scratchMem2"), getMemoryAddress("scratchMem2"), "// Subtraction: 3 insts");
+            emit("ADDi", getMemoryAddress("scratchMem2"), "1", "");
+            emit("ADD", getMemoryAddress("scratchMem1"), getMemoryAddress("scratchMem2"), "");
+            break;
+        case("*="):
+            emit("MUL", getMemoryAddress("scratchMem1"), getMemoryAddress("scratchMem2"), "");
+            break;
+        case("/="):
+            emitComment("// Loop for operation: /" );
+            let negB1 = getMemoryAddress("scratchMem4"); //(* will store -B in scratchMem4 *)
+            let loopExit1 = null;
+            emit("CPi", getMemoryAddress("scratchMem3"),0,"");
+            emit("CP", negB1, getMemoryAddress("scratchMem2"),"");
+            emit("NAND", negB1,negB1,"");
+            emit("ADDi", negB1,1,"");
+            emit("CPi", getMemoryAddress("scratchMem6"), loopExit1, "");
+            let loopExitLocationIndex1 = listOfCodes.length-1;
+            emit("ADD", getMemoryAddress("scratchMem2"),getMemoryAddress("negativeOne"),"");
+            emitComment("// $L" + getAndIncreaseLabelCount() + ":  //" + getNextLocation());
+            let loopBeginLocationIndex1 = getNextLocation();
+            emit("CP", getMemoryAddress("scratchMem5"),getMemoryAddress("scratchMem2") , "");
+            emit("LT", getMemoryAddress("scratchMem5"),getMemoryAddress("scratchMem1") , "");
+            emit("BZJ", getMemoryAddress("scratchMem6"),getMemoryAddress("scratchMem5") , "");
+            emit("ADD", getMemoryAddress("scratchMem1"),negB1, "");
+            emit("ADDi", getMemoryAddress("scratchMem3"), 1 , "");
+            emit("BZJi", getMemoryAddress("zero"),loopBeginLocationIndex1 , "");
+            emitComment("// $L" + getAndIncreaseLabelCount() + ":  //" + getNextLocation());
+            listOfCodes[loopExitLocationIndex1].opB = getNextLocation();
+            emit("CP", getMemoryAddress("scratchMem1"), getMemoryAddress("scratchMem3"), "");
+            break;
+    }
+    push("scratchMem1");
+    let loc = lookup(expression.left.value);
+    emitComment("// Local var '" + expression.left.value + "' @ " + loc);
+    emit("CP", getMemoryAddress("scratchMem1"), getMemoryAddress("basePointer"), "");
+    emit("ADDi", getMemoryAddress("scratchMem1"), loc, "");
+    push("scratchMem1");
+    pop("scratchMem1");
+    pop("scratchMem2");
+    incrementSP(1);
+    emit("CPIi", getMemoryAddress("scratchMem1"), getMemoryAddress("scratchMem2"), "");
+}
+
+
 function doAssignment(expression) {
     exp = false;
     let comment = "// Assignment";
     emitComment(comment);
     declarationOrStatement(expression.right);
     isAssignment = true;
-
 
     if(expression.left.type === "IndexExpression"){
         declarationOrStatement(expression.left);
@@ -1042,6 +1093,7 @@ function access(value) {
 }
 
 function lookup(key) {
+
     var hashTable = hashList.getHead();
     while (hashTable !== null) {
         if (hashTable.hasItem(key)) {
