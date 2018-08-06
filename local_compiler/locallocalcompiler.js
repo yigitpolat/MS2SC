@@ -5,6 +5,7 @@ var myJSon = JSON.parse(content);
 var hashList = new LinkedList();
 
 var isAssignment = false;
+var isAddressOp = false;
 var isPrefixExpression = false;
 var isReturnStatement = false;
 var returnMain = true;
@@ -26,7 +27,10 @@ var functionLocationList = [];
 var undefinedFunctionList = [];
 
 var loopBeginning;
-var loopEnd;
+var isContinue = false;
+var continueLoc;
+var isBreak = false;
+var breakLoc;
 
 var globalLiteral;
 var globalIdentifier;
@@ -98,7 +102,7 @@ LinkedList.prototype.add = function (value) {
 LinkedList.prototype.getHead = function () {
     if (!this.head) return null;
     var headHashList = this.head;
-    return headHashList.data;
+    return headHashList;
     //TODO return headHashList
 };
 
@@ -113,7 +117,7 @@ LinkedList.prototype.removeHead = function () {
 
 LinkedList.prototype.getNext = function () {
     var currentNode = this.head;
-    return currentNode.next.data;
+    return currentNode.next;
 };
 
 Array.prototype.diff = function (a) {
@@ -168,9 +172,9 @@ for (let i = 0; i < myJSon.length; i++) {
     decideDeclaration(myJSon[i]);
     if(myJSon[i].type !== "GlobalVariableDeclaration"){
         if(hashList.length > 1 && checkIfNumberOfArgs(myJSon[i])) {
-            let comment = hashList.getHead().length - myJSon[i].arguments.length;
+            let comment = hashList.getHead().data.length - myJSon[i].arguments.length;
             emitComment("// Decrease SP by " + comment);
-            decrementSP(hashList.getHead().length - myJSon[i].arguments.length);
+            decrementSP(hashList.getHead().data.length - myJSon[i].arguments.length);
         } else {
             emitComment("// Decrease SP by 0");
         }
@@ -178,7 +182,7 @@ for (let i = 0; i < myJSon.length; i++) {
 }
 
 function checkIfNumberOfArgs(myJSon){
-    return hashList.getHead().length !== myJSon.arguments.length;
+    return hashList.getHead().data.length !== myJSon.arguments.length;
 }
 
 listOfCodes.splice.apply(listOfCodes, [17 + (globalVariableList.length), 0].concat({comment: "// $globalinit:  //" + (globalVariableList.length + 17)}));
@@ -260,6 +264,7 @@ function decideDeclaration(JSonObject) {
             functionLocationList.push({name: JSonObject.name, location: getNextLocation()});
             emitComment("// Entering a block.");
             for (let i = 0; i < JSonObject.body.length; i++) {
+                exp = true;
                 declarationOrStatement(JSonObject.body[i]);
             }
             if(isReturnStatement === false && JSonObject.defType.name === "void"){
@@ -384,7 +389,7 @@ function addArrayDeclarationToListOfCodes(JSonBody){
 //Values are adding to the Hash Table
 function addToEnvironment(key) {
     if (hashList.length > 0) {
-        hashTable = hashList.getHead();
+        hashTable = hashList.getHead().data;
     } else {
         var hashTable = new HashTable({});
         hashList.add(hashTable);
@@ -400,7 +405,7 @@ function addToFunEnvironment(funName, argName) {
 }
 
 function addVarDeclarationToListOfCodes(variable) {
-    var hashTable = hashList.getHead();
+    var hashTable = hashList.getHead().data;
     var comment = "";
     if(doesValueExist(variable)) {
         comment = "// Initialization of var '" + variable.name + "'";
@@ -505,7 +510,7 @@ function decideStatement(JSonBody) {
                 let thenStatement = JSonBody.body[i];
                 declarationOrStatement(thenStatement);
             }
-            let number = hashList.getHead().length;
+            let number = hashList.getHead().data.length;
             emitComment("// Decrease SP by " + number);
             hashList.removeHead();
             decrementSP(number);
@@ -524,7 +529,7 @@ function decideStatement(JSonBody) {
                     declarationOrStatement(elseStatement);
                 }
             }
-            let number2 = hashList.getHead().length;
+            let number2 = hashList.getHead().data.length;
             emitComment("// Decrease SP by " + number2);
             decrementSP(number2);
             hashList.removeHead();
@@ -561,7 +566,11 @@ function decideStatement(JSonBody) {
                 declarationOrStatement(bodyElement);
 
             }
-            let number3 = hashList.getHead().length;
+            if(isContinue){
+                listOfCodes[continueLoc].opB = getNextLocation();
+                isContinue = false;
+            }
+            let number3 = hashList.getHead().data.length;
             emitComment("// Decrease SP by " + number3);
             decrementSP(number3);
             emitComment("// $L" + forEndLabelCount + ":  //" + getNextLocation()+"");
@@ -569,6 +578,10 @@ function decideStatement(JSonBody) {
             decideExpression(step);
             hashList.removeHead();
             emit("BZJi", getMemoryAddress("zero"), conditionalLocationIndex, "");
+            if(isBreak){
+                listOfCodes[breakLoc].opB = getNextLocation();
+                isBreak = false;
+            }
             emitComment("// $L" + forExitLabelCount + "  //" + getNextLocation()+"");
             listOfCodes[exitLocationIndex].opB = getNextLocation();
             return;
@@ -594,11 +607,19 @@ function decideStatement(JSonBody) {
                 let bodyElement = JSonBody.body[i];
                 declarationOrStatement(bodyElement);
             }
-            let number5 = hashList.getHead().length;
+            if(isContinue){
+                listOfCodes[continueLoc].opB = getNextLocation();
+                isContinue = false;
+            }
+            let number5 = hashList.getHead().data.length;
             emitComment("// Decrease SP by " + number5);
             decrementSP(number5);
             hashList.removeHead();
             emit("BZJi", getMemoryAddress("zero"), whileTestLocationIndex, "");
+            if(isBreak){
+                listOfCodes[breakLoc].opB = getNextLocation();
+                isBreak = false;
+            }
             emitComment("// $L" + whileExitLabelCount + "  //" + getNextLocation()+"");
             listOfCodes[whileExitLocationIndex].opB = getNextLocation();
             return;
@@ -705,7 +726,12 @@ function decideExpression(expression) {
                 break;
             }
             declarationOrStatement(value);
-            if(isAssignment === false) doAccess(value);
+            if(isAssignment === false)
+                if(isAddressOp === true) {
+                    access(value);
+                } else {
+                    doAccess(value);
+                }
             globalIdentifier = value;
             return;
         case ("BinaryExpression"):
@@ -790,9 +816,13 @@ function doBreakOrContinue(expression){
     switch(value){
         case ("continue") :
             emit("BZJi", getMemoryAddress("zero"), loopBeginning, "" );
+            isContinue = true;
+            continueLoc = listOfCodes.length - 1;
             break;
         case("break") :
             emit("BZJi", getMemoryAddress("zero"), null, "" );
+            isBreak = true;
+            breakLoc = listOfCodes.length - 1;
             break;
     }
 
@@ -1042,6 +1072,7 @@ function doAssignment(expression) {
     declarationOrStatement(expression.right);
     isAssignment = true;
 
+
     if(expression.left.type === "IndexExpression"){
         declarationOrStatement(expression.left);
         pop("scratchMem1");
@@ -1078,28 +1109,40 @@ function doAccess(value){
 }
 
 function access(value) {
-    let loc = lookup(value);
+    let loc;
     let comment = "";
-    //TODO comment degisecek. fazla access yazıyor. Machine.ml gibi degisitirilcek
-    if(isAssignment){
-        comment += "// Local var '" + value + "' @ " + loc;  //TODO loop1.c bozuk
+    if(globalVariableEnvironment.hasItem(value)){
+        loc = globalVariableEnvironment.getItem(value);
+        loc = loc + 17;
+        if(isAssignment){
+            comment += "// Local var '" + value + "' @ " + loc;  //TODO loop1.c bozuk
+        }else{
+            comment += "// Access\n// Global var '" + value + "' @ " + loc;
+        }
+        emitComment(comment);
+        emit("CPi", getMemoryAddress("scratchMem1"), loc, "");
     }else{
-        comment += "// Access\n// Local var '" + value + "' @ " + loc;
+        loc = lookup(value);
+        if(isAssignment){
+            comment += "// Local var '" + value + "' @ " + loc;  //TODO loop1.c bozuk
+        }else{
+            comment += "// Access\n// Local var '" + value + "' @ " + loc;
+        }
+        emitComment(comment);
+        emit("CP", getMemoryAddress("scratchMem1"), getMemoryAddress("basePointer"), "");
+        emit("ADDi", getMemoryAddress("scratchMem1"), loc, "");
     }
-    emitComment(comment);
-    emit("CP", getMemoryAddress("scratchMem1"), getMemoryAddress("basePointer"), "");
-    emit("ADDi", getMemoryAddress("scratchMem1"), loc, "");
     push("scratchMem1");
 }
 
 function lookup(key) {
-
+    let hashListTemp = hashList;
     var hashTable = hashList.getHead();
     while (hashTable !== null) {
-        if (hashTable.hasItem(key)) {
-            return hashTable.getItem(key);
+        if (hashTable.data.hasItem(key)) {
+            return hashTable.data.getItem(key);
         }
-        hashTable = hashList.getNext();
+        hashTable = hashTable.next;
     }
     return null;
 }
@@ -1224,9 +1267,11 @@ function doUnary(expression){
 }
 
 function doAddressOperator(expression){
+    isAddressOp = true;
     emitComment("// Address-of");
     declarationOrStatement(expression.value);
-    access(expression.value.value);
+    //access(expression.value.value.value);
+    isAddressOp = false;
 }
 
 function doDeRefOperator(expression){
