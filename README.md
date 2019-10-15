@@ -1,16 +1,19 @@
-<center><b>ÖZYEĞİN UNIVERSITY</b></center>
-<center><b>FACULTY OF ENGINEERING</b></center>
-<center><b>DEPARTMENT OF COMPUTER SCIENCE</b></center>
-<br>
-<center><b>2018 Summer</b></center>
-<center><b>SENIOR PROJECT REPORT</b></center>
-<center><b>Online Compiler</b></center>
-<br>
-<center>By</center>
-<center><b>Begüm DEMİREL</b></center>
-<center><b>Yiğit POLAT</b></center>
+ <h4><center>My H4 Heading</center></h4>
 
-</div>
+
+ÖZYEĞİN UNIVERSITY
+->FACULTY OF ENGINEERING<-
+DEPARTMENT OF COMPUTER SCIENCE
+
+2018 Summer
+SENIOR PROJECT REPORT
+Online Compiler
+
+By
+Begüm DEMİREL
+Yiğit POLAT
+
+"->THIS TEXT IS IN THE CENTER!<- "
 
 # Abstract
 
@@ -268,17 +271,13 @@ We would like to thank our supervisor Furkan Kıraç for all his help and suppor
 # Appendix
 
 <p align="center"><img src="docs/screen2.png"></p>
-<center><b>Figure 1:</b> 32 bit Instruction Word (IW) of SimpleCPU.</center>
-<br>
+**Figure 1:** 32 bit Instruction Word (IW) of SimpleCPU.
 
 <p align="center"><img src="docs/screen3.png"></p>
-<center><b>Table 1:</b> Explanations of VerySimpleCPU instructions.</center>
-<br>
+**Table 1:** Explanations of VerySimpleCPU instructions.
 
 <p align="center"><img src="docs/screen4.png"></p>
-<center><b>Figure 2:</b> Visual representation of stack.</center>
-<br>
+**Figure 2:** Visual representation of stack.
 
 <p align="center"><img src="docs/screen5.png"></p>
-<center><b>Figure 2:</b> Screenshot of online application run with a basic C code snippet.</center>
-<br>
+**Figure 3:** Screenshot of online application run with a basic C code snippet.
