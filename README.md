@@ -265,16 +265,17 @@ We would like to thank our supervisor Furkan Kıraç for all his help and suppor
   5. [cpu.tc/simulator\_py](http://www.cpu.tc/simulator_py)
 
 # Appendix
+<p align="center"><img src="docs/screen2.png"></p>
+<p align="center"><b>Figure 1:</b> 32 bit Instruction Word (IW) of SimpleCPU.</p>
+<br>
 
-![32 bit Instruction Word (IW) of SimpleCPU](docs/screen2.png)
-**Figure 1:** 32 bit Instruction Word (IW) of SimpleCPU.
+<p align="center"><img src="docs/screen3.png"></p>
+<p align="center"><b>Table 1:</b> Explanations of VerySimpleCPU instructions.</p>
+<br>
 
-![Explanations of VerySimpleCPU instructions](docs/screen3.png)
-**Table 1:** Explanations of VerySimpleCPU instructions.
+<p align="center"><img src="docs/screen4.png"></p>
+<p align="center"><b>Figure 2:</b> Visual representation of stack.</p>
+<br>
 
-![Visual representation of stack](docs/screen4.png)
-
-**Figure 2:** Visual representation of stack.
-
-![Screenshot of online application run with a basic C code snippet](docs/screen5.png)
-**Figure 3:** Screenshot of online application run with a basic C code snippet.
+<p align="center"><img src="docs/screen5.png"></p>
+<p align="center"><b>Figure 3:</b>Screenshot of online application run with a basic C code snippet.k</p>
