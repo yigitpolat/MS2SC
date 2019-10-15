@@ -1,21 +1,14 @@
- <div style="text-align:center">
-<b>ÖZYEĞİN UNIVERSITY</b>
-
-<b>FACULTY OF ENGINEERING</b>
-
-<b>DEPARTMENT OF COMPUTER SCIENCE</b>
-
-<b>2018 Summer</b>
-
-<b>SENIOR PROJECT REPORT</b>
-
-<b>Online Compiler</b>
-
-By
-
-<b>Begüm DEMİREL</b>
-
-<b>Yiğit POLAT</b>
+<center><b>ÖZYEĞİN UNIVERSITY</b></center>
+<center><b>FACULTY OF ENGINEERING</b></center>
+<center><b>DEPARTMENT OF COMPUTER SCIENCE</b></center>
+<br>
+<center><b>2018 Summer</b></center>
+<center><b>SENIOR PROJECT REPORT</b></center>
+<center><b>Online Compiler</b></center>
+<br>
+<center>By</center>
+<center><b>Begüm DEMİREL</b></center>
+<center><b>Yiğit POLAT</b></center>
 
 </div>
 
