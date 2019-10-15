@@ -1,14 +1,14 @@
-<p align="center">ÖZYEĞİN UNIVERSITY</p>
-<p align="center">FACULTY OF ENGINEERING</p>
-<p align="center">DEPARTMENT OF COMPUTER SCIENCE</p>
+<p align="center"><b>ÖZYEĞİN UNIVERSITY</b></p>
+<p align="center"><b>FACULTY OF ENGINEERING</b></p>
+<p align="center"><b>DEPARTMENT OF COMPUTER SCIENCE</b></p>
 <br>
-<p align="center">2018 Summer</p>
-<p align="center">SENIOR PROJECT REPORT</p>
-<p align="center">Online Compiler</p>
+<p align="center"><b>2018 Summer</b></p>
+<p align="center"><b>SENIOR PROJECT REPORT</b></p>
+<p align="center"><b>Online Compiler</b></p>
 <br>
 <p align="center">By</p>
-<p align="center">Begüm DEMİREL</p>
-<p align="center">Yiğit POLAT</p>
+<p align="center"><b>Begüm DEMİREL</b></p>
+<p align="center"><b>Yiğit POLAT</b></p>
 
 
 # Abstract
@@ -101,11 +101,8 @@ The expected output of our program is assembly code which would be recognized by
 Our project consists of five files in total, including the open source _cparse.js_ file that we have included in our project to be able to parse the input C code and write it into a JSON file. The file which includes our main function is _compiler.js_, it includes all the necessary functions and data structure declarations. _browser.js_, _compiler.html_ and _compiler.css_ are the necessary files to build the online application. Class hierarchy can be seen in Figure 1.
 
 <p align="center"><img src="docs/screen1.png"></p>
-<center><b>Figure 1:</b> Class hierarchy</center>
+<p align="center"><b>Figure 1:</b> Class hierarchy</p>
 <br>
-
-![Class hierarchy](docs/screen1.png)
-**Figure 1:** Class hierarchy
 
 The JSON file we have used as an abstract syntax tree for our compiler is the output file of the parser. The JSON file contains the parsed information of the input C code. Our compiler first takes this file as an input and according to the declared type of an object in the JSON file, sends the object to the applicable method as a parameter. Object is first sent to a method in which it is decided if the object is a declaration or statement. In case it is a declaration, then it is decided if it is a function declaration or global variable declaration. If it is a statement, on the other hand, it is decided if it is a for statement, while statement, if statement, expression statement or return statement. In case it is an expression statement, the object is then sent to a _decideExpression_ method in order to print the specific assembly code depending on the type of expression. Otherwise, the necessary assembly code regarding the statement is added to a string list, which is later to be printed on the screen. A pseudocode for the process of recursively processing a statement is given below.
 
