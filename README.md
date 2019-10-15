@@ -1,9 +1,8 @@
- <h4><center>My H4 Heading</center></h4>
+<p align="center">centered text</p>
 
-
-ÖZYEĞİN UNIVERSITY
-->FACULTY OF ENGINEERING<-
-DEPARTMENT OF COMPUTER SCIENCE
+** ÖZYEĞİN UNIVERSITY
+### FACULTY OF ENGINEERING
+### DEPARTMENT OF COMPUTER SCIENCE
 
 2018 Summer
 SENIOR PROJECT REPORT
@@ -13,7 +12,6 @@ By
 Begüm DEMİREL
 Yiğit POLAT
 
-"->THIS TEXT IS IN THE CENTER!<- "
 
 # Abstract
 
@@ -107,6 +105,9 @@ Our project consists of five files in total, including the open source _cparse.j
 <p align="center"><img src="docs/screen1.png"></p>
 <center><b>Figure 1:</b> Class hierarchy</center>
 <br>
+
+![Class hierarchy](docs/screen1.png)
+**Figure 1:** Class hierarchy
 
 The JSON file we have used as an abstract syntax tree for our compiler is the output file of the parser. The JSON file contains the parsed information of the input C code. Our compiler first takes this file as an input and according to the declared type of an object in the JSON file, sends the object to the applicable method as a parameter. Object is first sent to a method in which it is decided if the object is a declaration or statement. In case it is a declaration, then it is decided if it is a function declaration or global variable declaration. If it is a statement, on the other hand, it is decided if it is a for statement, while statement, if statement, expression statement or return statement. In case it is an expression statement, the object is then sent to a _decideExpression_ method in order to print the specific assembly code depending on the type of expression. Otherwise, the necessary assembly code regarding the statement is added to a string list, which is later to be printed on the screen. A pseudocode for the process of recursively processing a statement is given below.
 
