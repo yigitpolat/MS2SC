@@ -270,14 +270,15 @@ We would like to thank our supervisor Furkan Kıraç for all his help and suppor
 
 # Appendix
 
-<p align="center"><img src="docs/screen2.png"></p>
+![32 bit Instruction Word (IW) of SimpleCPU](docs/screen2.png)
 **Figure 1:** 32 bit Instruction Word (IW) of SimpleCPU.
 
-<p align="center"><img src="docs/screen3.png"></p>
+![Explanations of VerySimpleCPU instructions](docs/screen3.png)
 **Table 1:** Explanations of VerySimpleCPU instructions.
 
-<p align="center"><img src="docs/screen4.png"></p>
+![Visual representation of stack](docs/screen4.png)
+
 **Figure 2:** Visual representation of stack.
 
-<p align="center"><img src="docs/screen5.png"></p>
+![Screenshot of online application run with a basic C code snippet](docs/screen5.png)
 **Figure 3:** Screenshot of online application run with a basic C code snippet.
