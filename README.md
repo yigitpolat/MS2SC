@@ -1,4 +1,4 @@
-<center> 
+ <div style="text-align:center">
 <b>ÖZYEĞİN UNIVERSITY</b>
 
 <b>FACULTY OF ENGINEERING</b>
@@ -17,7 +17,7 @@ By
 
 <b>Yiğit POLAT</b>
 
-</center>
+</div>
 
 # Abstract
 
